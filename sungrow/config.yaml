@@ -1,5 +1,5 @@
 name: "Sungrow Inverter Addon"
-version: "0.2.2"
+version: "0.2.3"
 slug: "sungrow"
 description: "Sungrow Inverter Addon"
 init: false
@@ -14,7 +14,7 @@ arch:
   - i386
 options:
   mqtt:
-    host: "10.0.0.1"
+    host: "core-mosquitto"
     port: 1883
     user: "mqtt"
     password: "mqtt"
@@ -22,11 +22,6 @@ options:
     ha_discovery_topic: "homeassistant"
     base_topic: "modbus"
   clients:
-    # - name: "usb_to_modbus"
-    #   nickname: "Client1"
-    #   type: "RTU"
-    #   connection_specs: "Sungrow_Inverter"
-    #   port: "/dev/tty1"
     - name: "ModebusTCP"
       nickname: "Client1"
       type: "TCP"
@@ -43,36 +38,3 @@ options:
       connection_method: "TCP"
       host: "10.0.0.x"
       port: 502
-    # - name: "Sungrow_Inverter"
-    #   connection_method: "RTU"
-    #   baudrate: 9600
-    #   bytesize: 8
-    #   parity: false
-    #   stopbits: 1
-# schema:   # TODO
-#   mqtt:
-#     host: str
-#     port: int
-#     user: str
-#     password: str
-#     ha_discovery: bool
-#     ha_discovery_topic: str
-#     base_topic: str
-#   clients:
-#     - name: str
-#       nickname: str
-#       connection_specs: str
-#   servers:
-#     - name: str
-#       nickname: str
-#       serialnum: str
-#       server_type: str
-#       connected_client: str
-#       device_addr: int
-#   connection_specs:
-#     - name: str
-#       connection_method: str
-#       baudrate: int
-#       bytesize: int
-#       parity: bool
-#       stopbits: int
