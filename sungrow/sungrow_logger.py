@@ -142,22 +142,22 @@ class SungrowLogger(Server):
     # }
 
     power_meter_registers = {
-    'Phase A voltage': {'addr': 32260, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
-    'Phase B voltage': {'addr': 32262, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
-    'Phase C voltage': {'addr': 32264, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
-    'A-B line voltage': {'addr': 32266, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
-    'B-C line voltage': {'addr': 32268, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
-    'C-A line voltage': {'addr': 32270, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
-    'Phase A current': {'addr': 32272, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'A', 'device_class': 'current'},
-    'Phase B current': {'addr': 32274, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'A', 'device_class': 'current'},
-    'Phase C current': {'addr': 32276, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'A', 'device_class': 'current'},
-    'Active power': {'addr': 32278, 'count': 2, 'dtype': 'I32', 'multiplier': 1000, 'unit': 'kW', 'device_class': 'power'},
-    'Reactive power': {'addr': 32280, 'count': 2, 'dtype': 'I32', 'multiplier': 1000, 'unit': 'kVar', 'device_class': 'power'},
-    'Active electricity': {'addr': 32282, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'kWh', 'device_class': 'energy'},
-    'Power factor': {'addr': 32284, 'count': 1, 'dtype': 'I16', 'multiplier': 1000, 'unit': 'N/A', 'device_class': 'power_factor'},
-    'Reactive electricity': {'addr': 32285, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'kvarh', 'device_class': 'energy'},
-    'Apparent power': {'addr': 32287, 'count': 2, 'dtype': 'I32', 'multiplier': 1000, 'unit': 'kVA', 'device_class': 'power'}
-}
+        'Phase A voltage': {'addr': 32260, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
+        'Phase B voltage': {'addr': 32262, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
+        'Phase C voltage': {'addr': 32264, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
+        'A-B line voltage': {'addr': 32266, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
+        'B-C line voltage': {'addr': 32268, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
+        'C-A line voltage': {'addr': 32270, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
+        'Phase A current': {'addr': 32272, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'A', 'device_class': 'current'},
+        'Phase B current': {'addr': 32274, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'A', 'device_class': 'current'},
+        'Phase C current': {'addr': 32276, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'A', 'device_class': 'current'},
+        'Active power': {'addr': 32278, 'count': 2, 'dtype': 'I32', 'multiplier': 1000, 'unit': 'kW', 'device_class': 'power'},
+        'Reactive power': {'addr': 32280, 'count': 2, 'dtype': 'I32', 'multiplier': 1000, 'unit': 'kVar', 'device_class': 'power'},
+        'Active electricity': {'addr': 32282, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'kWh', 'device_class': 'energy'},
+        'Power factor': {'addr': 32284, 'count': 1, 'dtype': 'I16', 'multiplier': 1000, 'unit': 'N/A', 'device_class': 'power_factor'},
+        'Reactive electricity': {'addr': 32285, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'kvarh', 'device_class': 'energy'},
+        'Apparent power': {'addr': 32287, 'count': 2, 'dtype': 'I32', 'multiplier': 1000, 'unit': 'kVA', 'device_class': 'power'}
+    }
 # 2025-01-16 14:29:07 - INFO - Reading param Phase A voltage of dtype='U32' from address=32260, multiplier=100, count=2, slave_id=1
 # 2025-01-16 14:29:07 - INFO - Raw register value: 550
 # 2025-01-16 14:29:07 - INFO - Reading param Phase B voltage of dtype='U32' from address=32262, multiplier=100, count=2, slave_id=1
@@ -190,7 +190,9 @@ class SungrowLogger(Server):
 # 2025-01-16 14:29:08 - INFO - Raw register value: 65535
 # 2025-01-16 14:29:08 - INFO - Published all parameter values for server.name='SunGrow Inverter Leeuwenhof'
 
-    registers = power_meter_registers + rw_registers
+    # sungrowInverter registers: values are not valid for enum types
+
+    registers = power_meter_registers
 
 
 

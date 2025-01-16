@@ -1,5 +1,5 @@
 name: "Sungrow Inverter Addon"
-version: "0.2.43"
+version: "0.2.45"
 slug: "sungrow"
 description: "Sungrow Inverter Addon"
 init: false
@@ -29,7 +29,7 @@ options:
   servers:
     - name: "SunGrow Inverter 1"
       nickname: "SG1"
-      serialnum: ""
+      serialnum: "SERIAL0004" # logger sn
       server_type: "SunGrow Logger"
       connected_client: "Client1"
       device_addr: 1
