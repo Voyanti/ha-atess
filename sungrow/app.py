@@ -4,6 +4,7 @@ import logging
 import subprocess
 
 from modbus_mqtt import MqttClient
+from paho.mqtt.enums import MQTTErrorCode
 from loader import ConfigLoader
 from client import CustomModbusRtuClient, CustomModbusTcpClient
 from server import Server
