@@ -1,5 +1,6 @@
 from pymodbus.client import ModbusSerialClient, ModbusTcpClient
 from pymodbus.payload import BinaryPayloadDecoder
+from pymodbus.pdu import ExceptionResponse
 # from pymodbus.constants import Endian
 import struct
 import logging
@@ -36,8 +37,25 @@ class BaseClient:
                                                     count=count,
                                                     slave=server.device_addr)
         if result.isError():
-            logger.info(f"{type(self.client)}")
-            logger.info(f"{result.decode()=}")
+            if isinstance(result, ExceptionResponse):
+                exception_code = result.exception_code
+
+                # Modbus exception codes and their meanings
+                exception_messages = {
+                    1: "Illegal Function",
+                    2: "Illegal Data Address",
+                    3: "Illegal Data Value",
+                    4: "Slave Device Failure",
+                    5: "Acknowledge",
+                    6: "Slave Device Busy",
+                    7: "Negative Acknowledge",
+                    8: "Memory Parity Error",
+                    10: "Gateway Path Unavailable",
+                    11: "Gateway Target Device Failed to Respond"
+                }
+
+                error_message = exception_messages.get(exception_code, "Unknown Exception")
+                logger.error(f"Modbus Exception Code {exception_code}: {error_message}")
             raise Exception(f"Error reading register {register_name}")
 
         val = server._decoded(result.registers, dtype)
