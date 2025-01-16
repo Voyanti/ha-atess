@@ -12,7 +12,7 @@ class Server(metaclass=abc.ABCMeta):
         # self.registers: dict = {}
         # self.manufacturer:str | None = None
         self.model:str | None = None
-        self.device_addr:int| None = None
+        self.device_addr:int| None = device_addr
         # self.batches TODO
 
     def verify_serialnum(self, serialnum_name_in_definition:str="Serial Number"):

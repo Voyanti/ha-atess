@@ -1,0 +1,12 @@
+.venv/
+.devcontainer/
+.vscode/tasks.json
+data/
+sungrow/developing.ipynb
+requirements copy.txt
+__pycache__/
+sungrow/fault_code.txt
+sungrow/registers.txt
+tree.txt
+sungrow/options.json
+schema.yaml
