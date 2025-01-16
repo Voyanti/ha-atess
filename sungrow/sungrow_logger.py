@@ -50,10 +50,11 @@ class SungrowLogger(Server):
 
     # Read Only Registers
     ro_registers = {
-        'Time Zone': {'addr': 40005, 'count': 2, 'dtype': 'S32', 'multiplier': 1, 'unit': 's', 'device_class': 'duration'},
-        'DST state': {'addr': 40007, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
-        'DST offset': {'addr': 40008, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': 'mins', 'device_class': 'duration'},
-        'Local Time': {'addr': 40009, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': '', 'device_class': 'timestamp'}
+        # 'Time Zone': {'addr': 40005, 'count': 2, 'dtype': 'S32', 'multiplier': 1, 'unit': 's', 'device_class': 'duration'},
+        # 'DST state': {'addr': 40007, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+        # 'DST offset': {'addr': 40008, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': 'mins', 'device_class': 'duration'},
+        'E-Daily': {'addr': 40562, 'count': 2, 'dtype': 'U32', 'multiplier': 10, 'unit': 'kWh', 'device_class': 'energy'},
+        # 'Local Time': {'addr': 40009, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': '', 'device_class': 'timestamp'}
     }
 
     registers = ro_registers
@@ -67,7 +68,6 @@ class SungrowLogger(Server):
     #     'CO2 reduction 2': {'addr': 40550, 'count': 4, 'dtype': 'U64', 'multiplier': 100, 'unit': 'kg', 'device_class': 'weight'},
     #     'DC current 2': {'addr': 40554, 'count': 2, 'dtype': 'S32', 'multiplier': 10, 'unit': 'A', 'device_class': 'current'},
     #     'E-Total': {'addr': 40560, 'count': 2, 'dtype': 'U32', 'multiplier': 10, 'unit': 'kWh', 'device_class': 'energy'},
-    #     'E-Daily': {'addr': 40562, 'count': 2, 'dtype': 'U32', 'multiplier': 10, 'unit': 'kWh', 'device_class': 'energy'},
     #     'Duration of daily power generation': {'addr': 40564, 'count': 2, 'dtype': 'U32', 'multiplier': 10, 'unit': 'h', 'device_class': 'duration'},
     #     'Phase A current': {'addr': 40572, 'count': 1, 'dtype': 'S16', 'multiplier': 1, 'unit': 'A', 'device_class': 'current'},
     #     'Phase B current': {'addr': 40573, 'count': 1, 'dtype': 'S16', 'multiplier': 1, 'unit': 'A', 'device_class': 'current'},
