@@ -99,48 +99,48 @@ class SungrowLogger(Server):
         # 'Alarm Info 2': {'addr': 50001, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'}
     }
 
-    # public_registers = {
-    #     'Device list change number': {
-    #         'addr': 65521, 
-    #         'count': 1, 
-    #         'dtype': 'U16', 
-    #         'multiplier': 1, 
-    #         'unit': 'N/A', 
-    #         'device_class': 'enum'
-    #     },
-    #     'Port number': {
-    #         'addr': 65522, 
-    #         'count': 1, 
-    #         'dtype': 'U16', 
-    #         'multiplier': 1, 
-    #         'unit': 'N/A', 
-    #         'device_class': 'enum'
-    #     },
-    #     'Device Address': {
-    #         'addr': 65523, 
-    #         'count': 1, 
-    #         'dtype': 'U16', 
-    #         'multiplier': 1, 
-    #         'unit': 'N/A', 
-    #         'device_class': 'enum'
-    #     },
-    #     'Device name': {
-    #         'addr': 65524, 
-    #         'count': 10, 
-    #         'dtype': 'STR', 
-    #         'multiplier': 1, 
-    #         'unit': 'N/A', 
-    #         'device_class': 'text'
-    #     },
-    #     'Device connection status': {
-    #         'addr': 65534, 
-    #         'count': 1, 
-    #         'dtype': 'U16', 
-    #         'multiplier': 1, 
-    #         'unit': 'N/A', 
-    #         'device_class': 'enum'
-    #     }
-    # }
+    public_registers = {
+        'Device list change number': {
+            'addr': 65521, 
+            'count': 1, 
+            'dtype': 'U16', 
+            'multiplier': 1, 
+            'unit': 'N/A', 
+            'device_class': 'enum'
+        },
+        'Port number': {
+            'addr': 65522, 
+            'count': 1, 
+            'dtype': 'U16', 
+            'multiplier': 1, 
+            'unit': 'N/A', 
+            'device_class': 'enum'
+        },
+        'Device Address': {
+            'addr': 65523, 
+            'count': 1, 
+            'dtype': 'U16', 
+            'multiplier': 1, 
+            'unit': 'N/A', 
+            'device_class': 'enum'
+        },
+        'Device name': {
+            'addr': 65524, 
+            'count': 10, 
+            'dtype': 'STR', 
+            'multiplier': 1, 
+            'unit': 'N/A', 
+            'device_class': 'text'
+        },
+        'Device connection status': {
+            'addr': 65534, 
+            'count': 1, 
+            'dtype': 'U16', 
+            'multiplier': 1, 
+            'unit': 'N/A', 
+            'device_class': 'enum'
+        }
+    }
 
     power_meter_registers = {
         'Phase A voltage': {'addr': 32260, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
@@ -193,7 +193,7 @@ class SungrowLogger(Server):
 
     # sungrowInverter registers: values are not valid for enum types
 
-    registers = power_meter_registers
+    registers = public_registers
 
 
 
