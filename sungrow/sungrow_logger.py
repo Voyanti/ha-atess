@@ -106,23 +106,19 @@ class SungrowLogger(Server):
     def _decoded(cls, content, dtype):
         def _decode_u16(registers):
             """ Unsigned 16-bit big-endian to int """
-            return registers[0]
+            return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.UINT16)
         
         def _decode_s16(registers):
             """ Signed 16-bit big-endian to int """
-            sign = 0xFFFF if registers[0] & 0x1000 else 0
-            packed = struct.pack('>HH', sign, registers[0])
-            return struct.unpack('>i', packed)[0]
+            return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.INT16)
 
         def _decode_u32(registers):
-            """ Unsigned 32-bit mixed-endian word"""
-            packed = struct.pack('>HH', registers[1], registers[0])
-            return struct.unpack('>I', packed)[0]
+            """ Unsigned 32-bit big-endian word"""
+            return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.UINT32)
         
         def _decode_s32(registers):
             """ Signed 32-bit mixed-endian word"""
-            packed = struct.pack('>HH', registers[1], registers[0])
-            return struct.unpack('>i', packed)[0]
+            return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.INT32)
 
         def _decode_utf8(registers):
             return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.STRING)
