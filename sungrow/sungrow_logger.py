@@ -98,49 +98,68 @@ class SungrowLogger(Server):
         # 'Alarm Info 2': {'addr': 50001, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'}
     }
 
-    public_registers = {
-        'Device list change number': {
-            'addr': 65521, 
-            'count': 1, 
-            'dtype': 'U16', 
-            'multiplier': 1, 
-            'unit': 'N/A', 
-            'device_class': 'enum'
-        },
-        'Port number': {
-            'addr': 65522, 
-            'count': 1, 
-            'dtype': 'U16', 
-            'multiplier': 1, 
-            'unit': 'N/A', 
-            'device_class': 'enum'
-        },
-        'Device Address': {
-            'addr': 65523, 
-            'count': 1, 
-            'dtype': 'U16', 
-            'multiplier': 1, 
-            'unit': 'N/A', 
-            'device_class': 'enum'
-        },
-        'Device name': {
-            'addr': 65524, 
-            'count': 10, 
-            'dtype': 'STR', 
-            'multiplier': 1, 
-            'unit': 'N/A', 
-            'device_class': 'text'
-        },
-        'Device connection status': {
-            'addr': 65534, 
-            'count': 1, 
-            'dtype': 'U16', 
-            'multiplier': 1, 
-            'unit': 'N/A', 
-            'device_class': 'enum'
-        }
-    }
-    registers = public_registers
+    # public_registers = {
+    #     'Device list change number': {
+    #         'addr': 65521, 
+    #         'count': 1, 
+    #         'dtype': 'U16', 
+    #         'multiplier': 1, 
+    #         'unit': 'N/A', 
+    #         'device_class': 'enum'
+    #     },
+    #     'Port number': {
+    #         'addr': 65522, 
+    #         'count': 1, 
+    #         'dtype': 'U16', 
+    #         'multiplier': 1, 
+    #         'unit': 'N/A', 
+    #         'device_class': 'enum'
+    #     },
+    #     'Device Address': {
+    #         'addr': 65523, 
+    #         'count': 1, 
+    #         'dtype': 'U16', 
+    #         'multiplier': 1, 
+    #         'unit': 'N/A', 
+    #         'device_class': 'enum'
+    #     },
+    #     'Device name': {
+    #         'addr': 65524, 
+    #         'count': 10, 
+    #         'dtype': 'STR', 
+    #         'multiplier': 1, 
+    #         'unit': 'N/A', 
+    #         'device_class': 'text'
+    #     },
+    #     'Device connection status': {
+    #         'addr': 65534, 
+    #         'count': 1, 
+    #         'dtype': 'U16', 
+    #         'multiplier': 1, 
+    #         'unit': 'N/A', 
+    #         'device_class': 'enum'
+    #     }
+    # }
+
+    power_meter_registers = {
+    'Phase A voltage': {'addr': 32260, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
+    'Phase B voltage': {'addr': 32262, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
+    'Phase C voltage': {'addr': 32264, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
+    'A-B line voltage': {'addr': 32266, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
+    'B-C line voltage': {'addr': 32268, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
+    'C-A line voltage': {'addr': 32270, 'count': 2, 'dtype': 'U32', 'multiplier': 100, 'unit': 'V', 'device_class': 'voltage'},
+    'Phase A current': {'addr': 32272, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'A', 'device_class': 'current'},
+    'Phase B current': {'addr': 32274, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'A', 'device_class': 'current'},
+    'Phase C current': {'addr': 32276, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'A', 'device_class': 'current'},
+    'Active power': {'addr': 32278, 'count': 2, 'dtype': 'I32', 'multiplier': 1000, 'unit': 'kW', 'device_class': 'power'},
+    'Reactive power': {'addr': 32280, 'count': 2, 'dtype': 'I32', 'multiplier': 1000, 'unit': 'kVar', 'device_class': 'power'},
+    'Active electricity': {'addr': 32282, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'kWh', 'device_class': 'energy'},
+    'Power factor': {'addr': 32284, 'count': 1, 'dtype': 'I16', 'multiplier': 1000, 'unit': 'N/A', 'device_class': 'power_factor'},
+    'Reactive electricity': {'addr': 32285, 'count': 2, 'dtype': 'I32', 'multiplier': 10, 'unit': 'kvarh', 'device_class': 'energy'},
+    'Apparent power': {'addr': 32287, 'count': 2, 'dtype': 'I32', 'multiplier': 1000, 'unit': 'kVA', 'device_class': 'power'}
+}
+
+    registers = power_meter_registers
 
 
 
