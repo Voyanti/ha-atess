@@ -1,5 +1,5 @@
 name: "Sungrow Inverter Addon"
-version: "0.2.1"
+version: "0.2.2"
 slug: "sungrow"
 description: "Sungrow Inverter Addon"
 init: false
@@ -49,31 +49,30 @@ options:
     #   bytesize: 8
     #   parity: false
     #   stopbits: 1
-schema:
-  mqtt:
-    host: str
-    port: int
-    user: str
-    password: str
-    ha_discovery: bool
-    ha_discovery_topic: str
-    base_topic: str
-  clients:
-    - name: str
-      nickname: str
-      connection_specs: str
-      port: str
-  servers:
-    - name: str
-      nickname: str
-      serialnum: str
-      server_type: str
-      connected_client: str
-      device_addr: int
-  connection_specs:
-    - name: str
-      connection_method: str
-      baudrate: int
-      bytesize: int
-      parity: bool
-      stopbits: int
+# schema:   # TODO
+#   mqtt:
+#     host: str
+#     port: int
+#     user: str
+#     password: str
+#     ha_discovery: bool
+#     ha_discovery_topic: str
+#     base_topic: str
+#   clients:
+#     - name: str
+#       nickname: str
+#       connection_specs: str
+#   servers:
+#     - name: str
+#       nickname: str
+#       serialnum: str
+#       server_type: str
+#       connected_client: str
+#       device_addr: int
+#   connection_specs:
+#     - name: str
+#       connection_method: str
+#       baudrate: int
+#       bytesize: int
+#       parity: bool
+#       stopbits: int
