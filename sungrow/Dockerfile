@@ -11,7 +11,7 @@ COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
 # Copy code
-COPY app.py sungrow_inverter.py client.py loader.py modbus_mqtt.py server.py run.sh ./
+COPY app.py sungrow_inverter.py sungrow_logger.py client.py loader.py modbus_mqtt.py server.py run.sh ./
 RUN chmod a+x run.sh
 
 CMD [ "sh", "./run.sh" ]

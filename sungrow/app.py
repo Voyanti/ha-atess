@@ -8,6 +8,7 @@ from loader import ConfigLoader
 from client import CustomModbusRtuClient, CustomModbusTcpClient
 from server import Server
 from sungrow_inverter import SungrowInverter
+from sungrow_logger import SungrowLogger
 
 # from client import SpoofClient as Client
 
@@ -66,7 +67,8 @@ try:
         if client_cfg["type"] == "RTU": clients.append(CustomModbusRtuClient.from_config(client_cfg, connection_specs))
         elif client_cfg["type"] == "TCP": clients.append(CustomModbusTcpClient.from_config(client_cfg, connection_specs))
     # Instantiate servers
-    servers = [SungrowInverter.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
+    servers = [SungrowLogger.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
+    # servers = [SungrowInverter.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
 
     # Connect to clients
     for client in clients:
