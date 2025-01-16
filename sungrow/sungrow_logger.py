@@ -11,27 +11,27 @@ class SungrowLogger(Server):
 
     # Read/Write Registers
     rw_registers = {
-        'Date&Time': {'addr': 40000, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': '', 'device_class': 'timestamp'},
-        'City': {'addr': 40002, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
-        'Daylight Saving Time': {'addr': 40004, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
-        'Transfer trip': {'addr': 40204, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
-        'Active adjustment': {'addr': 40420, 'count': 2, 'dtype': 'U32', 'multiplier': 10, 'unit': 'kW', 'device_class': 'power'},
-        'Reactive adjustment': {'addr': 40422, 'count': 2, 'dtype': 'S32', 'multiplier': 10, 'unit': 'kVar', 'device_class': 'reactive_power'},
-        'Active adjustment 2': {'addr': 40424, 'count': 2, 'dtype': 'U32', 'multiplier': 10, 'unit': 'kW', 'device_class': 'power'},
-        'Reactive adjustment 2': {'addr': 40426, 'count': 2, 'dtype': 'S32', 'multiplier': 10, 'unit': 'kVar', 'device_class': 'reactive_power'},
-        'Active power adjustment by percentage': {'addr': 40428, 'count': 1, 'dtype': 'U16', 'multiplier': 10, 'unit': '%', 'device_class': 'power'},
-        'Power factor adjustment': {'addr': 40429, 'count': 1, 'dtype': 'S16', 'multiplier': 1000, 'unit': '', 'device_class': 'power_factor'},
-        'CO2 emission reduction coefficient': {'addr': 41124, 'count': 1, 'dtype': 'U16', 'multiplier': 1000, 'unit': 'kg/kWh', 'device_class': 'enum'},
-        'Communication abnormal shutdown': {'addr': 41947, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
-        'Communication abnormal detection time': {'addr': 41948, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': 's', 'device_class': 'duration'},
-        'Auto start upon communication recovery': {'addr': 41949, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
-        'SystemTime: year': {'addr': 42017, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'date'},
-        'SystemTime: month': {'addr': 42018, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'date'},
-        'SystemTime: day': {'addr': 42019, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'date'},
-        'SystemTime: hour': {'addr': 42020, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'date'},
-        'SystemTime: minute': {'addr': 42021, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'date'},
-        'SystemTime: second': {'addr': 42022, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'date'},
-        'Current error during scanning': {'addr': 42150, 'count': 1, 'dtype': 'U16', 'multiplier': 100, 'unit': '', 'device_class': 'enum'}
+        'Date&Time': {'addr': 40000, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': '', 'device_class': 'timestamp'}
+        # 'City': {'addr': 40002, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+        # 'Daylight Saving Time': {'addr': 40004, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+        # 'Transfer trip': {'addr': 40204, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+        # 'Active adjustment': {'addr': 40420, 'count': 2, 'dtype': 'U32', 'multiplier': 10, 'unit': 'kW', 'device_class': 'power'},
+        # 'Reactive adjustment': {'addr': 40422, 'count': 2, 'dtype': 'S32', 'multiplier': 10, 'unit': 'kVar', 'device_class': 'reactive_power'},
+        # 'Active adjustment 2': {'addr': 40424, 'count': 2, 'dtype': 'U32', 'multiplier': 10, 'unit': 'kW', 'device_class': 'power'},
+        # 'Reactive adjustment 2': {'addr': 40426, 'count': 2, 'dtype': 'S32', 'multiplier': 10, 'unit': 'kVar', 'device_class': 'reactive_power'},
+        # 'Active power adjustment by percentage': {'addr': 40428, 'count': 1, 'dtype': 'U16', 'multiplier': 10, 'unit': '%', 'device_class': 'power'},
+        # 'Power factor adjustment': {'addr': 40429, 'count': 1, 'dtype': 'S16', 'multiplier': 1000, 'unit': '', 'device_class': 'power_factor'},
+        # 'CO2 emission reduction coefficient': {'addr': 41124, 'count': 1, 'dtype': 'U16', 'multiplier': 1000, 'unit': 'kg/kWh', 'device_class': 'enum'},
+        # 'Communication abnormal shutdown': {'addr': 41947, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+        # 'Communication abnormal detection time': {'addr': 41948, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': 's', 'device_class': 'duration'},
+        # 'Auto start upon communication recovery': {'addr': 41949, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+        # 'SystemTime: year': {'addr': 42017, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'date'},
+        # 'SystemTime: month': {'addr': 42018, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'date'},
+        # 'SystemTime: day': {'addr': 42019, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'date'},
+        # 'SystemTime: hour': {'addr': 42020, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'date'},
+        # 'SystemTime: minute': {'addr': 42021, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'date'},
+        # 'SystemTime: second': {'addr': 42022, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'date'},
+        # 'Current error during scanning': {'addr': 42150, 'count': 1, 'dtype': 'U16', 'multiplier': 100, 'unit': '', 'device_class': 'enum'}
     }
 
     # Write Only Registers
@@ -100,7 +100,7 @@ class SungrowLogger(Server):
         'Alarm Info 2': {'addr': 50001, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'}
     }
 
-    registers = ro_registers
+    registers = rw_registers
 
 
     def __init__(self, *args, **kwargs):
