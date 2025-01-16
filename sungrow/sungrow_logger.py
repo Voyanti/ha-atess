@@ -58,7 +58,6 @@ class SungrowLogger(Server):
     #     # 'Local Time': {'addr': 40009, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': '', 'device_class': 'timestamp'}
     # }
 
-    registers = {'Daily Power Yields': {'addr': 5003, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy'}}
     #     'DC current': {'addr': 40500, 'count': 1, 'dtype': 'S16', 'multiplier': 10, 'unit': 'A', 'device_class': 'current'},
     #     'Input power': {'addr': 40521, 'count': 2, 'dtype': 'U32', 'multiplier': 1000, 'unit': 'kW', 'device_class': 'power'},
     #     'CO2 reduction': {'addr': 40523, 'count': 2, 'dtype': 'U32', 'multiplier': 10, 'unit': 'kg', 'device_class': 'weight'},
@@ -97,6 +96,85 @@ class SungrowLogger(Server):
     #     'Alarm Info 1': {'addr': 50000, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
     #     'Alarm Info 2': {'addr': 50001, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'}
     # }
+
+    registers = {
+        'Serial Number': {'addr': 4990, 'count': 10, 'dtype': 'UTF-8', 'multiplier': 1, 'unit': '',  'device_class': 'enum'},
+        'Device Type Code': {'addr': 5000, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+        'Nominal Active Power': {'addr': 5001, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'kW', 'device_class': 'power'},
+        'Output Type': {'addr': 5002, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+
+        'Daily Power Yields': {'addr': 5003, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy'},
+        'Total Power Yields': {'addr': 5004, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'kWh', 'device_class': 'energy'},
+        'Total Running Time': {'addr': 5006, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'h', 'device_class': 'duration'},
+        'Internal Temperature': {'addr': 5008, 'count': 1, 'dtype': 'S16', 'multiplier': 0.1, 'unit': '°C', 'device_class': 'temperature'},
+        'Total Apparent Power': {'addr': 5009, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'VA', 'device_class': 'apparent_power'},
+        'MPPT 1 Voltage': {'addr': 5011, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'MPPT 1 Current': {'addr': 5012, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'MPPT 2 Voltage': {'addr': 5013, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'MPPT 2 Current': {'addr': 5014, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'MPPT 3 Voltage': {'addr': 5015, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'MPPT 3 Current': {'addr': 5016, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'Total DC Power': {'addr': 5017, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'W', 'device_class': 'power'},
+        'A-B Line Voltage/Phase A Voltage': {'addr': 5019, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},              # 5019-5021 two output types check TODO
+        'B-C Line Voltage/Phase B Voltage': {'addr': 5020, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'C-A Line Voltage/Phase C Voltage': {'addr': 5019, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'Phase A Current': {'addr': 5022, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'Phase B Current': {'addr': 5023, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'Phase C Current': {'addr': 5024, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'Total Active Power': {'addr': 5031, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'W', 'device_class': 'power'},
+        'Total Reactive Power': {'addr': 5033, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'var', 'device_class': 'reactive_power'},
+        'Power Factor': {'addr': 5035, 'count': 1, 'dtype': 'S16', 'multiplier': 0.001, 'unit': 'no unit of measurement', 'device_class': 'power_factor'},                # >0: leading, <0 lagging
+        'Grid Frequency': {'addr': 5036, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'Hz', 'device_class': 'frequency'},
+        'Work State': {'addr': 5038, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+        'Fault/Alarm Code 1': {'addr': 5045, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+
+        'Nominal Reactive Power': {'addr': 5049, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'kVar', 'device_class': 'reactive_power'},
+        'Array Insulation Resistance': {'addr': 5071, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': 'kΩ',  'device_class': 'enum'},
+        'Active Power Regulation Setpoint': {'addr': 5077, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'W', 'device_class': 'power'},
+        'Reactive Power Regulation Setpoint': {'addr': 5079, 'count': 2, 'dtype': 'S32', 'multiplier': 1, 'unit': 'Var', 'device_class': 'reactive_power'},
+
+        'Work State (Extended)': {'addr': 5081, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+        'Meter Power': {'addr': 5083, 'count': 2, 'dtype': 'S32', 'multiplier': 1, 'unit': 'W', 'device_class': 'power'},
+        'Meter A Phase Power': {'addr': 5085, 'count': 2, 'dtype': 'S32', 'multiplier': 1, 'unit': 'W', 'device_class': 'power'},
+        'Meter B Phase Power': {'addr': 5087, 'count': 2, 'dtype': 'S32', 'multiplier': 1, 'unit': 'W', 'device_class': 'power'},
+        'Meter C Phase Power': {'addr': 5089, 'count': 2, 'dtype': 'S32', 'multiplier': 1, 'unit': 'W', 'device_class': 'power'},
+        'Load Power': {'addr': 5091, 'count': 2, 'dtype': 'S32', 'multiplier': 1, 'unit': 'W', 'device_class': 'power'},
+        'Daily Export Energy': {'addr': 5093, 'count': 2, 'dtype': 'U32', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy'},
+        'Total Export Energy': {'addr': 5095, 'count': 2, 'dtype': 'U32', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy'},
+        'Daily Import Energy': {'addr': 5097, 'count': 2, 'dtype': 'U32', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy'},
+        'Total Import Energy': {'addr': 5099, 'count': 2, 'dtype': 'U32', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy'},
+        'Daily Direct Energy Consumption': {'addr': 5101, 'count': 2, 'dtype': 'U32', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy'},
+        'Total Direct Energy Consumption': {'addr': 5103, 'count': 2, 'dtype': 'U32', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy'},
+        'Daily Running Time': {'addr': 5113, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': 'min', 'device_class': 'duration'},
+
+        'Present Country': {'addr': 5114, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+
+        'MPPT 4 Voltage': {'addr': 5115, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'MPPT 4 Current': {'addr': 5116, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'MPPT 5 Voltage': {'addr': 5117, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'MPPT 5 Current': {'addr': 5118, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'MPPT 6 Voltage': {'addr': 5119, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'MPPT 6 Current': {'addr': 5120, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'MPPT 7 Voltage': {'addr': 5121, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'MPPT 7 Current': {'addr': 5122, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'MPPT 8 Voltage': {'addr': 5123, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'MPPT 8 Current': {'addr': 5124, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'Monthly Power Yields': {'addr': 5128, 'count': 2, 'dtype': 'U32', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy'},
+        'MPPT 9 Voltage': {'addr': 5130, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'MPPT 9 Current': {'addr': 5131, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'MPPT 10 Voltage': {'addr': 5132, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'MPPT 10 Current': {'addr': 5133, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'MPPT 11 Voltage': {'addr': 5134, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'MPPT 11 Current': {'addr': 5135, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'MPPT 12 Voltage': {'addr': 5136, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'MPPT 12 Current': {'addr': 5137, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current'},
+        'Total Power Yields (Increased Accuracy)': {'addr': 5144, 'count': 2, 'dtype': 'U32', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy'},
+        'Negative Voltage to the Ground': {'addr': 5146, 'count': 1, 'dtype': 'S16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'Bus Voltage': {'addr': 5147, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage'},
+        'Grid Frequency (Increased Accuracy)': {'addr': 5148, 'count': 1, 'dtype': 'U16', 'multiplier': 0.01, 'unit': 'Hz', 'device_class': 'frequency'},
+        'PID Work State': {'addr': 5150, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'},
+        'PID Alarm Code': {'addr': 5151, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'}
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
