@@ -1,5 +1,5 @@
 name: "Sungrow Inverter Addon"
-version: "0.2.5"
+version: "0.2.6"
 slug: "sungrow"
 description: "Sungrow Inverter Addon"
 init: false
@@ -38,3 +38,29 @@ options:
       connection_method: "TCP"
       host: "10.0.0.x"
       port: 502
+schema:
+    mqtt:
+      host: str
+      port: int
+      user: str
+      password: str
+      ha_discovery: bool
+      ha_discovery_topic: str
+      base_topic: str
+    clients:
+      - name: str
+        nickname: str
+        type: str
+        connection_specs: str
+    servers:
+      - name: str
+        nickname: str
+        serialnum: str
+        server_type: str
+        connected_client: str
+        device_addr: int(1,255)
+    connection_specs:
+      - name: str
+        connection_method: str
+        host: str
+        port: int
