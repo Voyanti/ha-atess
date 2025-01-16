@@ -35,9 +35,9 @@ class BaseClient:
 
         logger.info(f"Reading param {register_name}")
 
-        result = self.client.read_holding_registers(address-1,
-                                                    count=count,
-                                                    slave=server.device_addr)
+        result = self.client.read_holding_registers(address=    address-1,
+                                                    count=      count,
+                                                    slave=      slave_id)
         if result.isError():
             if isinstance(result, ExceptionResponse):
                 exception_code = result.exception_code
