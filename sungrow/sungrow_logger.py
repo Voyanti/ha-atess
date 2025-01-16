@@ -193,7 +193,7 @@ class SungrowLogger(Server):
 
     # sungrowInverter registers: values are not valid for enum types
 
-    registers = public_registers
+    registers = ro_registers
 
 
 
