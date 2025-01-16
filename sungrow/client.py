@@ -67,9 +67,9 @@ class BaseClient:
         return f"{self.nickname}"
 
 
-class CustomModbusRtuClient:
+class CustomModbusRtuClient(BaseClient):
     def __init__(self, name:str, nickname:str, port:int, baudrate:int, bytesize:int=8, parity:bool=False, stopbits:int=1):
-        super().__init__(name, nickname)
+        super().__init__(name=name, nickname=nickname)
         self.client = ModbusSerialClient(   port=port, baudrate=baudrate, 
                                     bytesize=bytesize, parity='Y' if parity else 'N', stopbits=stopbits, 
                                     timeout=timeout)
@@ -86,10 +86,10 @@ class CustomModbusRtuClient:
                             connection_cfg[idx]["parity"], connection_cfg[idx]["stopbits"])
 
 
-class CustomModbusTcpClient:
+class CustomModbusTcpClient(BaseClient):
     def __init__(self, name:str, nickname:str, host:str, port:int):
-        super().__init__(name, nickname)
-        self.client = ModbusTcpClient(host=host, port=502)
+        super().__init__(name=name, nickname=nickname)
+        self.client = ModbusTcpClient(host=host, port=port)
 
     @classmethod
     def from_config(cls, client_cfg: dict, connection_cfg: dict):
@@ -98,11 +98,11 @@ class CustomModbusTcpClient:
         except:
             raise ValueError(f"Connection config {client_cfg['connection_specs']} for client {client_cfg['nickname']} not defined in options.")
 
-        return cls(client_cfg["name"], client_cfg["nickname"], client_cfg["host"], client_cfg["port"]) 
+        return cls(client_cfg["name"], client_cfg["nickname"], connection_cfg[idx]["host"], connection_cfg[idx]["port"]) 
 
 
 
-class SpoofClient(ModbusRtuClient):
+class SpoofClient(BaseClient):
     def __init__(self, name:str, nickname:str, port:int, baudrate:int, bytesize:int=8, parity:bool=False, stopbits:int=1, timeout:int=1):
         self.name = name
         self.nickname = nickname

@@ -39,13 +39,22 @@ atexit.register(exit_handler, mqtt_client)
 def find_ip():
     logger.info(f"Looking for MAC AC:19:9F:10:5F:89")
     command = "nmap -sP 10.0.0.1/24 | grep -B 2 'AC:19:9F:10:5F:89' | head -n 1 | awk '{print $5}'"
-    ip = subprocess.run(command, shell=True, text=True, capture_output=True)
-    logger.info(f"Found IP f{ip}")
+    result = subprocess.run(command, shell=True, text=True, capture_output=True)
+
+    if result.returncode == 0:
+        ip = result.stdout.strip()
+        logger.info(f"Found IP {ip}")
+        print(f"Found IP: {ip}")
+    else:
+        logger.info(f"IP not found {ip}")
+        raise ValueError(f"Ip not found")
+
     return ip
 
 try:
     # Read configuration
     servers_cfgs, clients_cfgs, connection_specs, mqtt_cfg = ConfigLoader.load()
+    print(clients_cfgs)
 
     # temp get ip of host
     ip = find_ip()
