@@ -191,8 +191,8 @@ class SungrowLogger(Server):
         if dtype == "UTF-8": return _decode_utf8(content)
         elif dtype == "U16": return _decode_u16(content)
         elif dtype == "U32": return _decode_u32(content)
-        elif dtype == "S16": return _decode_s16(content)
-        elif dtype == "S32": return _decode_s32(content)
+        elif dtype == "I16": return _decode_s16(content)
+        elif dtype == "I32": return _decode_s32(content)
         else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
 
     
