@@ -154,3 +154,7 @@ class SungrowLogger(Server):
    
     def _validate_write_val(register_name:str, val):
         raise NotImplementedError()
+
+if __name__ == "__main__":
+    
+    print(SungrowLogger._decoded(SungrowLogger, [0xFFFF, 0xFFFF], dtype="U32"))

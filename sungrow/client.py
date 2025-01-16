@@ -33,7 +33,7 @@ class BaseClient:
         count = register_info["count"]
         slave_id = server.device_addr
 
-        logger.info(f"Reading param {register_name}")
+        logger.info(f"Reading param {register_name} of {dtype=} from {address=}, {multiplier=}, {count=}, {slave_id=}")
 
         result = self.client.read_holding_registers(address=    address-1,
                                                     count=      count,
