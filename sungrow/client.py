@@ -33,6 +33,8 @@ class BaseClient:
         count = register_info["count"]
         slave_id = server.device_addr
 
+        logger.info(f"Reading param {register_name}")
+
         result = self.client.read_holding_registers(address-1,
                                                     count=count,
                                                     slave=server.device_addr)
@@ -77,7 +79,7 @@ class BaseClient:
                                     slave=server.device_addr)
 
     def connect(self):
-        logger.info("Connecting to client {self}")
+        logger.info(f"Connecting to client {self}")
 
         try: self.client.connect()
         except: 
@@ -87,7 +89,7 @@ class BaseClient:
         logger.info(f"Sucessfully connected to {self}")
 
     def close(self):
-        logger.info("Closing connection to {self}")
+        logger.info(f"Closing connection to {self}")
         self.client.close()
 
     def __str__(self):

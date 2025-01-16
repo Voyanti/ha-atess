@@ -90,7 +90,7 @@ try:
     # Setup MQTT Client
     mqtt_client = MqttClient(mqtt_cfg)
     succeed: MQTTErrorCode = mqtt_client.connect(host=mqtt_cfg["host"], port=mqtt_cfg["port"])
-    if not succeed: logger.info(f"MQTT Connection error: {succeed.name}, code {succeed.value}")
+    if succeed.value != 0: logger.info(f"MQTT Connection error: {succeed.name}, code {succeed.value}")
     mqtt_client.loop_start()
     
     # Publish Discovery Topics

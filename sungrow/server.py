@@ -40,7 +40,7 @@ class Server(metaclass=abc.ABCMeta):
             raise ValueError(f"Client {server_cfg['connected_client']} from server {server_cfg['nickname']} config not defined in client list")
 
         instance = cls(server_cfg["name"], server_cfg["nickname"], server_cfg["serialnum"], server_cfg['device_addr'], connected_client=clients[idx])
-        logger.info(f"Server {instance} set up.")
+        logger.info(f"Server {instance.nickname} set up.")
         return instance
         # return Server(server_cfg["name"], server_cfg["nickname"], server_cfg["serialnum"], server_cfg['device_addr'], connected_client=clients[idx])
     
