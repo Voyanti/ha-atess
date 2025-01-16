@@ -59,7 +59,7 @@ class BaseClient:
                 error_message = exception_messages.get(exception_code, "Unknown Exception")
                 logger.error(f"Modbus Exception Code {exception_code}: {error_message}")
             raise Exception(f"Error reading register {register_name}")
-
+        logger.info(f"Raw register value: {result.registers[0]}")
         val = server._decoded(result.registers, dtype)
         if multiplier != 1: val*=multiplier
 
