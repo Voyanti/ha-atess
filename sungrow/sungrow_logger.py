@@ -98,7 +98,50 @@ class SungrowLogger(Server):
         # 'Alarm Info 2': {'addr': 50001, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum'}
     }
 
-    registers = ro_registers
+    public_registers = {
+        'Device list change number': {
+            'addr': 65521, 
+            'count': 1, 
+            'dtype': 'U16', 
+            'multiplier': 1, 
+            'unit': 'N/A', 
+            'device_class': 'enum'
+        },
+        'Port number': {
+            'addr': 65522, 
+            'count': 1, 
+            'dtype': 'U16', 
+            'multiplier': 1, 
+            'unit': 'N/A', 
+            'device_class': 'enum'
+        },
+        'Device Address': {
+            'addr': 65523, 
+            'count': 1, 
+            'dtype': 'U16', 
+            'multiplier': 1, 
+            'unit': 'N/A', 
+            'device_class': 'enum'
+        },
+        'Device name': {
+            'addr': 65524, 
+            'count': 10, 
+            'dtype': 'STR', 
+            'multiplier': 1, 
+            'unit': 'N/A', 
+            'device_class': 'text'
+        },
+        'Device connection status': {
+            'addr': 65534, 
+            'count': 1, 
+            'dtype': 'U16', 
+            'multiplier': 1, 
+            'unit': 'N/A', 
+            'device_class': 'enum'
+        }
+    }
+    registers = public_registers
+
 
 
     def __init__(self, *args, **kwargs):
