@@ -31,6 +31,7 @@ class BaseClient:
         dtype =  register_info["dtype"]
         multiplier = register_info["multiplier"]
         count = register_info["count"]
+        unit = register_info["unit"]
         slave_id = server.device_addr
 
         logger.info(f"Reading param {register_name} of {dtype=} from {address=}, {multiplier=}, {count=}, {slave_id=}")
@@ -62,6 +63,8 @@ class BaseClient:
         logger.info(f"Raw register value: {result.registers[0]}")
         val = server._decoded(result.registers, dtype)
         if multiplier != 1: val*=multiplier
+
+        logger.info(f"Decoded Value = {value} {unit}")
 
         return val
 
