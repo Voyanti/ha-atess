@@ -64,7 +64,7 @@ class BaseClient:
         val = server._decoded(result.registers, dtype)
         if multiplier != 1: val*=multiplier
 
-        logger.info(f"Decoded Value = {value} {unit}")
+        logger.info(f"Decoded Value = {val} {unit}")
 
         return val
 
