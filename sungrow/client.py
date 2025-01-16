@@ -36,9 +36,9 @@ class BaseClient:
                                                     count=count,
                                                     slave=server.device_addr)
         if result.isError():
-            raise Exception(f"Error reading register {register_name}")
             logger.info(f"{type(self.client)}")
             logger.info(f"{result=}")
+            raise Exception(f"Error reading register {register_name}")
 
         val = server._decoded(result.registers, dtype)
 

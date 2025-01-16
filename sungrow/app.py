@@ -55,7 +55,6 @@ def find_ip():
 try:
     # Read configuration
     servers_cfgs, clients_cfgs, connection_specs, mqtt_cfg = ConfigLoader.load()
-    print(clients_cfgs)
 
     # temp get ip of host
     # ip = find_ip()
