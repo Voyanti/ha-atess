@@ -1,10 +1,11 @@
 from time import sleep
 import atexit
 import logging
+import subprocess
 
 from modbus_mqtt import MqttClient
 from loader import ConfigLoader
-from client import ModbusRtuClient as Client
+from client import CustomModbusRtuClient, CustomModbusTcpClient
 from server import Server
 from sungrow_inverter import SungrowInverter
 
@@ -21,7 +22,7 @@ mqtt_client = None
 read_interval = 2
 
 
-def exit_handler(servers, modbus_clients, mqtt_client):             # TODO check argument passing
+def exit_handler(servers, modbus_clients, mqtt_client):          
     logger.info("Exiting")
     # publish offline availability for each server
     for server in servers:
@@ -34,14 +35,29 @@ def exit_handler(servers, modbus_clients, mqtt_client):             # TODO check
 
 atexit.register(exit_handler, mqtt_client)
 
+
+def find_ip():
+    logger.info(f"Looking for MAC AC:19:9F:10:5F:89")
+    command = "nmap -sP 10.0.0.1/24 | grep -B 2 'AC:19:9F:10:5F:89' | head -n 1 | awk '{print $5}'"
+    ip = subprocess.run(command, shell=True, text=True, capture_output=True)
+    logger.info(f"Found IP f{ip}")
+    return ip
+
 try:
     # Read configuration
     servers_cfgs, clients_cfgs, connection_specs, mqtt_cfg = ConfigLoader.load()
+
+    # temp get ip of host
+    ip = find_ip()
+    connection_specs[0]['host'] = ip
+
     # Instantiate clients (modbus adapters)
-    clients = [Client.from_config(client_cfg, connection_specs) for client_cfg in clients_cfgs]
+    clients = []
+    for client_cfg in clients_cfgs:
+        if client_cfg["type"] == "RTU": clients.append(CustomModbusRtuClient.from_config(client_cfg, connection_specs))
+        elif client_cfg["type"] == "TCP": clients.append(CustomModbusTcpClient.from_config(client_cfg, connection_specs))
     # Instantiate servers
     servers = [SungrowInverter.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
-
 
     # Connect to clients
     for client in clients:

@@ -1,5 +1,5 @@
 name: "Sungrow Inverter Addon"
-version: "0.1.19"
+version: "0.2.0"
 slug: "sungrow"
 description: "Sungrow Inverter Addon"
 init: false
@@ -22,24 +22,33 @@ options:
     ha_discovery_topic: "homeassistant"
     base_topic: "modbus"
   clients:
-    - name: "usb_to_modbus"
+    # - name: "usb_to_modbus"
+    #   nickname: "Client1"
+    #   type: "RTU"
+    #   connection_specs: "Sungrow_Inverter"
+    #   port: "/dev/tty1"
+    - name: "ModebusTCP"
       nickname: "Client1"
-      connection_specs: "Sungrow_Inverter"
-      port: "/dev/tty1"
+      type: "TCP"
+      connection_specs: "Sungrow_Logger"
   servers:
     - name: "SunGrow Inverter 1"
       nickname: "SG1"
       serialnum: "12345678"
-      server_type: "SunGrow Inverter"
+      server_type: "SunGrow Logger"
       connected_client: "Client1"
-      device_addr: 999
+      device_addr: 1
   connection_specs:
-    - name: "Sungrow_Inverter"
-      connection_method: "RTU"
-      baudrate: 9600
-      bytesize: 8
-      parity: false
-      stopbits: 1
+    - name: "Sungrow_Logger"
+      connection_method: "TCP"
+      host: "10.0.0.x"
+      port: 502
+    # - name: "Sungrow_Inverter"
+    #   connection_method: "RTU"
+    #   baudrate: 9600
+    #   bytesize: 8
+    #   parity: false
+    #   stopbits: 1
 schema:
   mqtt:
     host: str

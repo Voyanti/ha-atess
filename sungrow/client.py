@@ -1,4 +1,4 @@
-from pymodbus.client import ModbusSerialClient
+from pymodbus.client import ModbusSerialClient, ModbusTcpClient
 from pymodbus.payload import BinaryPayloadDecoder
 # from pymodbus.constants import Endian
 import struct
@@ -13,13 +13,11 @@ DEBUG = True
 def debug(content):
     if DEBUG: print(content)
 
-class ModbusRtuClient:
-    def __init__(self, name:str, nickname:str, port:int, baudrate:int, bytesize:int=8, parity:bool=False, stopbits:int=1, timeout:int=1):
+class BaseClient:
+    def __init__(self, name:str, nickname:str):
         self.name = name
         self.nickname = nickname
-        self.client = ModbusSerialClient(   port=port, baudrate=baudrate, 
-                                            bytesize=bytesize, parity='Y' if parity else 'N', stopbits=stopbits, 
-                                            timeout=timeout)
+        self.client = None
 
 
     def read_registers(self, server:Server, register_name:str, register_info:dict):
@@ -59,12 +57,22 @@ class ModbusRtuClient:
                                     value=server._encoded(value),
                                     slave=server.device_addr)
 
-
     def connect(self):
         self.client.connect()
 
     def close(self):
         self.client.close()
+
+    def __str__(self):
+        return f"{self.nickname}"
+
+
+class CustomModbusRtuClient:
+    def __init__(self, name:str, nickname:str, port:int, baudrate:int, bytesize:int=8, parity:bool=False, stopbits:int=1):
+        super().__init__(name, nickname)
+        self.client = ModbusSerialClient(   port=port, baudrate=baudrate, 
+                                    bytesize=bytesize, parity='Y' if parity else 'N', stopbits=stopbits, 
+                                    timeout=timeout)
 
     @classmethod
     def from_config(cls, client_cfg: dict, connection_cfg: dict):
@@ -77,8 +85,22 @@ class ModbusRtuClient:
                             connection_cfg[idx]["baudrate"], connection_cfg[idx]["bytesize"], 
                             connection_cfg[idx]["parity"], connection_cfg[idx]["stopbits"])
 
-    def __str__(self):
-        return f"{self.nickname}"
+
+class CustomModbusTcpClient:
+    def __init__(self, name:str, nickname:str, host:str, port:int):
+        super().__init__(name, nickname)
+        self.client = ModbusTcpClient(host=host, port=502)
+
+    @classmethod
+    def from_config(cls, client_cfg: dict, connection_cfg: dict):
+        try:
+            idx = [c['name'] for c in connection_cfg].index(client_cfg["connection_specs"])  # TODO ugly
+        except:
+            raise ValueError(f"Connection config {client_cfg['connection_specs']} for client {client_cfg['nickname']} not defined in options.")
+
+        return cls(client_cfg["name"], client_cfg["nickname"], client_cfg["host"], client_cfg["port"]) 
+
+
 
 class SpoofClient(ModbusRtuClient):
     def __init__(self, name:str, nickname:str, port:int, baudrate:int, bytesize:int=8, parity:bool=False, stopbits:int=1, timeout:int=1):
