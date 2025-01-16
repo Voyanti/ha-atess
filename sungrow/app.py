@@ -65,7 +65,7 @@ try:
     for client_cfg in clients_cfgs:
         if client_cfg["type"] == "RTU": clients.append(CustomModbusRtuClient.from_config(client_cfg, connection_specs))
         elif client_cfg["type"] == "TCP": clients.append(CustomModbusTcpClient.from_config(client_cfg, connection_specs))
-    logger.info(f"{len(client)} clients set up")
+    logger.info(f"{len(clients)} clients set up")
     # Instantiate servers
     logger.info("Instantiate servers")
     servers = [SungrowLogger.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
