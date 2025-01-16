@@ -57,8 +57,8 @@ try:
     print(clients_cfgs)
 
     # temp get ip of host
-    ip = find_ip()
-    connection_specs[0]['host'] = ip
+    # ip = find_ip()
+    # connection_specs[0]['host'] = ip
 
     # Instantiate clients (modbus adapters)
     clients = []

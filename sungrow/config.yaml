@@ -1,5 +1,5 @@
 name: "Sungrow Inverter Addon"
-version: "0.2.6"
+version: "0.2.7"
 slug: "sungrow"
 description: "Sungrow Inverter Addon"
 init: false
@@ -36,7 +36,7 @@ options:
   connection_specs:
     - name: "Sungrow_Logger"
       connection_method: "TCP"
-      host: "10.0.0.x"
+      host: "10.0.0.98"
       port: 502
 schema:
     mqtt:
