@@ -100,7 +100,7 @@ class SungrowLogger(Server):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model = model              # only 1000b model
+        self.model = SungrowLogger.model              # only 1000b model
         
 
     def _decoded(cls, content, dtype):
