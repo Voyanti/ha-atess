@@ -8,7 +8,7 @@ from time import time
 logger = logging.getLogger(__name__)
 
 def slugify(text):
-    return text.replace(' ', '_').replace('(', '').replace(')', '').replace('/', 'OR').replace('&', ' ').lower()
+    return text.replace(' ', '_').replace('(', '').replace(')', '').replace('/', 'OR').replace('&', ' ').replace(':', '').lower()
 
 class MqttClient(mqtt.Client):
     def __init__(self, mqtt_cfg):
