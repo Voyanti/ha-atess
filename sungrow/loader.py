@@ -20,6 +20,7 @@ class ConfigLoader:
             with open('config.yaml') as file:
                 data = yaml.load(file, Loader=yaml.FullLoader)['options']
         else:
+            logger.info("ConfigLoader error")
             raise FileNotFoundError(f"Config options json/yaml not found.")
 
         # cls.validate(data)

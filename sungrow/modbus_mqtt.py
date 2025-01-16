@@ -45,7 +45,7 @@ class MqttClient(mqtt.Client):
         # from uxr_charger app
         # server.model = "test"
         # server.serialnum = "asdf1234"
-
+        logger.info(f"Publishing discovery topics for {server.nickname}")
         device = {
             "manufacturer": server.manufacturer,
             "model": server.model,

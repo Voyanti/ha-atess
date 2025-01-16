@@ -30,8 +30,8 @@ class BaseClient:
         address = register_info["addr"]
         dtype =  register_info["dtype"]
         multiplier = register_info["multiplier"]
-        unit = register_info["unit"]
         count = register_info["count"]
+        slave_id = server.device_addr
 
         result = self.client.read_holding_registers(address-1,
                                                     count=count,
@@ -59,8 +59,8 @@ class BaseClient:
             raise Exception(f"Error reading register {register_name}")
 
         val = server._decoded(result.registers, dtype)
-
         if multiplier != 1: val*=multiplier
+
         return val
 
     def write_register(self, val, is_float:bool, server:Server, register_name: str, register_info:dict):
@@ -77,9 +77,17 @@ class BaseClient:
                                     slave=server.device_addr)
 
     def connect(self):
-        self.client.connect()
+        logger.info("Connecting to client {self}")
+
+        try: self.client.connect()
+        except: 
+            logger.error("Client Connection Issue", exc_info=1)
+            # raise ConnectionError("Client Connection Issue")
+
+        lodder.info(f"Sucessfully connected to {self}")
 
     def close(self):
+        logger.info("Closing connection to {self}")
         self.client.close()
 
     def __str__(self):

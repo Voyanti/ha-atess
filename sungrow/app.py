@@ -60,13 +60,16 @@ try:
     # ip = find_ip()
     # connection_specs[0]['host'] = ip
 
-    # Instantiate clients (modbus adapters)
+    logger.info("Instantiate clients")
     clients = []
     for client_cfg in clients_cfgs:
         if client_cfg["type"] == "RTU": clients.append(CustomModbusRtuClient.from_config(client_cfg, connection_specs))
         elif client_cfg["type"] == "TCP": clients.append(CustomModbusTcpClient.from_config(client_cfg, connection_specs))
+    logger.info(f"{len(client)} clients set up")
     # Instantiate servers
+    logger.info("Instantiate servers")
     servers = [SungrowLogger.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
+    logger.info(f"{len(servers)} servers set up")
     # servers = [SungrowInverter.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
 
     # Connect to clients
@@ -85,7 +88,8 @@ try:
 
     # Setup MQTT Client
     mqtt_client = MqttClient(mqtt_cfg)
-    mqtt_client.connect(host=mqtt_cfg["host"], port=mqtt_cfg["port"])
+    succeed: MQTTErrorCode = mqtt_client.connect(host=mqtt_cfg["host"], port=mqtt_cfg["port"])
+    if not succeed: logger.info(f"MQTT Connection error: {succeed.name}, code {succeed.code}")
     mqtt_client.loop_start()
     
     # Publish Discovery Topics
@@ -99,9 +103,9 @@ try:
                 client = server.connected_client
                 value = client.read_registers(server, register_name, details)
                 mqtt_client.publish_to_ha(register_name, value, server)
+            logger.info(f"Published all parameter values for {server.name=}")   
 
         # publish availability
-        logger.info("Published all register values.")
         sleep(read_interval)
 finally:
     exit_handler(servers, clients, mqtt_client)
