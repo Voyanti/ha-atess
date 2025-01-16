@@ -84,7 +84,7 @@ class BaseClient:
             logger.error("Client Connection Issue", exc_info=1)
             # raise ConnectionError("Client Connection Issue")
 
-        lodder.info(f"Sucessfully connected to {self}")
+        logger.info(f"Sucessfully connected to {self}")
 
     def close(self):
         logger.info("Closing connection to {self}")
