@@ -1,5 +1,5 @@
 name: "Sungrow Inverter Addon"
-version: "0.2.37"
+version: "0.2.38"
 slug: "sungrow"
 description: "Sungrow Inverter Addon"
 init: false
@@ -58,7 +58,7 @@ schema:
         serialnum: str
         server_type: str
         connected_client: str
-        device_addr: int(1,255)
+        device_addr: int(0,255)
     connection_specs:
       - name: str
         connection_method: str
