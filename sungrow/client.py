@@ -50,7 +50,7 @@ class BaseClient:
             logger.info(f"unsupported register type {register_type}") # will maybe never happen?
             raise ValueError(f"unsupported register type {register_type}")
 
-        if result.isError(): handle_error_response(result)
+        if result.isError(): _handle_error_response(result, register_name)
         
         logger.info(f"Raw register begin value: {result.registers[0]}")
         val = server._decoded(result.registers, dtype)
@@ -59,17 +59,17 @@ class BaseClient:
 
         return val
 
-    def write_register(self, val, is_float:bool, server:Server, register_name: str, register_info:dict):
+    def write_register(self, val, server:Server, register_name: str, register_info:dict):
         """ Write to an individual register using pymodbus.
 
             Reuires implementation of the abstract methods 
             'Server._validate_write_val()' and 'Server._encode()'
         """
         raise NotImplementedError()
-        # model specific write register validation
+
         server._validate_write_val(register_name, val)
         
-        self.client.write_register(address=register_info["addr"],
+        self.client.write_register( address=register_info["addr"],
                                     value=server._encoded(value),
                                     slave=server.device_addr)
 
@@ -90,7 +90,7 @@ class BaseClient:
     def __str__(self):
         return f"{self.nickname}"
 
-    def _handle_error_response(result):
+    def _handle_error_response(result, register_name):
         if isinstance(result, ExceptionResponse):
             exception_code = result.exception_code
 
@@ -120,8 +120,7 @@ class CustomModbusRtuClient(BaseClient):
     def __init__(self, name:str, nickname:str, port:int, baudrate:int, bytesize:int=8, parity:bool=False, stopbits:int=1):
         super().__init__(name=name, nickname=nickname)
         self.client = ModbusSerialClient(   port=port, baudrate=baudrate, 
-                                    bytesize=bytesize, parity='Y' if parity else 'N', stopbits=stopbits, 
-                                    timeout=timeout)
+                                    bytesize=bytesize, parity='Y' if parity else 'N', stopbits=stopbits)
 
     @classmethod
     def from_config(cls, client_cfg: dict, connection_cfg: dict):

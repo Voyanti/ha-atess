@@ -1,6 +1,6 @@
-from loader import ConfigLoader
 import abc
 import logging
+import enum
 logger = logging.getLogger(__name__)
 
 class RegisterTypes(enum.Enum):
@@ -11,16 +11,13 @@ class RegisterTypes(enum.Enum):
     # U16
 
 class Server(metaclass=abc.ABCMeta):
-    def __init__(self, name:str, nickname:str, serialnum:str, device_addr:int, connected_client):
+    def __init__(self, name:str, nickname:str, serialnum:str, device_addr:int, connected_client=None):
         self.name: str = name
         self.nickname: str = nickname
         self.serialnum: str = serialnum
         self.connected_client = connected_client
-        # self.registers: dict = {}
-        # self.manufacturer:str | None = None
         self.model:str | None = None
         self.device_addr:int| None = device_addr
-        # self.batches TODO
 
     def verify_serialnum(self, serialnum_name_in_definition:str="Serial Number"):
         """ Verify that the serialnum specified in config.yaml matches 
@@ -35,11 +32,13 @@ class Server(metaclass=abc.ABCMeta):
                                                             self.registers[serialnum_name_in_definition])
 
         if self.serialnum is None: raise ConnectionError(f"Failed to read serialnum of {self.nickname}.")
-        elif self.serialnum != serialnum_as_read: raise ValueError(f"Mismatch in configured serialnum {self.serialnum} \
-                                                                        and actual serialnum {serialnum_as_read} for server {self.nickname}.")
+        elif self.serialnum != serialnum_name_in_definition: raise ValueError(f"Mismatch in configured serialnum {self.serialnum} \
+                                                                        and actual serialnum {serialnum_name_in_definition} for server {self.nickname}.")
 
     @classmethod
     def from_config(cls, server_cfg:dict, clients:list):
+        """ Returns instance of Server/subclass after finding a pointer to the connected client, using its nickname as key.
+        """
         # assume valid configLoader object
         try:
             idx = [str(client) for client in clients].index(server_cfg["connected_client"])  # TODO ugly

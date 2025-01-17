@@ -1,23 +1,21 @@
 from server import Server, RegisterTypes
 from pymodbus.client import ModbusSerialClient
 import struct
-import enum
+import logging
+
+logger = logging.getLogger(__name__)
 
 U16_MAX = 2**16-1
 
 class SungrowInverter(Server):
     """
     Sungrow
-        SG110CX
         SGKTL-20        not found
-        SG33CX
-        SG80KTL-20
     """
-    # TODO some should be class attributes
-    
+    supported_models = ('SG110CX', 'SG33CX', 'SG80KTL-20')
     manufacturer = "Sungrow"
 
-    # Parameters with limited support:
+    # Parameters with limited availability:
     ################################################################################################################################################
     total_apparant_power_supported_models = [
         'SG5KTL-MT','SG6KTL-MT','SG8KTL-M','SG10KTL-M','SG10KTL-MT','SG12KTL-M','SG15KTL-M','SG17KTL-M','SG20KTL-M','SG3.0RT','SG4.0RT','SG5.0RT',
@@ -45,7 +43,7 @@ class SungrowInverter(Server):
 
     pid_work_state_supported_models = [
         "SG5KTL-MT","SG6KTL-MT","SG8KTL-M","SG10KTL-M","SG10KTL-MT","SG12KTL-M","SG15KTL-M","SG17KTL-M","SG20KTL-M","SG3.0RT","SG4.0RT","SG5.0RT",
-        "SG6.0RT","SG7.0RT","SG8.0RT","SG10RT","SG12RT","SG15RT","SG17RT","SG20R","SG80KTL-M","SG125HV","SG125HV-20","SG80KTL","SG33CXSG40CX","SG50CX",
+        "SG6.0RT","SG7.0RT","SG8.0RT","SG10RT","SG12RT","SG15RT","SG17RT","SG20R","SG80KTL-M","SG125HV","SG125HV-20","SG80KTL","SG33CX", "SG40CX","SG50CX",
         "SG110CX","SG100CX、SG75CX","SG136TX","SG250HX","SG30CX","SG36CX-US","SG60CX-US","SG250HX-US","SG250HX-IN","SG25CX-SA","SG225HX"
     ]
 
@@ -595,50 +593,55 @@ class SungrowInverter(Server):
         self.model = self.device_info[modelcode]
         logger.info(f"Model read as {self.model}")
 
+        if self.model not in self.supported_models: raise NotImplementedError(f"Model not supported in implementation of Server, {cls}")
+
     def setup_valid_registers_for_model(self):
+        """ Removes invalid registers for the specific model of inverter.
+            Requires self.model. Call self.read_model() first."""
         logger.info(f"Removing invalid registers for server {self.nickname}, with serial {self.serialnum}.")
 
         if self.model is None or not self.model:
+            # read_model()
             logger.error(f"Inverter model not set. Cannot setup valid registers. {self.serialnum=}, {self.nickname=}")
             raise ValueError(f"Inverter model not set. Cannot setup valid registers. {self.serialnum=}, {self.nickname=}")
 
-        for param, supported_models in limited_params.items():
-            if self.model not in supported_models: registers.pop(param)
+        for param, supported_models in self.limited_params.items():
+            if self.model not in self.supported_models: self.registers.pop(param)
 
+    def _decode_u16(registers):
+        """ Unsigned 16-bit big-endian to int """
+        return registers[0]
+    
+    def _decode_s16(registers):
+        """ Signed 16-bit big-endian to int """
+        sign = 0xFFFF if registers[0] & 0x1000 else 0
+        packed = struct.pack('>HH', sign, registers[0])
+        return struct.unpack('>i', packed)[0]
 
+    def _decode_u32(registers):
+        """ Unsigned 32-bit mixed-endian word"""
+        packed = struct.pack('>HH', registers[1], registers[0])
+        return struct.unpack('>I', packed)[0]
+    
+    def _decode_s32(registers):
+        """ Signed 32-bit mixed-endian word"""
+        packed = struct.pack('>HH', registers[1], registers[0])
+        return struct.unpack('>i', packed)[0]
+
+    def _decode_utf8(registers):
+        return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.STRING)
+
+    @classmethod
     def _decoded(cls, content, dtype):
-        def _decode_u16(registers):
-            """ Unsigned 16-bit big-endian to int """
-            return registers[0]
         
-        def _decode_s16(registers):
-            """ Signed 16-bit big-endian to int """
-            sign = 0xFFFF if registers[0] & 0x1000 else 0
-            packed = struct.pack('>HH', sign, registers[0])
-            return struct.unpack('>i', packed)[0]
-
-        def _decode_u32(registers):
-            """ Unsigned 32-bit mixed-endian word"""
-            packed = struct.pack('>HH', registers[1], registers[0])
-            return struct.unpack('>I', packed)[0]
-        
-        def _decode_s32(registers):
-            """ Signed 32-bit mixed-endian word"""
-            packed = struct.pack('>HH', registers[1], registers[0])
-            return struct.unpack('>i', packed)[0]
-
-        def _decode_utf8(registers):
-            return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.STRING)
-        
-        if dtype == "UTF-8": return _decode_utf8(content)
-        elif dtype == "U16": return _decode_u16(content)
-        elif dtype == "U32": return _decode_u32(content)
-        elif dtype == "S16": return _decode_s16(content)
-        elif dtype == "S32": return _decode_s32(content)
+        if dtype == "UTF-8": return cls._decode_utf8(content)
+        elif dtype == "U16": return cls._decode_u16(content)
+        elif dtype == "U32": return cls._decode_u32(content)
+        elif dtype == "S16": return cls._decode_s16(content)
+        elif dtype == "S32": return cls._decode_s32(content)
         else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
 
-    
-
+    @classmethod
     def _encoded(cls, value):
         """ Convert a float or integer to big-endian register.
             Supports U16 only.
@@ -656,8 +659,9 @@ class SungrowInverter(Server):
             
         return value_bytes
    
-    def _validate_write_val(register_name:str, val):
-        raise NotImplementedError()
+    def _validate_write_val(self, register_name:str, val):
+        """ Model-specific writes might be necessary to support more models """
+        assert val in self.write_valid_values[register_name]
 
 if __name__ == "__main__":
     print(SungrowInverter._encoded(2**16-1, False))

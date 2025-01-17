@@ -29,7 +29,7 @@ class MqttClient(mqtt.Client):
             if reason_code == 0:
                 logger.info(f"Connected to MQTT broker.")
             else:
-                logger.info(f"Not connected to MQTT broker.\nReturn code: {rc=}")
+                logger.info(f"Not connected to MQTT broker.\nReturn code: {reason_code=}")
 
         def on_disconnect(client, userdata, message):
             logger.info("Disconnected from MQTT broker")

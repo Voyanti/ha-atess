@@ -1,3 +1,6 @@
+# Quick Start
+
+
 # Configuration
 Before using, state all the modbus devices in `config.yaml`. Multiple servers and clients can be added
 
@@ -29,13 +32,24 @@ Each client should be defined as
 - `connection_specs` defines the name of the entry under `connection_specs` for the relevant client where e.g. baudrate or ip is defined
 
 ## Connection specs
-TODO
+TCP Example:
+```
+- name: "Sungrow_Logger"
+      connection_method: "TCP"
+      host: "10.0.0.99"
+      port: 502
+```
+RTU Serial Example
+```
+- name: "Sungrow_Inverter"
+      connection_method: "RTU"
+      baudrate: 9600
+      bytesize: 8
+      parity: false
+      stopbits: 1
+```
 ## Adding custom server types
 
-## Client
-### Defini
-`config.yaml` contains a template for Modbus RTT as defined for SunGrow inverters under options>connection_specs. Add a custom entry and specify it for each client in `config.yaml`
-## Server
 ### Defining a new Server type
 Inherit from server class in `server.py`. 
 <!-- TODO -->

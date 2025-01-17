@@ -332,7 +332,7 @@ class SungrowLogger(Server):
         },
     }
 
-    registers = logger_registers
+    # registers = logger_registers
 
 
 

@@ -1,5 +1,5 @@
 import unittest
-from inverter_addon.sungrow_inverter import SungrowInverter
+from sungrow_inverter import SungrowInverter
 
 class TestSungrowInverter(unittest.TestCase):
 
@@ -35,5 +35,22 @@ class TestSungrowInverter(unittest.TestCase):
         self.assertEqual(SungrowInverter._encoded(0), [0, 0, 0, 0])
         
     def test_encode_breaking(self):
-        self.assertRaises(ValueError, SungrowInverter._encoded(-1))
-        self.assertRaises(ValueError, SungrowInverter._encoded(2**16))
+        self.assertRaisesRegex(ValueError, r"ValueError: Cannot write negative value=(-?\d+) to U16 register\.", SungrowInverter._encoded(-1))
+        self.assertRaises(ValueError, r"ValueError: Cannot write negative value=(-?\d+) to U16 register\.", SungrowInverter._encoded(2**16))
+
+    # def test_setup_valid_register_for_model(self):
+    #     c = SungrowInverter(name="Sungrow Inverter 1",
+    #                         nickname="SG1", 
+    #                         serialnum="1234",
+    #                         device_addr=1)
+    #     c.model = "SG80KTL-20"
+
+    #     c.setup_valid_registers_for_model()
+
+    #     should_not_contain = [
+    #         'Total Apparent Power', 'Total Power Yields (Increased Accuracy)', 'Grid Frequency (Increased Accuracy)', 'PID Work State',
+    #         'Export power limitation', 'Export power limitation value'
+    #     ]
+    #     for item in should_not_contain:
+    #         self.assertNotIn(item, c.registers)
+        

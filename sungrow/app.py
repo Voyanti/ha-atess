@@ -5,7 +5,6 @@ import subprocess
 
 from loader import ConfigLoader
 from client import CustomModbusRtuClient, CustomModbusTcpClient
-from server import Server
 from sungrow_inverter import SungrowInverter
 from sungrow_logger import SungrowLogger
 from modbus_mqtt import MqttClient
@@ -21,7 +20,6 @@ logger = logging.getLogger(__name__)
 
 mqtt_client = None
 read_interval = 2
-
 
 def exit_handler(servers, modbus_clients, mqtt_client):          
     logger.info("Exiting")
