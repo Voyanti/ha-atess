@@ -3,6 +3,13 @@ import abc
 import logging
 logger = logging.getLogger(__name__)
 
+class RegisterTypes(enum.Enum):
+    INPUT_REGISTER = 3
+    HOLDING_REGISTER = 4
+
+# class DataTypes(enum.Enum):
+    # U16
+
 class Server(metaclass=abc.ABCMeta):
     def __init__(self, name:str, nickname:str, serialnum:str, device_addr:int, connected_client):
         self.name: str = name

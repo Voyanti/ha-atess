@@ -1,6 +1,7 @@
 from pymodbus.client import ModbusSerialClient, ModbusTcpClient
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.pdu import ExceptionResponse
+from server import RegisterTypes
 # from pymodbus.constants import Endian
 import struct
 import logging
@@ -33,40 +34,27 @@ class BaseClient:
         count = register_info["count"]
         unit = register_info["unit"]
         slave_id = server.device_addr
+        register_type = register_info['register_type']
 
-        logger.info(f"Reading param {register_name} of {dtype=} from {address=}, {multiplier=}, {count=}, {slave_id=}")
+        logger.info(f"Reading param {register_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {slave_id=}")
 
-        # result = self.client.read_holding_registers(address=    address-1,
-        #                                             count=      count,
-        #                                             slave=      slave_id)
-        result = self.client.read_input_registers(address=      address-1,
-                                                    count=      count,
-                                                    slave=      slave_id)
-        if result.isError():
-            if isinstance(result, ExceptionResponse):
-                exception_code = result.exception_code
+        if register_type == RegisterTypes.HOLDING_REGISTER:
+            result = self.client.read_holding_registers(address=    address-1,
+                                                        count=      count,
+                                                        slave=      slave_id)
+        elif register_type == RegisterTypes.INPUT_REGISTER:
+            result = self.client.read_input_registers(address=      address-1,
+                                                        count=      count,
+                                                        slave=      slave_id)
+        else: 
+            logger.info(f"unsupported register type {register_type}") # will maybe never happen?
+            raise ValueError(f"unsupported register type {register_type}")
 
-                # Modbus exception codes and their meanings
-                exception_messages = {
-                    1: "Illegal Function",
-                    2: "Illegal Data Address",
-                    3: "Illegal Data Value",
-                    4: "Slave Device Failure",
-                    5: "Acknowledge",
-                    6: "Slave Device Busy",
-                    7: "Negative Acknowledge",
-                    8: "Memory Parity Error",
-                    10: "Gateway Path Unavailable",
-                    11: "Gateway Target Device Failed to Respond"
-                }
-
-                error_message = exception_messages.get(exception_code, "Unknown Exception")
-                logger.error(f"Modbus Exception Code {exception_code}: {error_message}")
-            raise Exception(f"Error reading register {register_name}")
-        logger.info(f"Raw register value: {result.registers[0]}")
+        if result.isError(): handle_error_response(result)
+        
+        logger.info(f"Raw register begin value: {result.registers[0]}")
         val = server._decoded(result.registers, dtype)
         if multiplier != 1: val*=multiplier
-
         logger.info(f"Decoded Value = {val} {unit}")
 
         return val
@@ -77,6 +65,7 @@ class BaseClient:
             Reuires implementation of the abstract methods 
             'Server._validate_write_val()' and 'Server._encode()'
         """
+        raise NotImplementedError()
         # model specific write register validation
         server._validate_write_val(register_name, val)
         
@@ -100,6 +89,31 @@ class BaseClient:
 
     def __str__(self):
         return f"{self.nickname}"
+
+    def _handle_error_response(result):
+        if isinstance(result, ExceptionResponse):
+            exception_code = result.exception_code
+
+            # Modbus exception codes and their meanings
+            exception_messages = {
+                1: "Illegal Function",
+                2: "Illegal Data Address",
+                3: "Illegal Data Value",
+                4: "Slave Device Failure",
+                5: "Acknowledge",
+                6: "Slave Device Busy",
+                7: "Negative Acknowledge",
+                8: "Memory Parity Error",
+                10: "Gateway Path Unavailable",
+                11: "Gateway Target Device Failed to Respond"
+            }
+
+            error_message = exception_messages.get(exception_code, "Unknown Exception")
+            logger.error(f"Modbus Exception Code {exception_code}: {error_message}")
+        else: logger.error(f"Non Standard Modbus Exception. Cannot Decode Response")
+
+        raise Exception(f"Error reading register {register_name}")
+
 
 
 class CustomModbusRtuClient(BaseClient):

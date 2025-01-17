@@ -79,12 +79,8 @@ try:
     # Connect to Servers
     # for server in servers:
         # server.verify_serialnum()                              
-            
         # server.read_model()
-        # modelcode = server.connected_client.read_register(server, "Device Type Code", server.registers["Device Type Code"])
-        # sever.model = server.device_info[modelcode]
-        # TODO find valid registers
-        # - get limits for settable params TODO
+        # server.setup_valid_registers_for_model()
 
     # Setup MQTT Client
     mqtt_client = MqttClient(mqtt_cfg)
