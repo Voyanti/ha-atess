@@ -1,11 +1,9 @@
 import abc
 import logging
-import enum
+
 logger = logging.getLogger(__name__)
 
-class RegisterTypes(enum.Enum):
-    INPUT_REGISTER = 3
-    HOLDING_REGISTER = 4
+
 
 # class DataTypes(enum.Enum):
     # U16
@@ -15,11 +13,11 @@ class Server(metaclass=abc.ABCMeta):
         self.name: str = name
         self.nickname: str = nickname
         self.serialnum: str = serialnum
-        self.connected_client = connected_client
+        self.connected_client: BaseClient = connected_client
         self.model:str | None = None
         self.device_addr:int| None = device_addr
 
-    def verify_serialnum(self, serialnum_name_in_definition:str="Serial Number"):
+    def verify_serialnum(self, serialnum_name_in_definition:str="Serial Number") -> bool:
         """ Verify that the serialnum specified in config.yaml matches 
         with the num in the regsiter as defined in implementation of Server
 
@@ -31,9 +29,12 @@ class Server(metaclass=abc.ABCMeta):
         serialnum = self.connected_client.read_registers(self, serialnum_name_in_definition, 
                                                             self.registers[serialnum_name_in_definition])
 
-        if self.serialnum is None: raise ConnectionError(f"Failed to read serialnum of {self.nickname}.")
-        elif self.serialnum != serialnum_name_in_definition: raise ValueError(f"Mismatch in configured serialnum {self.serialnum} \
-                                                                        and actual serialnum {serialnum_name_in_definition} for server {self.nickname}.")
+        if serialnum is None: 
+            logger.info(f"Server with serial {self.serialnum} not available")
+            return False
+        elif self.serialnum != serialnum: raise ValueError(f"Mismatch in configured serialnum {self.serialnum} \
+                                                                        and actual serialnum {serialnum} for server {self.nickname}.")
+        return True
 
     @classmethod
     def from_config(cls, server_cfg:dict, clients:list):

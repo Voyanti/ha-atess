@@ -1,5 +1,5 @@
 name: "Sungrow Inverter Addon"
-version: "0.2.52"
+version: "0.2.53"
 slug: "sungrow"
 description: "Sungrow Inverter Addon"
 init: false
@@ -27,16 +27,16 @@ options:
       type: "TCP"
       connection_specs: "Sungrow_Logger"
   servers:
-    - name: "SunGrow Inverter 1"
+    - name: "Sungrow Inverter 1"
       nickname: "SG1"
-      serialnum: "SERIAL0004" # logger sn
-      server_type: "SunGrow Logger"
+      serialnum: "SERIAL0001"
+      server_type: "Sungrow Inverter"
       connected_client: "Client1"
       device_addr: 1
   connection_specs:
     - name: "Sungrow_Logger"
       connection_method: "TCP"
-      host: "10.0.0.99"
+      host: "192.168.0.116"
       port: 502
 schema:
     mqtt:

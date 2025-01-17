@@ -75,10 +75,12 @@ try:
         client.connect()
 
     # Connect to Servers
-    # for server in servers:
-        # server.verify_serialnum()                              
-        # server.read_model()
-        # server.setup_valid_registers_for_model()
+    available_servers = []
+    for server in servers:
+        if server.verify_serialnum(): available_servers.append(server)                          
+        server.read_model()
+        server.setup_valid_registers_for_model()
+    servers = available_servers
 
     # Setup MQTT Client
     mqtt_client = MqttClient(mqtt_cfg)

@@ -1,7 +1,7 @@
 from pymodbus.client import ModbusSerialClient, ModbusTcpClient
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.pdu import ExceptionResponse
-from server import RegisterTypes
+from enums import RegisterTypes
 # from pymodbus.constants import Endian
 import struct
 import logging
@@ -50,7 +50,7 @@ class BaseClient:
             logger.info(f"unsupported register type {register_type}") # will maybe never happen?
             raise ValueError(f"unsupported register type {register_type}")
 
-        if result.isError(): _handle_error_response(result, register_name)
+        if result.isError(): self._handle_error_response(result, register_name)
         
         logger.info(f"Raw register begin value: {result.registers[0]}")
         val = server._decoded(result.registers, dtype)

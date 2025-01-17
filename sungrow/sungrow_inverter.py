@@ -1,4 +1,5 @@
-from server import Server, RegisterTypes
+from enums import RegisterTypes
+from server import Server
 from pymodbus.client import ModbusSerialClient
 import struct
 import logging
@@ -11,8 +12,10 @@ class SungrowInverter(Server):
     """
     Sungrow
         SGKTL-20        not found
+
+        SG50CX  # de leeuwenhof
     """
-    supported_models = ('SG110CX', 'SG33CX', 'SG80KTL-20')
+    supported_models = ('SG110CX', 'SG33CX', 'SG80KTL-20', 'SG50CX') 
     manufacturer = "Sungrow"
 
     # Parameters with limited availability:
@@ -489,22 +492,27 @@ class SungrowInverter(Server):
     # Device Information (Appendix 6)
 
     device_info = {
-    0x2C00: {
-        'model': 'SG33CX',
-        'mppt': 3,
-        'string_per_mppt': 2
-    },
-    0x2C06: {
-        'model': 'SG110CX',
-        'mppt': 9,
-        'string_per_mppt': 2
-    },
-    0x0138: {
-        'model': 'SG80KTL-20',
-        'mppt': 1,
-        'string_per_mppt': 18
+        0x2C00: {
+            'model': 'SG33CX',
+            'mppt': 3,
+            'string_per_mppt': 2
+        },
+        0x2C06: {
+            'model': 'SG110CX',
+            'mppt': 9,
+            'string_per_mppt': 2
+        },
+        0x0138: {
+            'model': 'SG80KTL-20',
+            'mppt': 1,
+            'string_per_mppt': 18
+        },
+        0x2C02: {
+            'model': 'SG50CX',
+            'mppt': 5, 
+            'string_per_mppt': 2
+        }
     }
-}
     # device_info = {
     #     # TODO what are power limited ranges in appendix 6
     #     # verified from doc
@@ -553,7 +561,6 @@ class SungrowInverter(Server):
     #     'SG30CX': {'type_code': '0x2C10', 'mppt': 3, 'string_per_mppt': 2},
     #     'SG36CX-US': {'type_code': '0x2C0A', 'mppt': 3, 'string_per_mppt': 2},
     #     'SG40CX': {'type_code': '0x2C01', 'mppt': 4, 'string_per_mppt': 2},
-    #     'SG50CX': {'type_code': '0x2C02', 'mppt': 5, 'string_per_mppt': 2},
     #     'SG60CX-US': {'type_code': '0x2C0B', 'mppt': 5, 'string_per_mppt': 2},
     #     'SG250HX': {'type_code': '0x2C0C', 'mppt': 12, 'string_per_mppt': 2},
     #     'SG250HX-US': {'type_code': '0x2C11', 'mppt': 12, 'string_per_mppt': 2},
