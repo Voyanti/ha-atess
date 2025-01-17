@@ -36,7 +36,10 @@ class BaseClient:
 
         logger.info(f"Reading param {register_name} of {dtype=} from {address=}, {multiplier=}, {count=}, {slave_id=}")
 
-        result = self.client.read_holding_registers(address=    address-1,
+        # result = self.client.read_holding_registers(address=    address-1,
+        #                                             count=      count,
+        #                                             slave=      slave_id)
+        result = self.client.read_input_registers(address=      address-1,
                                                     count=      count,
                                                     slave=      slave_id)
         if result.isError():
@@ -152,9 +155,9 @@ class SpoofClient(BaseClient):
         unit = register_info["unit"]
         count = register_info["count"]
 
-        # result = self.client.read_holding_registers(address-1,
-                                                    # count=count,
-                                                    # slave=server.device_addr)
+        result = self.client.read_input_registers(  address-1,
+                                                    count=count,
+                                                    slave=server.device_addr)
 
         # if result.isError():
         #     raise Exception(f"Error reading register {register_name}")

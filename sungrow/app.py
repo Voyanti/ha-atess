@@ -3,15 +3,14 @@ import atexit
 import logging
 import subprocess
 
-from modbus_mqtt import MqttClient
-from paho.mqtt.enums import MQTTErrorCode
 from loader import ConfigLoader
 from client import CustomModbusRtuClient, CustomModbusTcpClient
 from server import Server
 from sungrow_inverter import SungrowInverter
 from sungrow_logger import SungrowLogger
+from modbus_mqtt import MqttClient
+from paho.mqtt.enums import MQTTErrorCode
 
-# from client import SpoofClient as Client
 
 logging.basicConfig(
     level=logging.INFO,  # Set logging level
@@ -69,9 +68,9 @@ try:
     logger.info(f"{len(clients)} clients set up")
     # Instantiate servers
     logger.info("Instantiate servers")
-    servers = [SungrowLogger.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
+    # servers = [SungrowLogger.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
+    servers = [SungrowInverter.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
     logger.info(f"{len(servers)} servers set up")
-    # servers = [SungrowInverter.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
 
     # Connect to clients
     for client in clients:
