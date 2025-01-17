@@ -597,7 +597,7 @@ class SungrowInverter(Server):
 
     def read_model(self):
         logger.info(f"Reading model for inverter with serial {self.serialnum}")
-        modelcode = self.connected_client.read_register(self, "Device Type Code", self.registers["Device Type Code"])
+        modelcode = self.connected_client.read_registers(self, "Device Type Code", self.registers["Device Type Code"])
         self.model = self.device_info[modelcode]
         logger.info(f"Model read as {self.model}")
 
