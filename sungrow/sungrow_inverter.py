@@ -601,7 +601,7 @@ class SungrowInverter(Server):
         self.model = self.device_info[modelcode]
         logger.info(f"Model read as {self.model}")
 
-        if self.model not in self.supported_models: raise NotImplementedError(f"Model not supported in implementation of Server, {cls}")
+        if self.model not in self.supported_models: raise NotImplementedError(f"Model not supported in implementation of Server, {self}")
 
     def setup_valid_registers_for_model(self):
         """ Removes invalid registers for the specific model of inverter.

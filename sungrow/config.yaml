@@ -1,5 +1,5 @@
 name: "Sungrow Inverter Addon"
-version: "0.2.57"
+version: "0.2.58"
 slug: "sungrow"
 description: "Sungrow Inverter Addon"
 init: false
