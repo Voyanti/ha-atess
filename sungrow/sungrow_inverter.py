@@ -75,6 +75,7 @@ class SungrowInverter(Server):
     # TODO Combiner Board information p12 - need to check availability before reading?
     input_registers = {
         # ROM 3x registers
+        'Serial Number': {'addr': 4990, 'count': 10, 'dtype': 'UTF-8', 'multiplier': 1, 'unit': ''},
         'Device Type Code': {'addr': 5000, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
         'Nominal Active Power': {'addr': 5001, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'kW', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER},
         'Output Type': {'addr': 5002, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
