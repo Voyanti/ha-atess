@@ -49,11 +49,23 @@ class SungrowInverter(Server):
         "SG110CX","SG100CX、SG75CX","SG136TX","SG250HX","SG30CX","SG36CX-US","SG60CX-US","SG250HX-US","SG250HX-IN","SG25CX-SA","SG225HX"
     ]
 
+    export_limitation_supported_models = [  # Note: Country set to Europe Area.
+        "SG5KTL-MT", "SG6KTL-MT", "SG8KTL-M", "SG10KTL-M", "SG10KTL-MT", "SG12KTL-M", "SG15KTL-M", "SG17KTL-M","SG20KTL-M"
+    ]
+
     limited_params = {
         'Total Apparent Power': total_apparant_power_supported_models,
         'Total Power Yields (Increased Accuracy)': total_power_yields_increased_accuracy_supported_models,
         'Grid Frequency (Increased Accuracy)': grid_freq_increased_accuracy_suported_models,
         'PID Work State': pid_work_state_supported_models
+
+        # 'Export power limitation': export_limitation_supported_models,
+        # 'Export power limitation value': export_limitation_supported_models,
+        # 'Current transformer output current': export_limitation_supported_models,
+        # 'Current transformer range': export_limitation_supported_models,
+        # 'Current transformer': export_limitation_supported_models,
+        # 'Export power limitation percentage': export_limitation_supported_models,
+        # 'Installed PV Power': export_limitation_supported_models01KW
     }
     ################################################################################################################################################
 
@@ -142,29 +154,19 @@ class SungrowInverter(Server):
 
     # Params 4x register (write) p.13
     holding_registers = {
-        'System clock: Year': {'addr': 5000, 'dtype': 'U16', 'unit': ''},
-        'System clock: Month': {'addr': 5001, 'dtype': 'U16', 'unit': ''},
-        'System clock: Day': {'addr': 5002, 'dtype': 'U16', 'unit': ''},
-        'System clock: Hour': {'addr': 5003, 'dtype': 'U16', 'unit': ''},
-        'System clock: Minute': {'addr': 5004, 'dtype': 'U16', 'unit': ''},
-        'System clock: Second': {'addr': 5005, 'dtype': 'U16', 'unit': ''},
+        'System clock: Year': {'addr': 5000, 'dtype': 'U16', 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        'System clock: Month': {'addr': 5001, 'dtype': 'U16', 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        'System clock: Day': {'addr': 5002, 'dtype': 'U16', 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        'System clock: Hour': {'addr': 5003, 'dtype': 'U16', 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        'System clock: Minute': {'addr': 5004, 'dtype': 'U16', 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        'System clock: Second': {'addr': 5005, 'dtype': 'U16', 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
 
-        'Start/Stop': {'addr': 5006, 'dtype': 'U16', 'unit': ''},
+        'Start/Stop': {'addr': 5006, 'dtype': 'U16', 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.HOLDING_REGISTER},
 
         # 'Power limitation switch': {'addr': 5007, 'dtype': 'U16', 'unit': ''},
         # 'Power limitation setting': {'addr': 5008, 'dtype': 'U16', 'unit': '0.1%'},
-
-        # Valid for inverters:
-        # SG5KTL-MT
-        # SG6KTL-MT
-        # SG8KTL-M
-        # SG10KTL-M
-        # SG10KTL-MT
-        # SG12KTL-M
-        # SG15KTL-M
-        # SG17KTL-M
-        # SG20KTL-M
-        # Note: Country set to Europe Area.
+        
+        # Europe Only. See export_limitation_supported_models
         # 'Export power limitation': {'addr': 5010, 'dtype': 'U16', 'unit': ''},
         # 'Export power limitation value': {'addr': 5011, 'dtype': 'U16', 'unit': ''},
         # 'Current transformer output current': {'addr': 5012, 'dtype': 'U16', 'unit': 'A'},
