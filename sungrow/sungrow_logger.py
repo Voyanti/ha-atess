@@ -21,6 +21,8 @@ class SungrowLogger(Server):
         0x0718: { "model":"Logger4000"}
     }
 
+    supported_models = ("Logger1000", "Logger3000", "Logger4000")
+
     # Sungrow 1.0.2.7 definitions 04 input registers
     logger_input_registers = {
         'Device type code': {
