@@ -25,9 +25,9 @@ class AcrelMeter(Server):
     relevant_registers = {
         "Phase A Voltage": {
             "addr": 0x0061,
-            "count": 2,
+            "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "U32",
+            "dtype": "U16",
             "unit": "V",
             "device_class": "voltage",
             "multiplier": VOLTAGE_MULTIPLIER
