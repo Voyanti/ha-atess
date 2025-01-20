@@ -82,7 +82,8 @@ try:
     # Connect to Servers
     available_servers = []
     for server in servers:
-        if server.verify_serialnum(): available_servers.append(server)                          
+        available_servers.append(server)                          
+        # if server.verify_serialnum(): available_servers.append(server)                          
         server.read_model()
         server.setup_valid_registers_for_model()
     servers = available_servers
