@@ -16,7 +16,9 @@ class SungrowLogger(Server):
     model = "Logger 1000x"
 
     device_info = {
-        0x0705: "Logger3000", 0x0710: "Logger1000", 0x0718: "Logger4000"
+        0x0705: { "model":"Logger3000"},
+        0x0710: { "model":"Logger1000"}, 
+        0x0718: { "model":"Logger4000"}
     }
 
     # Sungrow 1.0.2.7 definitions 04 input registers
