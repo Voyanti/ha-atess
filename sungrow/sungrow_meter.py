@@ -24,7 +24,7 @@ class AcrelMeter(Server):
     # subset of all registers in documentation
     relevant_registers = {
         "Phase A Voltage": {
-            "addr": 0x0062,
+            "addr": 0x0061,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U16",
