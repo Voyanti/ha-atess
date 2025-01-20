@@ -22,10 +22,10 @@ class AcrelMeter(Server):
     manufacturer = "Acrel"
 
     # subset of all registers in documentation
-    # TODO 1-index or 0-index?
+    # TODO 1-index or 0-index? Add 1
     relevant_registers = {
         "Phase A Voltage": {
-            "addr": 0x0061,
+            "addr": 0x0061+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U16",
@@ -34,7 +34,7 @@ class AcrelMeter(Server):
             "multiplier": VOLTAGE_MULTIPLIER
         },
         "Phase B Voltage": {
-            "addr": 0x0062,
+            "addr": 0x0062+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
@@ -43,7 +43,7 @@ class AcrelMeter(Server):
             "multiplier": VOLTAGE_MULTIPLIER
         },
         "Phase C Voltage": {
-            "addr": 0x0063,
+            "addr": 0x0063+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
@@ -52,7 +52,7 @@ class AcrelMeter(Server):
             "multiplier": VOLTAGE_MULTIPLIER
         },
         "A-B Line Voltage": {
-            "addr": 0x0078,
+            "addr": 0x0078+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
@@ -61,7 +61,7 @@ class AcrelMeter(Server):
             "multiplier": VOLTAGE_MULTIPLIER
         },
         "B-C Line Voltage": {
-            "addr": 0x0079,
+            "addr": 0x0079+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
@@ -70,7 +70,7 @@ class AcrelMeter(Server):
             "multiplier": VOLTAGE_MULTIPLIER
         },
         "C-A Line Voltage": {
-            "addr": 0x007A,
+            "addr": 0x007A+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
@@ -79,7 +79,7 @@ class AcrelMeter(Server):
             "multiplier": VOLTAGE_MULTIPLIER
         },
         "Phase A Current": {
-            "addr": 0x0064,
+            "addr": 0x0064+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
@@ -88,7 +88,7 @@ class AcrelMeter(Server):
             "multiplier": CURRENT_MULTIPLIER
         },
         "Phase B Current": {
-            "addr": 0x0065,
+            "addr": 0x0065+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
@@ -97,7 +97,7 @@ class AcrelMeter(Server):
             "multiplier": CURRENT_MULTIPLIER
         },
         "Phase C Current": {
-            "addr": 0x0066,
+            "addr": 0x0066+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
@@ -106,7 +106,7 @@ class AcrelMeter(Server):
             "multiplier": CURRENT_MULTIPLIER
         },
         "Phase A Active Power": {
-            "addr": 0x0164,
+            "addr": 0x0164+1,
             "count": 4,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
@@ -115,7 +115,7 @@ class AcrelMeter(Server):
             "multiplier": POWER_MULTIPLIER
         },
         "Phase B Active Power": {
-            "addr": 0x0166,
+            "addr": 0x0166+1,
             "count": 4,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
@@ -124,7 +124,7 @@ class AcrelMeter(Server):
             "multiplier": POWER_MULTIPLIER
         },
         "Phase C Active Power": {
-            "addr": 0x0168,
+            "addr": 0x0168+1,
             "count": 4,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
@@ -133,7 +133,7 @@ class AcrelMeter(Server):
             "multiplier": POWER_MULTIPLIER
         },
         "PF": {
-            "addr": 0x017F,
+            "addr": 0x017F+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S32",
@@ -142,7 +142,7 @@ class AcrelMeter(Server):
             "multiplier": 0.001  # PF doesn't use PT or CT ratios
         },
         "Grid Frequency": {
-            "addr": 0x0077,
+            "addr": 0x0077+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
@@ -151,7 +151,7 @@ class AcrelMeter(Server):
             "multiplier": 0.01  # Frequency doesn't use PT or CT ratios
         },
         "Active Power": {
-            "addr": 0x016A,
+            "addr": 0x016A+1,
             "count": 4,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
@@ -160,7 +160,7 @@ class AcrelMeter(Server):
             "multiplier": POWER_MULTIPLIER
         },
         "Reactive Power": {
-            "addr": 0x0172,
+            "addr": 0x0172+1,
             "count": 4,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
@@ -169,7 +169,7 @@ class AcrelMeter(Server):
             "multiplier": POWER_MULTIPLIER
         },
         "Apparent Power": {
-            "addr": 0x017A,
+            "addr": 0x017A+1,
             "count": 4,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
@@ -178,7 +178,7 @@ class AcrelMeter(Server):
             "multiplier": POWER_MULTIPLIER
         },
         "Forward Active Energy": {
-            "addr": 0x000A,
+            "addr": 0x000A+1,
             "count": 4,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
@@ -187,7 +187,7 @@ class AcrelMeter(Server):
             "multiplier": ENERGY_MULTIPLIER
         },
         "Reverse Active Energy": {
-            "addr": 0x0014,
+            "addr": 0x0014+1,
             "count": 4,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
@@ -196,7 +196,7 @@ class AcrelMeter(Server):
             "multiplier": ENERGY_MULTIPLIER
         },
         "Forward Reactive Energy": {
-            "addr": 0x0028,
+            "addr": 0x0028+1,
             "count": 4,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
@@ -205,7 +205,7 @@ class AcrelMeter(Server):
             "multiplier": ENERGY_MULTIPLIER
         },
         "Reverse Reactive Energy": {
-            "addr": 0x0032,
+            "addr": 0x0032+1,
             "count": 4,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
