@@ -39,6 +39,12 @@ options:
       server_type: "SUNGROW_LOGGER"
       connected_client: "Client1"
       device_addr: 247
+    - name: "Acrel Meter 1"
+      nickname: "AM1"
+      serialnum: "unknown"
+      server_type: "ACREL_METER"
+      connected_client: "Client1"
+      device_addr: 254
   connection_specs:
     - name: "Sungrow_Logger"
       connection_method: "TCP"
