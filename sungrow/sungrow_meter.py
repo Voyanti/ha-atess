@@ -1,7 +1,7 @@
 from server import Server
 from enums import RegisterTypes
 from sungrow_logger import SungrowLogger
-from pymodbus import ModbusSerialClient
+from pymodbus.client import ModbusSerialClient
 import struct
 import logging
 
