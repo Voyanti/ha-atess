@@ -595,14 +595,9 @@ class SungrowInverter(Server):
         super().__init__(*args, **kwargs)
         # self.model = None
 
-    def read_model(self):
-        logger.info(f"Reading model for inverter with serial {self.serialnum}")
-        modelcode = self.connected_client.read_registers(self, "Device Type Code", self.registers["Device Type Code"])
-        self.model = self.device_info[modelcode]['model']
-        logger.info(f"Model read as {self.model}")
-
-        if self.model not in self.supported_models: raise NotImplementedError(f"Model not supported in implementation of Server, {self}")
-
+    def read_model(self, device_type_code_param_key="Device Type Code"):
+        return super().read_model(device_type_code_param_key)
+    
     def setup_valid_registers_for_model(self):
         """ Removes invalid registers for the specific model of inverter.
             Requires self.model. Call self.read_model() first."""

@@ -13,7 +13,7 @@ class Server(metaclass=abc.ABCMeta):
         self.name: str = name
         self.nickname: str = nickname
         self.serialnum: str = serialnum
-        self.connected_client: BaseClient = connected_client
+        self.connected_client = connected_client
         self.model:str | None = None
         self.device_addr:int| None = device_addr
 
@@ -51,6 +51,14 @@ class Server(metaclass=abc.ABCMeta):
         return instance
         # return Server(server_cfg["name"], server_cfg["nickname"], server_cfg["serialnum"], server_cfg['device_addr'], connected_client=clients[idx])
     
+    def read_model(self, device_type_code_param_key="Device type code"):
+        logger.info(f"Reading model for server")
+        modelcode = self.connected_client.read_registers(self, device_type_code_param_key, self.registers[device_type_code_param_key])
+        self.model = self.device_info[modelcode]['model']
+        logger.info(f"Model read as {self.model}")
+
+        if self.model not in self.supported_models: raise NotImplementedError(f"Model not supported in implementation of Server, {self}")
+
     @classmethod
     @abc.abstractmethod
     def _decoded(cls, content, dtype):
