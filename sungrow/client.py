@@ -55,9 +55,10 @@ class BaseClient:
         logger.info(f"Raw register begin value: {result.registers[0]}")
         val = server._decoded(result.registers, dtype)
         if multiplier != 1: val*=multiplier
+        if isinstance(val, int) or isinstance(val, float): val = round(val, 2)
         logger.info(f"Decoded Value = {val} {unit}")
 
-        return round(val, 2)
+        return val
 
     def write_register(self, val, server:Server, register_name: str, register_info:dict):
         """ Write to an individual register using pymodbus.
