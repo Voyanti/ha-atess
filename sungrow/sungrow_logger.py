@@ -219,7 +219,8 @@ class SungrowLogger(Server):
             'multiplier': 1,
             'unit': 'W',
             'device_class': 'power',
-            'register_type': RegisterTypes.INPUT_REGISTER},
+            'register_type': RegisterTypes.INPUT_REGISTER,
+            'state_class': 'total'},
         'Daily yield': {
             'addr': 8074,
             'count': 2,
@@ -227,7 +228,8 @@ class SungrowLogger(Server):
             'multiplier': 0.1,
             'unit': 'kWh',
             'device_class': 'energy',
-            'register_type': RegisterTypes.INPUT_REGISTER},
+            'register_type': RegisterTypes.INPUT_REGISTER,
+            'state_class': 'total_increasing'},
         'Total reactive power': {
             'addr': 8076,
             'count': 4,
@@ -235,7 +237,8 @@ class SungrowLogger(Server):
             'multiplier': 1,
             'unit': 'var',
             'device_class': 'reactive_power',
-            'register_type': RegisterTypes.INPUT_REGISTER},
+            'register_type': RegisterTypes.INPUT_REGISTER,
+            'state_class': 'total'},
         'Total yield': {
             'addr': 8080,
             'count': 4,
@@ -243,7 +246,8 @@ class SungrowLogger(Server):
             'multiplier': 0.1,
             'unit': 'kWh',
             'device_class': 'energy',
-            'register_type': RegisterTypes.INPUT_REGISTER},
+            'register_type': RegisterTypes.INPUT_REGISTER,
+            'state_class': 'total'},
         'Min. adjustable active power': {
             'addr': 8084,
             'count': 2,
@@ -315,7 +319,8 @@ class SungrowLogger(Server):
             'multiplier': 0.1,
             'unit': 'kWh',
             'device_class': 'energy',
-            'register_type': RegisterTypes.INPUT_REGISTER},
+            'register_type': RegisterTypes.INPUT_REGISTER,
+            'state_class': 'total_increasing'},
         'Annual yield of array': {
             'addr': 8102,
             'count': 4,
@@ -323,7 +328,8 @@ class SungrowLogger(Server):
             'multiplier': 0.1,
             'unit': 'kWh',
             'device_class': 'energy',
-            'register_type': RegisterTypes.INPUT_REGISTER},
+            'register_type': RegisterTypes.INPUT_REGISTER,
+            'state_class': 'total'},
         'Apparent power of array': {
             'addr': 8106,
             'count': 4,
@@ -331,8 +337,8 @@ class SungrowLogger(Server):
             'multiplier': 1,
             'unit': 'VA',
             'device_class': 'apparent_power',
-            'register_type': RegisterTypes.INPUT_REGISTER
-        }
+            'register_type': RegisterTypes.INPUT_REGISTER,
+            'state_class': 'measurement'}
     }
 
     # Sungrow Logger holding register 

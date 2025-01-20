@@ -49,6 +49,12 @@ RTU Serial Example
       stopbits: 1
 ```
 ## Adding custom server types
+requires implementing
+      - device info
+      - supprted_models
+      - registers
+override:
+      - read_model
 
 ### Defining a new Server type
 Inherit from server class in `server.py`. 

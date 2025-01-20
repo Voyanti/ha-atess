@@ -68,6 +68,8 @@ class MqttClient(mqtt.Client):
                     "device_class": details["device_class"],
                     "unit_of_measurement": details["unit"],
                 }
+            state_class = details.get("state_class", False)
+            if state_class: discovery_payload['state_class'] = state_class
             discovery_topic = f"{self.mqtt_cfg['ha_discovery_topic']}/sensor/{server.manufacturer.lower()}_{server.serialnum}/{slugify(register_name)}/config"
             self.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
 
