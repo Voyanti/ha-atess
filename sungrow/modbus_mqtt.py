@@ -42,6 +42,9 @@ class MqttClient(mqtt.Client):
         self.on_message = on_message
 
     def publish_discovery_topics(self, server):
+        if not server.model or not server.manufacturer or not server.serialnum or not server.nickname or not server.registers:
+            logging.info(f"Server not properly configured. Cannot publish MQTT info")
+            raise ValueError(f"Server not properly configured. Cannot publish MQTT info")
         # from uxr_charger app
         # server.model = "test"
         # server.serialnum = "asdf1234"

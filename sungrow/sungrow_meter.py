@@ -19,8 +19,9 @@ POWER_MULTIPLIER = 0.001 * PT_RATIO * CT_RATIO
 ENERGY_MULTIPLIER = 0.01 * PT_RATIO * CT_RATIO
 
 class AcrelMeter(Server):
-    supported_models = ('DTSD1352') 
+    supported_models = ('DTSD1352', ) 
     manufacturer = "Acrel"
+    model = supported_models[0]
 
     # subset of all registers in documentation
     # TODO 1-index or 0-index? Add 1
@@ -259,3 +260,7 @@ class AcrelMeter(Server):
    
     def _validate_write_val(register_name:str, val):
         raise NotImplementedError()
+    
+
+if __name__ == "__main__":
+    print(AcrelMeter.__dict__)
