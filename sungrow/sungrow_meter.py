@@ -22,6 +22,7 @@ class AcrelMeter(Server):
     manufacturer = "Acrel"
 
     # subset of all registers in documentation
+    # TODO 1-index or 0-index?
     relevant_registers = {
         "Phase A Voltage": {
             "addr": 0x0061,

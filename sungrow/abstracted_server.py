@@ -23,6 +23,9 @@ class AbstractedServer(Server):
         # only support logger 1000 for now
         return
     
+    def verify_serialnum(self, serialnum_name_in_definition = "Serial Number"):
+        return super().verify_serialnum(serialnum_name_in_definition)
+    
     def _decoded(cls, content, dtype):
         def _decode_u16(registers):
             """ Unsigned 16-bit big-endian to int """
