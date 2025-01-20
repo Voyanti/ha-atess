@@ -220,6 +220,9 @@ class AcrelMeter(Server):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.model = AcrelMeter.model
+        self.manufacturer = AcrelMeter.manufacturer
+        # self.serialnum = AcrelMeter..
 
     def read_model(self):
         return
@@ -264,3 +267,5 @@ class AcrelMeter(Server):
 
 if __name__ == "__main__":
     print(AcrelMeter.__dict__)
+    server = AcrelMeter.from_config({})
+    # if not server.model or not server.manufacturer or not server.serialnum or not server.nickname or not server.registers: 
