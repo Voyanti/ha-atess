@@ -7,6 +7,7 @@ from loader import ConfigLoader
 from client import CustomModbusRtuClient, CustomModbusTcpClient
 from sungrow_inverter import SungrowInverter
 from sungrow_logger import SungrowLogger
+from sungrow_meter import AcrelMeter
 from modbus_mqtt import MqttClient
 from paho.mqtt.enums import MQTTErrorCode
 
@@ -19,7 +20,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 mqtt_client = None
-read_interval = 2
+pause_interval = 3
+read_interval = 0.001
 
 def exit_handler(servers, modbus_clients, mqtt_client):          
     logger.info("Exiting")
@@ -70,6 +72,7 @@ try:
     for server_cfg in servers_cfgs:
         if server_cfg["server_type"] == "SUNGROW_INVERTER": servers.append(SungrowInverter.from_config(server_cfg, clients))
         elif server_cfg["server_type"] == "SUNGROW_LOGGER": servers.append(SungrowLogger.from_config(server_cfg, clients))
+        elif server_cfg["server_type"] == "ACREL_METER": servers.append(AcrelMeter.from_config(server_cfg, clients))
         else:
             logging.error(f"Server type key '{server_cfg['server_type']}' not defined in ServerTypes.")
             raise ValueError(f"Server type key '{server_cfg['server_type']}' not defined in ServerTypes.")
@@ -107,9 +110,10 @@ try:
                 client = server.connected_client
                 value = client.read_registers(server, register_name, details)
                 mqtt_client.publish_to_ha(register_name, value, server)
+                sleep(read_interval)
             logger.info(f"Published all parameter values for {server.name=}")   
 
         # publish availability
-        sleep(read_interval)
+        sleep(pause_interval)
 finally:
     exit_handler(servers, clients, mqtt_client)
