@@ -1,6 +1,7 @@
 from server import Server
 from enums import RegisterTypes
 from sungrow_logger import SungrowLogger
+from pymodbus import ModbusSerialClient
 import struct
 import logging
 
@@ -227,7 +228,31 @@ class AcrelMeter(Server):
         return
     
     def _decoded(cls, content, dtype):
-        return SungrowLogger._decoded(SungrowLogger, content, dtype)
+        def _decode_u16(registers):
+            """ Unsigned 16-bit big-endian to int """
+            return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.UINT16)
+        
+        def _decode_s16(registers):
+            """ Signed 16-bit big-endian to int """
+            return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.INT16)
+
+        def _decode_u32(registers):
+            """ Unsigned 32-bit big-endian word"""
+            return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.UINT32)
+        
+        def _decode_s32(registers):
+            """ Signed 32-bit mixed-endian word"""
+            return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.INT32)
+
+        def _decode_utf8(registers):
+            return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.STRING)
+
+        if dtype == "UTF-8": return _decode_utf8(content)
+        elif dtype == "U16": return _decode_u16(content)
+        elif dtype == "U32": return _decode_u32(content)
+        elif dtype == "S16": return _decode_s16(content)
+        elif dtype == "S32": return _decode_s32(content)
+        else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
         
     def _encoded(cls, value):
         pass

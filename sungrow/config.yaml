@@ -1,5 +1,5 @@
 name: "Sungrow Inverter Addon"
-version: "0.3.14"
+version: "0.3.15"
 slug: "sungrow"
 description: "Sungrow Inverter Addon"
 init: false
@@ -44,7 +44,7 @@ options:
       serialnum: "unknown"
       server_type: "ACREL_METER"
       connected_client: "Client1"
-      device_addr: 254
+      device_addr: 2
   connection_specs:
     - name: "Sungrow_Logger"
       connection_method: "TCP"
