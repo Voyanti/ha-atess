@@ -70,3 +70,11 @@ class Server(metaclass=abc.ABCMeta):
     def _encoded(cls, content):
         "Server-specific encoding must be implemented."
         pass
+
+    @abc.abstractmethod
+    def setup_valid_registers_for_model(self):
+        """ Server-specific logic for removing unsupported or selecting supported
+            registers for the specific model must be implemented.
+            Removes invalid registers for the specific model of inverter.
+            Requires self.model. Call self.read_model() first."""
+        pass

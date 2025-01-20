@@ -21,7 +21,8 @@ class SungrowLogger(Server):
         0x0718: { "model":"Logger4000"}
     }
 
-    supported_models = ("Logger1000", "Logger3000", "Logger4000")
+    supported_models = ("Logger1000")
+                        #  "Logger3000", "Logger4000")
 
     # Sungrow 1.0.2.7 definitions 04 input registers
     logger_input_registers = {
@@ -405,6 +406,10 @@ class SungrowLogger(Server):
 
     def read_model(self, device_type_code_param_key="Device type code"):
         return super().read_model(device_type_code_param_key)
+    
+    def setup_valid_registers_for_model(self):
+        # only support logger 1000 for now
+        return
 
     def _decoded(cls, content, dtype):
         # def _decode_u16(registers):
