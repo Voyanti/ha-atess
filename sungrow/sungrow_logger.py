@@ -3,6 +3,10 @@ from sungrow_inverter import SungrowInverter
 from pymodbus.client import ModbusSerialClient
 import struct
 from enums import RegisterTypes
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 U16_MAX = 2**16-1
 
@@ -10,6 +14,10 @@ class SungrowLogger(Server):
     
     manufacturer = "Sungrow"
     model = "Logger 1000x"
+
+    device_info = {
+        0x0705: "Logger3000", 0x0710: "Logger1000", 0x0718: "Logger4000"
+    }
 
     # Sungrow 1.0.2.7 definitions 04 input registers
     logger_input_registers = {
@@ -390,7 +398,14 @@ class SungrowLogger(Server):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = SungrowLogger.model              # only 1000b model
-        
+
+    def read_model(self):
+        logger.info(f"Reading model for logger")
+        modelcode = self.connected_client.read_registers(self, "Device Type Code", self.registers["Device Type Code"])
+        self.model = self.device_info[modelcode]['model']
+        logger.info(f"Model read as {self.model}")
+
+        if self.model not in self.supported_models: raise NotImplementedError(f"Model not supported in implementation of Server, {self}")
 
     def _decoded(cls, content, dtype):
         # def _decode_u16(registers):
