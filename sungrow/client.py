@@ -57,7 +57,7 @@ class BaseClient:
         if multiplier != 1: val*=multiplier
         logger.info(f"Decoded Value = {val} {unit}")
 
-        return val
+        return round(val, 2)
 
     def write_register(self, val, server:Server, register_name: str, register_info:dict):
         """ Write to an individual register using pymodbus.

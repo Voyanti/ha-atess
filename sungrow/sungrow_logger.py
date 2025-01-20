@@ -2,284 +2,323 @@ from server import Server
 from sungrow_inverter import SungrowInverter  
 from pymodbus.client import ModbusSerialClient
 import struct
+from enums import RegisterTypes
 
 U16_MAX = 2**16-1
 
 class SungrowLogger(Server):
     
     manufacturer = "Sungrow"
-    model = "Logger"
+    model = "Logger 1000x"
 
     # Sungrow 1.0.2.7 definitions 04 input registers
     logger_input_registers = {
         'Device type code': {
             'addr': 8000,
+            'count': 1,
             'dtype': 'U16',
             'multiplier': 1,
             'unit': '',
             'device_class': 'enum',
-            'remarks': '0x0705 Logger3000, 0x0710 Logger1000, 0x0718 Logger4000'
-        },
+            'remarks': '0x0705 Logger3000, 0x0710 Logger1000, 0x0718 Logger4000',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Protocol number': {
             'addr': 8001,
-            'dtype': 'U32',
-            'multiplier': 1,
-            'unit': '',
-            'device_class': 'enum'
-        },
-        'Communication protocol version': {
-            'addr': 8003,
-            'dtype': 'U32',
-            'multiplier': 1,
-            'unit': '',
-            'device_class': 'enum'
-        },
-        'Total devices connected': {
-            'addr': 8005,
-            'dtype': 'U16',
-            'multiplier': 1,
-            'unit': 'Set',
-            'device_class': 'enum'
-        },
-        'Total faulty devices': {
-            'addr': 8006,
-            'dtype': 'U16',
-            'multiplier': 1,
-            'unit': 'Set',
-            'device_class': 'enum'
-        },
-        'Digital input state': {
-            'addr': 8021,
+            'count': 2,
             'dtype': 'U32',
             'multiplier': 1,
             'unit': '',
             'device_class': 'enum',
-            'remarks': 'Currently only the low 16 bits are used. Logger1000 only uses 8 bits, Logger3000 uses 16 bits, and Logger4000 uses 16 bits'
-        },
+            'register_type': RegisterTypes.INPUT_REGISTER},
+        'Communication protocol version': {
+            'addr': 8003,
+            'count': 2,
+            'dtype': 'U32',
+            'multiplier': 1,
+            'unit': '',
+            'device_class': 'enum',
+            'register_type': RegisterTypes.INPUT_REGISTER},
+        'Total devices connected': {
+            'addr': 8005,
+            'count': 1,
+            'dtype': 'U16',
+            'multiplier': 1,
+            'unit': 'Set',
+            'device_class': 'enum',
+            'register_type': RegisterTypes.INPUT_REGISTER},
+        'Total faulty devices': {
+            'addr': 8006,
+            'count': 1,
+            'dtype': 'U16',
+            'multiplier': 1,
+            'unit': 'Set',
+            'device_class': 'enum',
+            'register_type': RegisterTypes.INPUT_REGISTER},
+        'Digital input state': {
+            'addr': 8021,
+            'count': 2,
+            'dtype': 'U32',
+            'multiplier': 1,
+            'unit': '',
+            'device_class': 'enum',
+            'remarks': 'Currently only the low 16 bits are used. Logger1000 only uses 8 bits, Logger3000 uses 16 bits, and Logger4000 uses 16 bits',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'ADC1 voltage': {
             'addr': 8029,
-            'dtype': 'S16',
-            'multiplier': 0.01,
-            'unit': 'V',
-            'device_class': 'voltage'
-        },
-        'ADC1 current': {
-            'addr': 8030,
-            'dtype': 'S16',
-            'multiplier': 0.01,
-            'unit': 'mA',
-            'device_class': 'current',
-            'remarks': 'Logger1000/Logger3000'
-        },
-        'ADC2 voltage': {
-            'addr': 8031,
+            'count': 1,
             'dtype': 'S16',
             'multiplier': 0.01,
             'unit': 'V',
             'device_class': 'voltage',
-            'remarks': 'Logger1000/Logger3000'
-        },
-        'ADC2 current': {
-            'addr': 8032,
+            'register_type': RegisterTypes.INPUT_REGISTER},
+        'ADC1 current': {
+            'addr': 8030,
+            'count': 1,
             'dtype': 'S16',
             'multiplier': 0.01,
             'unit': 'mA',
-            'device_class': 'current'
-        },
+            'device_class': 'current',
+            'remarks': 'Logger1000/Logger3000',
+            'register_type': RegisterTypes.INPUT_REGISTER},
+        'ADC2 voltage': {
+            'addr': 8031,
+            'count': 1,
+            'dtype': 'S16',
+            'multiplier': 0.01,
+            'unit': 'V',
+            'device_class': 'voltage',
+            'remarks': 'Logger1000/Logger3000',
+            'register_type': RegisterTypes.INPUT_REGISTER},
+        'ADC2 current': {
+            'addr': 8032,
+            'count': 1,
+            'dtype': 'S16',
+            'multiplier': 0.01,
+            'unit': 'mA',
+            'device_class': 'current',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'ADC3 voltage': {
             'addr': 8033,
             'dtype': 'S16',
+            'count': 1,
             'multiplier': '',
             'unit': '',
             'device_class': 'voltage',
-            'remarks': 'Logger3000 and Logger1000 share the voltage. Logger3000 consumes 0.01mV, and Logger1000 consumes 0.01V'
-        },
+            'remarks': 'Logger3000 and Logger1000 share the voltage. Logger3000 consumes 0.01mV, and Logger1000 consumes 0.01V',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'ADC4 voltage': {
             'addr': 8034,
+            'count': 1,
             'dtype': 'S16',
             'multiplier': '',
             'unit': '',
             'device_class': 'voltage',
-            'remarks': 'Logger3000 and Logger1000 share the voltage. Logger3000 consumes 0.01mV, and Logger1000 consumes 0.01V'
-        },
+            'remarks': 'Logger3000 and Logger1000 share the voltage. Logger3000 consumes 0.01mV, and Logger1000 consumes 0.01V',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'ADC3 current': {
             'addr': 8035,
+            'count': 1,
             'dtype': 'S16',
             'multiplier': 0.01,
             'unit': 'mA',
             'device_class': 'current',
-            'remarks': 'Logger1000/Logger4000'
-        },
+            'remarks': 'Logger1000/Logger4000',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'ADC4 current': {
             'addr': 8036,
+            'count': 1,
             'dtype': 'S16',
             'multiplier': 0.01,
             'unit': 'mA',
             'device_class': 'current',
-            'remarks': 'Logger1000/Logger4000'
-        },
+            'remarks': 'Logger1000/Logger4000',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Max. total nominal active power': {
             'addr': 8058,
+            'count': 1,
             'dtype': 'U16',
             'multiplier': 1,
             'unit': 'kW',
-            'device_class': 'power'
-        },
+            'device_class': 'power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Min. total nominal active power': {
             'addr': 8059,
+            'count': 1,
             'dtype': 'U16',
             'multiplier': 1,
             'unit': 'kW',
-            'device_class': 'power'
-        },
+            'device_class': 'power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Max. total nominal reactive power': {
             'addr': 8060,
+            'count': 1,
             'dtype': 'U16',
             'multiplier': 1,
             'unit': 'kVar',
-            'device_class': 'reactive_power'
-        },
+            'device_class': 'reactive_power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Min. total nominal reactive power': {
             'addr': 8061,
+            'count': 1,
             'dtype': 'S16',
             'multiplier': 1,
             'unit': 'kVar',
-            'device_class': 'reactive_power'
-        },
+            'device_class': 'reactive_power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Inverter preset total active power': {
             'addr': 8066,
+            'count': 1,
             'dtype': 'U16',
             'multiplier': 1,
             'unit': 'kW',
-            'device_class': 'power'
-        },
+            'device_class': 'power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Inverter preset total reactive power': {
             'addr': 8067,
+            'count': 1,
             'dtype': 'S16',
             'multiplier': 1,
             'unit': 'kVar',
-            'device_class': 'reactive_power'
-        },
+            'device_class': 'reactive_power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Logger On/Off state': {
             'addr': 8068,
+            'count': 1,
             'dtype': 'U16',
             'multiplier': 1,
             'unit': '',
             'device_class': 'enum',
-            'remarks': '0: Off, 1: On'
-        },
+            'remarks': '0: Off, 1: On',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Logger unlatch state': {
             'addr': 8069,
+            'count': 1,
             'dtype': 'U16',
             'multiplier': 1,
             'unit': '',
             'device_class': 'enum',
-            'remarks': '0: latched, 1: unlatched'
-        },
+            'remarks': '0: latched, 1: unlatched',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Total active power': {
             'addr': 8070,
+            'count': 4,
             'dtype': 'U64',
             'multiplier': 1,
             'unit': 'W',
-            'device_class': 'power'
-        },
+            'device_class': 'power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Daily yield': {
             'addr': 8074,
+            'count': 2,
             'dtype': 'U32',
             'multiplier': 0.1,
             'unit': 'kWh',
-            'device_class': 'energy'
-        },
+            'device_class': 'energy',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Total reactive power': {
             'addr': 8076,
+            'count': 4,
             'dtype': 'S64',
             'multiplier': 1,
             'unit': 'var',
-            'device_class': 'reactive_power'
-        },
+            'device_class': 'reactive_power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Total yield': {
             'addr': 8080,
+            'count': 4,
             'dtype': 'U64',
             'multiplier': 0.1,
             'unit': 'kWh',
-            'device_class': 'energy'
-        },
+            'device_class': 'energy',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Min. adjustable active power': {
             'addr': 8084,
+            'count': 2,
             'dtype': 'U32',
             'multiplier': 0.1,
             'unit': 'kW',
-            'device_class': 'power'
-        },
+            'device_class': 'power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Max. adjustable active power': {
             'addr': 8086,
+            'count': 2,
             'dtype': 'U32',
             'multiplier': 0.1,
             'unit': 'kW',
-            'device_class': 'power'
-        },
+            'device_class': 'power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Min. adjustable reactive power': {
             'addr': 8088,
+            'count': 2,
             'dtype': 'S32',
             'multiplier': 0.1,
             'unit': 'kVar',
-            'device_class': 'reactive_power'
-        },
+            'device_class': 'reactive_power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Max. adjustable reactive power': {
             'addr': 8090,
+            'count': 2,
             'dtype': 'S32',
             'multiplier': 0.1,
             'unit': 'kVar',
-            'device_class': 'reactive_power'
-        },
+            'device_class': 'reactive_power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Nominal active power': {
             'addr': 8092,
+            'count': 2,
             'dtype': 'U32',
             'multiplier': 0.1,
             'unit': 'kVar',
-            'device_class': 'power'
-        },
+            'device_class': 'power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Nominal reactive power': {
             'addr': 8094,
+            'count': 2,
             'dtype': 'U32',
             'multiplier': 0.1,
             'unit': 'kVar',
-            'device_class': 'reactive_power'
-        },
+            'device_class': 'reactive_power',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Grid-connected devices': {
             'addr': 8096,
+            'count': 1,
             'dtype': 'U16',
             'multiplier': 1,
             'unit': 'Set',
-            'device_class': 'enum'
-        },
+            'device_class': 'enum',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Off-grid devices': {
             'addr': 8097,
+            'count': 1,
             'dtype': 'U16',
             'multiplier': 1,
             'unit': 'Set',
-            'device_class': 'enum'
-        },
+            'device_class': 'enum',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Monthly yield of array': {
             'addr': 8098,
+            'count': 4,
             'dtype': 'U64',
             'multiplier': 0.1,
             'unit': 'kWh',
-            'device_class': 'energy'
-        },
+            'device_class': 'energy',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Annual yield of array': {
             'addr': 8102,
+            'count': 4,
             'dtype': 'U64',
             'multiplier': 0.1,
             'unit': 'kWh',
-            'device_class': 'energy'
-        },
+            'device_class': 'energy',
+            'register_type': RegisterTypes.INPUT_REGISTER},
         'Apparent power of array': {
             'addr': 8106,
+            'count': 4,
             'dtype': 'U64',
             'multiplier': 1,
             'unit': 'VA',
-            'device_class': 'apparent_power'
+            'device_class': 'apparent_power',
+            'register_type': RegisterTypes.INPUT_REGISTER
         }
     }
 
@@ -289,50 +328,62 @@ class SungrowLogger(Server):
     logger_holding_registers = {
         'Set the sub-array inverter on and off': {
             'addr': 8002,
+            'count': 1,
             'dtype': 'U16',
             'multiplier': 1,
             'unit': '',
             'device_class': 'enum',
+            'register_type': RegisterTypes.HOLDING_REGISTER,
             'remarks': '0: Off\n1: On'
         },
         'Set active power of subarray inverter': {
             'addr': 8003,
+            'count': 2,
             'dtype': 'U32',
             'multiplier': 0.1,
             'unit': 'kW',
-            'device_class': 'power'
+            'device_class': 'power',
+            'register_type': RegisterTypes.HOLDING_REGISTER
         },
         'Set active power ratio of subarray inverter': {
             'addr': 8005,
+            'count': 2,
             'dtype': 'U32',
             'multiplier': 0.1,
             'unit': '%',
-            'device_class': 'power_factor'
+            'device_class': 'power_factor',
+            'register_type': RegisterTypes.HOLDING_REGISTER
         },
         'Set reactive power of subarray inverter': {
             'addr': 8007,
+            'count': 2,
             'dtype': 'S32',
             'multiplier': 0.1,
             'unit': 'kVar',
-            'device_class': 'reactive_power'
+            'device_class': 'reactive_power',
+            'register_type': RegisterTypes.HOLDING_REGISTER
         },
         'Setting reactive power ratio of subarray inverter': {
             'addr': 8009,
+            'count': 2,
             'dtype': 'S32',
             'multiplier': 0.1,
             'unit': '%',
-            'device_class': 'power_factor'
+            'device_class': 'power_factor',
+            'register_type': RegisterTypes.HOLDING_REGISTER
         },
         'Set the power factor of subarray inverter': {
             'addr': 8011,
+            'count': 2,
             'dtype': 'S32',
             'multiplier': 0.001,
             'unit': '',
-            'device_class': 'power_factor'
+            'device_class': 'power_factor',
+            'register_type': RegisterTypes.HOLDING_REGISTER
         },
     }
 
-    # registers = logger_registers
+    registers = logger_input_registers
 
 
 
@@ -380,6 +431,16 @@ class SungrowLogger(Server):
             """ Signed 32-bit mixed-endian word"""
             packed = struct.pack('>HH', registers[1], registers[0])
             return struct.unpack('>i', packed)[0]
+        
+        def _decode_u64(registers):
+            """ Unsigned 64-bit big-endian word"""
+            packed = struct.pack('>HHHH', *registers)
+            return struct.unpack('>Q', packed)[0]
+        
+        def _decode_s64(registers):
+            """ Signed 64-bit big-endian word"""
+            packed = struct.pack('>HHHH', *registers)
+            return struct.unpack('>q', packed)[0]
 
         def _decode_utf8(registers):
             return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.STRING)
@@ -387,8 +448,10 @@ class SungrowLogger(Server):
         if dtype == "UTF-8": return _decode_utf8(content)
         elif dtype == "U16": return _decode_u16(content)
         elif dtype == "U32": return _decode_u32(content)
+        elif dtype == "U64": return _decode_u64(content)
         elif dtype == "I16" or dtype == "S16": return _decode_s16(content)
         elif dtype == "I32" or dtype == "S32": return _decode_s32(content)
+        elif dtype == "I64" or dtype == "S64": return _decode_s64(content)
         else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
 
     

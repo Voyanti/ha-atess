@@ -64,10 +64,15 @@ try:
         if client_cfg["type"] == "RTU": clients.append(CustomModbusRtuClient.from_config(client_cfg, connection_specs))
         elif client_cfg["type"] == "TCP": clients.append(CustomModbusTcpClient.from_config(client_cfg, connection_specs))
     logger.info(f"{len(clients)} clients set up")
-    # Instantiate servers
+    
     logger.info("Instantiate servers")
-    # servers = [SungrowLogger.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
-    servers = [SungrowInverter.from_config(server_cfg, clients) for server_cfg in servers_cfgs]
+    servers = []
+    for server_cfg in servers_cfgs:
+        if server_cfg["server_type"] == "SUNGROW_INVERTER": servers.append(SungrowInverter.from_config(server_cfg, clients))
+        elif server_cfg["server_type"] == "SUNGROW_LOGGER": servers.append(SungrowLogger.from_config(server_cfg, clients))
+        else:
+            logging.error(f"Server type key '{server_cfg['server_type']}' not defined in ServerTypes.")
+            raise ValueError(f"Server type key '{server_cfg['server_type']}' not defined in ServerTypes.")
     logger.info(f"{len(servers)} servers set up")
 
     # Connect to clients
