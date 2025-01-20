@@ -26,7 +26,7 @@ class AcrelMeter(Server):
         "Phase A Voltage": {
             "addr": 0x0061,
             "count": 2,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
             "unit": "V",
             "device_class": "voltage",
@@ -35,7 +35,7 @@ class AcrelMeter(Server):
         "Phase B Voltage": {
             "addr": 0x0062,
             "count": 2,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
             "unit": "V",
             "device_class": "voltage",
@@ -44,7 +44,7 @@ class AcrelMeter(Server):
         "Phase C Voltage": {
             "addr": 0x0063,
             "count": 2,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
             "unit": "V",
             "device_class": "voltage",
@@ -53,7 +53,7 @@ class AcrelMeter(Server):
         "A-B Line Voltage": {
             "addr": 0x0078,
             "count": 2,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
             "unit": "V",
             "device_class": "voltage",
@@ -62,7 +62,7 @@ class AcrelMeter(Server):
         "B-C Line Voltage": {
             "addr": 0x0079,
             "count": 2,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
             "unit": "V",
             "device_class": "voltage",
@@ -71,7 +71,7 @@ class AcrelMeter(Server):
         "C-A Line Voltage": {
             "addr": 0x007A,
             "count": 2,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
             "unit": "V",
             "device_class": "voltage",
@@ -80,7 +80,7 @@ class AcrelMeter(Server):
         "Phase A Current": {
             "addr": 0x0064,
             "count": 2,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
             "unit": "A",
             "device_class": "current",
@@ -89,7 +89,7 @@ class AcrelMeter(Server):
         "Phase B Current": {
             "addr": 0x0065,
             "count": 2,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
             "unit": "A",
             "device_class": "current",
@@ -98,7 +98,7 @@ class AcrelMeter(Server):
         "Phase C Current": {
             "addr": 0x0066,
             "count": 2,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
             "unit": "A",
             "device_class": "current",
@@ -107,7 +107,7 @@ class AcrelMeter(Server):
         "Phase A Active Power": {
             "addr": 0x0164,
             "count": 4,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
             "unit": "kW",
             "device_class": "power",
@@ -116,7 +116,7 @@ class AcrelMeter(Server):
         "Phase B Active Power": {
             "addr": 0x0166,
             "count": 4,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
             "unit": "kW",
             "device_class": "power",
@@ -125,7 +125,7 @@ class AcrelMeter(Server):
         "Phase C Active Power": {
             "addr": 0x0168,
             "count": 4,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
             "unit": "kW",
             "device_class": "power",
@@ -134,7 +134,7 @@ class AcrelMeter(Server):
         "PF": {
             "addr": 0x017F,
             "count": 2,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S32",
             "unit": None,
             "device_class": "power_factor",
@@ -143,7 +143,7 @@ class AcrelMeter(Server):
         "Grid Frequency": {
             "addr": 0x0077,
             "count": 2,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "U32",
             "unit": "Hz",
             "device_class": "frequency",
@@ -152,7 +152,7 @@ class AcrelMeter(Server):
         "Active Power": {
             "addr": 0x016A,
             "count": 4,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
             "unit": "kW",
             "device_class": "power",
@@ -161,7 +161,7 @@ class AcrelMeter(Server):
         "Reactive Power": {
             "addr": 0x0172,
             "count": 4,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
             "unit": "kVar",
             "device_class": "reactive_power",
@@ -170,7 +170,7 @@ class AcrelMeter(Server):
         "Apparent Power": {
             "addr": 0x017A,
             "count": 4,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
             "unit": "kVA",
             "device_class": "apparent_power",
@@ -179,7 +179,7 @@ class AcrelMeter(Server):
         "Forward Active Energy": {
             "addr": 0x000A,
             "count": 4,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
             "unit": "kWh",
             "device_class": "energy",
@@ -188,7 +188,7 @@ class AcrelMeter(Server):
         "Reverse Active Energy": {
             "addr": 0x0014,
             "count": 4,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
             "unit": "kWh",
             "device_class": "energy",
@@ -197,7 +197,7 @@ class AcrelMeter(Server):
         "Forward Reactive Energy": {
             "addr": 0x0028,
             "count": 4,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
             "unit": "kVarh",
             "device_class": "energy",
@@ -206,7 +206,7 @@ class AcrelMeter(Server):
         "Reverse Reactive Energy": {
             "addr": 0x0032,
             "count": 4,
-            "register_type": RegisterTypes.INPUT_REGISTER,
+            "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": "S64",
             "unit": "kVarh",
             "device_class": "energy",
