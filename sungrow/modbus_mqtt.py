@@ -57,9 +57,9 @@ class MqttClient(mqtt.Client):
         # publish discovery topics for legal registers
         # assume registers in server.registers
         availability_topic = f"{self.mqtt_cfg['base_topic']}_{server.manufacturer}_{server.serialnum}/availability"
-        state_topic = f"{self.mqtt_cfg['base_topic']}/{server.nickname}/{slugify(register_name)}"
 
         for register_name, details in server.registers.items():
+            state_topic = f"{self.mqtt_cfg['base_topic']}/{server.nickname}/{slugify(register_name)}"
             discovery_payload = {
                     "name": register_name,
                     "unique_id": f"{server.manufacturer}_{server.serialnum}_{slugify(register_name)}",
