@@ -51,13 +51,12 @@ class MqttClient(mqtt.Client):
             "manufacturer": server.manufacturer,
             "model": server.model,
             "identifiers": [f"{server.manufacturer}_{server.serialnum}"],
-            "name": f"{server.manufacturer} {server.serialnum}",
-            "object_id": f"{server.nickname}"
+            "name": f"{server.manufacturer} {server.serialnum}"
         }
 
         # publish discovery topics for legal registers
         # assume registers in server.registers
-        availability_topic = f"{self.mqtt_cfg['base_topic']}_{server.manufacturer}_{server.serialnum}/availability"
+        availability_topic = f"{self.mqtt_cfg['base_topic']}_{server.nickname}/availability"
 
         for register_name, details in server.registers.items():
             state_topic = f"{self.mqtt_cfg['base_topic']}/{server.nickname}/{slugify(register_name)}"
@@ -72,7 +71,7 @@ class MqttClient(mqtt.Client):
                 }
             state_class = details.get("state_class", False)
             if state_class: discovery_payload['state_class'] = state_class
-            discovery_topic = f"{self.mqtt_cfg['ha_discovery_topic']}/sensor/{server.manufacturer.lower()}_{server.serialnum}/{slugify(register_name)}/config"
+            discovery_topic = f"{self.mqtt_cfg['ha_discovery_topic']}/sensor/{server.nickname}/{slugify(register_name)}/config"
             self.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
 
         self.publish_availability(True, server)
@@ -82,5 +81,5 @@ class MqttClient(mqtt.Client):
         self.publish(state_topic, value) #, retain=True)
 
     def publish_availability(self, avail, server):
-        availability_topic = f"{self.mqtt_cfg['base_topic']}_{server.manufacturer}_{server.serialnum}/availability"
+        availability_topic = f"{self.mqtt_cfg['base_topic']}_{server.nickname}/availability"
         self.publish(availability_topic, "online" if avail else "offline", retain=True)
