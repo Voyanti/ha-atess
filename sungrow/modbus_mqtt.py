@@ -50,7 +50,7 @@ class MqttClient(mqtt.Client):
         device = {
             "manufacturer": server.manufacturer,
             "model": server.model,
-            "identifiers": [f"{server.manufacturer}_{server.serialnum}"],
+            "identifiers": [f"{server.nickname}"],
             "name": f"{server.manufacturer} {server.serialnum}"
         }
 
@@ -59,7 +59,7 @@ class MqttClient(mqtt.Client):
         availability_topic = f"{self.mqtt_cfg['base_topic']}_{server.nickname}/availability"
 
         for register_name, details in server.registers.items():
-            state_topic = f"{self.mqtt_cfg['base_topic']}/{server.nickname}/{slugify(register_name)}"
+            state_topic = f"{self.mqtt_cfg['base_topic']}/{server.nickname}/{slugify(register_name)}/state"
             discovery_payload = {
                     "name": register_name,
                     "unique_id": f"{server.nickname}_{slugify(register_name)}",
@@ -77,7 +77,7 @@ class MqttClient(mqtt.Client):
         self.publish_availability(True, server)
 
     def publish_to_ha(self, register_name, value, server):
-        state_topic = f"{self.mqtt_cfg['base_topic']}/{server.nickname}/{slugify(register_name)}"
+        state_topic = f"{self.mqtt_cfg['base_topic']}/{server.nickname}/{slugify(register_name)}/state"
         self.publish(state_topic, value) #, retain=True)
 
     def publish_availability(self, avail, server):
