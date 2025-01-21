@@ -45,9 +45,7 @@ class MqttClient(mqtt.Client):
         if not server.model or not server.manufacturer or not server.serialnum or not server.nickname or not server.registers:
             logging.info(f"Server not properly configured. Cannot publish MQTT info")
             raise ValueError(f"Server not properly configured. Cannot publish MQTT info")
-        # from uxr_charger app
-        # server.model = "test"
-        # server.serialnum = "asdf1234"
+ 
         logger.info(f"Publishing discovery topics for {server.nickname}")
         device = {
             "manufacturer": server.manufacturer,
@@ -56,16 +54,16 @@ class MqttClient(mqtt.Client):
             "name": f"{server.manufacturer} {server.serialnum}"
         }
 
-
         # publish discovery topics for legal registers
         # assume registers in server.registers
         availability_topic = f"{self.mqtt_cfg['base_topic']}_{server.manufacturer}_{server.serialnum}/availability"
-        # from uxr_charger app
+        state_topic = f"{self.mqtt_cfg['base_topic']}/{server.nickname}/{slugify(register_name)}"
+
         for register_name, details in server.registers.items():
             discovery_payload = {
                     "name": register_name,
                     "unique_id": f"{server.manufacturer}_{server.serialnum}_{slugify(register_name)}",
-                    "state_topic": f"{self.mqtt_cfg['base_topic']}/{server.serialnum}/{slugify(register_name)}",
+                    "state_topic": state_topic,
                     "availability_topic": availability_topic,
                     "device": device,
                     "device_class": details["device_class"],
@@ -77,13 +75,10 @@ class MqttClient(mqtt.Client):
             self.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
 
         self.publish_availability(True, server)
-        # TODO incomplete
 
     def publish_to_ha(self, register_name, value, server):
-        self.publish(f"{self.mqtt_cfg['base_topic']}/{server.serialnum}/{slugify(register_name)}", value) #, retain=True)
-        # availability_topic = f"{self.mqtt_cfg['base_topic']}_{server.manufacturer}_{server.serialnum}/availability"
-
-        # self.publish(availability_topic, "online")
+        state_topic = f"{self.mqtt_cfg['base_topic']}/{server.nickname}/{slugify(register_name)}"
+        self.publish(state_topic, value) #, retain=True)
 
     def publish_availability(self, avail, server):
         availability_topic = f"{self.mqtt_cfg['base_topic']}_{server.manufacturer}_{server.serialnum}/availability"

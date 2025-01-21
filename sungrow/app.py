@@ -66,6 +66,7 @@ try:
         if client_cfg["type"] == "RTU": clients.append(CustomModbusRtuClient.from_config(client_cfg, connection_specs))
         elif client_cfg["type"] == "TCP": clients.append(CustomModbusTcpClient.from_config(client_cfg, connection_specs))
     logger.info(f"{len(clients)} clients set up")
+    if len(clients) == 0: raise RuntimeError(f"No clients available")
     
     logger.info("Instantiate servers")
     servers = []
@@ -77,6 +78,7 @@ try:
             logging.error(f"Server type key '{server_cfg['server_type']}' not defined in ServerTypes.")
             raise ValueError(f"Server type key '{server_cfg['server_type']}' not defined in ServerTypes.")
     logger.info(f"{len(servers)} servers set up")
+    if len(servers) == 0: raise RuntimeError(f"No supported servers configured")
 
     # Connect to clients
     for client in clients:
@@ -116,4 +118,4 @@ try:
         # publish availability
         sleep(pause_interval)
 finally:
-    exit_handler(servers, clients, mqtt_client)
+    exit_handler(available_servers, clients, mqtt_client)

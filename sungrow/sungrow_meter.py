@@ -179,7 +179,7 @@ class AcrelMeter(Server):
             "device_class": "apparent_power",
             "multiplier": POWER_MULTIPLIER
         },
-        "Forward Active Energy": {
+        "Grid Import": {                    # was 'Forward Active Energy'
             "addr": 0x000A+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
@@ -189,7 +189,7 @@ class AcrelMeter(Server):
             "multiplier": ENERGY_MULTIPLIER,
             'state_class': 'total'
         },
-        "Reverse Active Energy": {
+        "Grid Export": {                    # was 'Reverse Active Energy'
             "addr": 0x0014+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,

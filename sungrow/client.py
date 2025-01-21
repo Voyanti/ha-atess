@@ -26,6 +26,11 @@ class BaseClient:
         """ Read a group of registers using pymodbus 
         
             Reuires implementation of the abstract method 'Server._decoded()'
+
+            Parameters:
+            -----------
+
+                - address: int: 1-indexed slave register address
         """
 
         address = register_info["addr"]
