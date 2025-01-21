@@ -65,13 +65,12 @@ try:
         client.connect()
 
     # Connect to Servers
-    available_servers = []
     for server in servers:
-        available_servers.append(server)                          
-        # if server.verify_serialnum(): available_servers.append(server)                          
+        if not server.is_available():
+            logger.error(f"Server {server.nickname} not available")
+            raise ConnectionError()                          
         server.read_model()
         server.setup_valid_registers_for_model()
-    servers = available_servers
 
     # Setup MQTT Client
     mqtt_client = MqttClient(mqtt_cfg)
@@ -98,4 +97,4 @@ try:
         # publish availability
         sleep(pause_interval)
 finally:
-    exit_handler(available_servers, clients, mqtt_client)
+    exit_handler(servers, clients, mqtt_client)
