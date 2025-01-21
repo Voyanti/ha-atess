@@ -233,7 +233,7 @@ class AcrelMeter(Server):
         # only support logger 1000 for now
         return
     
-    def is_available(self, register_name="Phase A Power"):
+    def is_available(self, register_name="Phase A Voltage"):
         return super().is_available(register_name=register_name)
     
     def _decoded(cls, content, dtype):
