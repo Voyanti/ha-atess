@@ -650,7 +650,7 @@ class SungrowInverter(Server):
             if self.model not in self.supported_models: self.registers.pop(param)
 
         # select the available number of mppt registers for the specific model
-        mppt_registers: list[dict] = self.MPPT_parameters[:self.model_info["mppt"]+1]
+        mppt_registers: list[dict] = self.MPPT_parameters[:self.model_info["mppt"]]
         for item in mppt_registers: self.registers.update(item)
 
     def _decode_u16(registers):
