@@ -68,7 +68,7 @@ try:
     for server in servers:
         if not server.is_available():
             logger.error(f"Server {server.nickname} not available")
-            raise ConnectionError()                          
+            raise ConnectionError()                             
         server.read_model()
         server.setup_valid_registers_for_model()
 

@@ -33,6 +33,7 @@ class BaseClient:
         else: 
             logger.info(f"unsupported register type {register_type}") # will maybe never happen?
             raise ValueError(f"unsupported register type {register_type}")
+        return result
 
     def read_registers(self, server:Server, register_name:str, register_info:dict):
         """ Read a group of registers using pymodbus 
