@@ -63,7 +63,7 @@ class MqttClient(mqtt.Client):
             state_topic = f"{self.mqtt_cfg['base_topic']}/{server.nickname}/{slugify(register_name)}"
             discovery_payload = {
                     "name": register_name,
-                    "unique_id": f"{server.manufacturer}_{server.serialnum}_{slugify(register_name)}",
+                    "unique_id": f"{server.nickname}_{slugify(register_name)}",
                     "state_topic": state_topic,
                     "availability_topic": availability_topic,
                     "device": device,
