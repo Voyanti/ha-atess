@@ -15,6 +15,7 @@ class Server(metaclass=abc.ABCMeta):
         self.serialnum: str = serialnum
         self.connected_client = connected_client
         self.model:str | None = None
+        self.model_info: dict | None = None
         self.device_addr:int| None = device_addr
 
     def verify_serialnum(self, serialnum_name_in_definition:str="Serial Number") -> bool:
@@ -55,6 +56,7 @@ class Server(metaclass=abc.ABCMeta):
         logger.info(f"Reading model for server")
         modelcode = self.connected_client.read_registers(self, device_type_code_param_key, self.registers[device_type_code_param_key])
         self.model = self.device_info[modelcode]['model']
+        self.model_info = self.device_info[modelcode]
         logger.info(f"Model read as {self.model}")
 
         if self.model not in self.supported_models: raise NotImplementedError(f"Model not supported in implementation of Server, {self}")
