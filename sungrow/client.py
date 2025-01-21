@@ -21,6 +21,18 @@ class BaseClient:
         self.nickname = nickname
         self.client = None
 
+    def _read(self, address, count, slave_id, register_type):
+        if register_type == RegisterTypes.HOLDING_REGISTER:
+            result = self.client.read_holding_registers(address=    address-1,
+                                                        count=      count,
+                                                        slave=      slave_id)
+        elif register_type == RegisterTypes.INPUT_REGISTER:
+            result = self.client.read_input_registers(address=      address-1,
+                                                        count=      count,
+                                                        slave=      slave_id)
+        else: 
+            logger.info(f"unsupported register type {register_type}") # will maybe never happen?
+            raise ValueError(f"unsupported register type {register_type}")
 
     def read_registers(self, server:Server, register_name:str, register_info:dict):
         """ Read a group of registers using pymodbus 
@@ -43,19 +55,12 @@ class BaseClient:
 
         logger.info(f"Reading param {register_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {slave_id=}")
 
-        if register_type == RegisterTypes.HOLDING_REGISTER:
-            result = self.client.read_holding_registers(address=    address-1,
-                                                        count=      count,
-                                                        slave=      slave_id)
-        elif register_type == RegisterTypes.INPUT_REGISTER:
-            result = self.client.read_input_registers(address=      address-1,
-                                                        count=      count,
-                                                        slave=      slave_id)
-        else: 
-            logger.info(f"unsupported register type {register_type}") # will maybe never happen?
-            raise ValueError(f"unsupported register type {register_type}")
+        result = self._read(address, count, slave_id, register_type)
 
-        if result.isError(): self._handle_error_response(result, register_name)
+        if result.isError(): 
+            self._handle_error_response(result, register_name)
+            raise Exception(f"Error reading register {register_name}")
+
         
         logger.info(f"Raw register begin value: {result.registers[0]}")
         val = server._decoded(result.registers, dtype)
@@ -117,9 +122,6 @@ class BaseClient:
             error_message = exception_messages.get(exception_code, "Unknown Exception")
             logger.error(f"Modbus Exception Code {exception_code}: {error_message}")
         else: logger.error(f"Non Standard Modbus Exception. Cannot Decode Response")
-
-        raise Exception(f"Error reading register {register_name}")
-
 
 
 class CustomModbusRtuClient(BaseClient):

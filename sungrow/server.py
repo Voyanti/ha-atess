@@ -43,7 +43,12 @@ class Server(metaclass=abc.ABCMeta):
         logger.info(f"Verifying availability of server {self.nickname}")
 
         available = True
-        response = self.connected_client.read_registers(self, register_name, self.registers[register_name])
+
+        address = self.registers[register_name]["addr"]
+        count = self.registers[register_name]["count"]
+        slave_id = self.device_addr
+        register_type = self.registers[register_name]['register_type']
+        response = self.connected_client._read(address, count, slave_id, register_type)
 
         if response.isError(): 
             self.sonnected_client._handle_error_response(response, register_name)
