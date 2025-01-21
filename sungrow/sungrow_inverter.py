@@ -646,7 +646,6 @@ class SungrowInverter(Server):
 
     def read_model(self, device_type_code_param_key="Device Type Code"):
         super().read_model(device_type_code_param_key)
-
     
     def setup_valid_registers_for_model(self):
         """ Removes invalid registers for the specific model of inverter.
@@ -668,6 +667,29 @@ class SungrowInverter(Server):
         # show line / phase voltage depending on configuration
         config_id = self.connected_client.read_registers(self, "Output Type", self.registers["Output Type"])
         self.registers.update(self.phase_line_voltage[config_id])
+
+    def verify_serialnum(self, serialnum_name_in_definition:str="Serial Number") -> bool:
+        """ Verify that the serialnum specified in config.yaml matches 
+        with the num in the regsiter as defined in implementation of Server
+
+        Arguments:
+        ----------
+            - serialnum_name_in_definition: str: Name of the register in server.registers containing the serial number
+        """
+        logger.info("Verifying serialnumber")
+        serialnum = self.connected_client.read_registers(self, serialnum_name_in_definition, 
+                                                            self.registers[serialnum_name_in_definition])
+
+        if serialnum is None: 
+            logger.info(f"Server with serial {self.serialnum} not available")
+            return False
+        elif self.serialnum != serialnum: raise ValueError(f"Mismatch in configured serialnum {self.serialnum} \
+                                                                        and actual serialnum {serialnum} for server {self.nickname}.")
+        return True
+
+    def is_available(self):
+        self.verify_serialnum()
+        return super().is_available(register_name="Device Type Code")
 
     def _decode_u16(registers):
         """ Unsigned 16-bit big-endian to int """

@@ -4,10 +4,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
-# class DataTypes(enum.Enum):
-    # U16
-
 class Server(metaclass=abc.ABCMeta):
     def __init__(self, name:str, nickname:str, serialnum:str, device_addr:int, connected_client=None):
         self.name: str = name
@@ -17,25 +13,6 @@ class Server(metaclass=abc.ABCMeta):
         self.model:str | None = None
         self.model_info: dict | None = None
         self.device_addr:int| None = device_addr
-
-    def verify_serialnum(self, serialnum_name_in_definition:str="Serial Number") -> bool:
-        """ Verify that the serialnum specified in config.yaml matches 
-        with the num in the regsiter as defined in implementation of Server
-
-        Arguments:
-        ----------
-            - serialnum_name_in_definition: str: Name of the register in server.registers containing the serial number
-        """
-        logger.info("Verifying serialnumber")
-        serialnum = self.connected_client.read_registers(self, serialnum_name_in_definition, 
-                                                            self.registers[serialnum_name_in_definition])
-
-        if serialnum is None: 
-            logger.info(f"Server with serial {self.serialnum} not available")
-            return False
-        elif self.serialnum != serialnum: raise ValueError(f"Mismatch in configured serialnum {self.serialnum} \
-                                                                        and actual serialnum {serialnum} for server {self.nickname}.")
-        return True
 
     @classmethod
     def from_config(cls, server_cfg:dict, clients:list):
@@ -61,6 +38,19 @@ class Server(metaclass=abc.ABCMeta):
 
         if self.model not in self.supported_models: raise NotImplementedError(f"Model not supported in implementation of Server, {self}")
 
+    def is_available(self, register_name="Device type code"):
+        """ Contacts any server register and returns true if the server is available """
+        logger.info(f"Verifying availability of server {self.nickname}")
+
+        available = True
+        response = self.connected_client.read_registers(self, register_name, self.registers[register_name])
+
+        if response.isError(): 
+            self.sonnected_client._handle_error_response(response, register_name)
+            available = False
+
+        return available
+    
     @classmethod
     @abc.abstractmethod
     def _decoded(cls, content, dtype):

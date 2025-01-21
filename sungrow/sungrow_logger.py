@@ -416,6 +416,9 @@ class SungrowLogger(Server):
     def setup_valid_registers_for_model(self):
         # only support logger 1000 for now
         return
+    
+    def is_available(self):
+        return super().is_available(register_name='Device type code')
 
     def _decoded(cls, content, dtype):
         def _decode_u16(registers):
