@@ -24,7 +24,7 @@ class AcrelMeter(Server):
     model = supported_models[0]
 
     # subset of all registers in documentation
-    # TODO 1-index or 0-index? Add 1
+    # ssume regisister definitions in document are 0-indexed. Add 1
     relevant_registers = {
         "Phase A Voltage": {
             "addr": 0x0061+1,
@@ -186,7 +186,8 @@ class AcrelMeter(Server):
             "dtype": "S32",
             "unit": "kWh",
             "device_class": "energy",
-            "multiplier": ENERGY_MULTIPLIER
+            "multiplier": ENERGY_MULTIPLIER,
+            'state_class': 'total'
         },
         "Reverse Active Energy": {
             "addr": 0x0014+1,
@@ -195,7 +196,8 @@ class AcrelMeter(Server):
             "dtype": "S32",
             "unit": "kWh",
             "device_class": "energy",
-            "multiplier": ENERGY_MULTIPLIER
+            "multiplier": ENERGY_MULTIPLIER,
+            'state_class': 'total'
         },
         "Forward Reactive Energy": {
             "addr": 0x0028+1,

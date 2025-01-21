@@ -89,14 +89,6 @@ class SungrowInverter(Server):
         'Internal Temperature': {'addr': 5008, 'count': 1, 'dtype': 'S16', 'multiplier': 0.1, 'unit': '°C', 'device_class': 'temperature', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         'Total Apparent Power': {'addr': 5009, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'VA', 'device_class': 'apparent_power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
 
-        # MPPT measurements
-        'MPPT 1 Voltage': {'addr': 5011, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 1 Current': {'addr': 5012, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 2 Voltage': {'addr': 5013, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 2 Current': {'addr': 5014, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 3 Voltage': {'addr': 5015, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 3 Current': {'addr': 5016, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-
         # Power measurements
         'Total DC Power': {'addr': 5017, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'W', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
 
@@ -132,31 +124,9 @@ class SungrowInverter(Server):
         # State values (no state_class needed)
         'Present Country': {'addr': 5114, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
 
-        # MPPT measurements (4-12)
-        'MPPT 4 Voltage': {'addr': 5115, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 4 Current': {'addr': 5116, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 5 Voltage': {'addr': 5117, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 5 Current': {'addr': 5118, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 6 Voltage': {'addr': 5119, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 6 Current': {'addr': 5120, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 7 Voltage': {'addr': 5121, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 7 Current': {'addr': 5122, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 8 Voltage': {'addr': 5123, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 8 Current': {'addr': 5124, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-
         # Energy measurements
         'Monthly Power Yields': {'addr': 5128, 'count': 2, 'dtype': 'U32', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total_increasing'},
                         
-        # MPPT measurements (9-12 continued)
-        'MPPT 9 Voltage': {'addr': 5130, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 9 Current': {'addr': 5131, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 10 Voltage': {'addr': 5132, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 10 Current': {'addr': 5133, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 11 Voltage': {'addr': 5134, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 11 Current': {'addr': 5135, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 12 Voltage': {'addr': 5136, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'MPPT 12 Current': {'addr': 5137, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-
         # Energy measurements
         'Total Power Yields (Increased Accuracy)': {'addr': 5144, 'count': 2, 'dtype': 'U32', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total'},
 
@@ -169,6 +139,57 @@ class SungrowInverter(Server):
         'PID Work State': {'addr': 5150, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
         'PID Alarm Code': {'addr': 5151, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER}
     }
+
+    MPPT_parameters = [
+        {
+            'MPPT 1 Voltage': {'addr': 5011, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 1 Current': {'addr': 5012, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        },
+        {
+            'MPPT 2 Voltage': {'addr': 5013, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 2 Current': {'addr': 5014, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        },
+        {
+            'MPPT 3 Voltage': {'addr': 5015, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 3 Current': {'addr': 5016, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        }, 
+        {
+            'MPPT 4 Voltage': {'addr': 5115, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 4 Current': {'addr': 5116, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        },
+        {
+            'MPPT 5 Voltage': {'addr': 5117, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 5 Current': {'addr': 5118, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        },
+        {
+            'MPPT 6 Voltage': {'addr': 5119, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 6 Current': {'addr': 5120, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        },
+        {
+            'MPPT 7 Voltage': {'addr': 5121, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 7 Current': {'addr': 5122, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        },
+        {
+            'MPPT 8 Voltage': {'addr': 5123, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 8 Current': {'addr': 5124, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},       
+        },
+        {
+            'MPPT 9 Voltage': {'addr': 5130, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 9 Current': {'addr': 5131, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        },
+        {
+            'MPPT 10 Voltage': {'addr': 5132, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 10 Current': {'addr': 5133, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        },
+        {
+            'MPPT 11 Voltage': {'addr': 5134, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 11 Current': {'addr': 5135, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        },
+        {
+            'MPPT 12 Voltage': {'addr': 5136, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 12 Current': {'addr': 5137, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        }
+    ]
 
     # Params 4x register (write) p.13
     holding_registers = {
@@ -612,20 +633,25 @@ class SungrowInverter(Server):
         # self.model = None
 
     def read_model(self, device_type_code_param_key="Device Type Code"):
-        return super().read_model(device_type_code_param_key)
+        super().read_model(device_type_code_param_key)
+
     
     def setup_valid_registers_for_model(self):
         """ Removes invalid registers for the specific model of inverter.
             Requires self.model. Call self.read_model() first."""
         logger.info(f"Removing invalid registers for server {self.nickname}, with serial {self.serialnum}.")
 
-        if self.model is None or not self.model:
+        if self.model is None or not self.model or not self.model_info:
             # read_model()
             logger.error(f"Inverter model not set. Cannot setup valid registers. {self.serialnum=}, {self.nickname=}")
             raise ValueError(f"Inverter model not set. Cannot setup valid registers. {self.serialnum=}, {self.nickname=}")
 
         for param, supported_models in self.limited_params.items():
             if self.model not in self.supported_models: self.registers.pop(param)
+
+        # select the available number of mppt registers for the specific model
+        mppt_registers: list[dict] = self.MPPT_parameters[:self.model_info["mppt"]+1]
+        for item in mppt_registers: self.registers.update(item)
 
     def _decode_u16(registers):
         """ Unsigned 16-bit big-endian to int """
