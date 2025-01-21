@@ -51,7 +51,8 @@ class MqttClient(mqtt.Client):
             "manufacturer": server.manufacturer,
             "model": server.model,
             "identifiers": [f"{server.manufacturer}_{server.serialnum}"],
-            "name": f"{server.manufacturer} {server.serialnum}"
+            "name": f"{server.manufacturer} {server.serialnum}",
+            "object_id": f"{server.nickname}"
         }
 
         # publish discovery topics for legal registers
