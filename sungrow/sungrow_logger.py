@@ -79,7 +79,7 @@ class SungrowLogger(Server):
         'ADC1 voltage': {
             'addr': 8029,
             'count': 1,
-            'dtype': 'S16',
+            'dtype': DataType.I16,
             'multiplier': 0.01,
             'unit': 'V',
             'device_class': 'voltage',
@@ -87,7 +87,7 @@ class SungrowLogger(Server):
         'ADC1 current': {
             'addr': 8030,
             'count': 1,
-            'dtype': 'S16',
+            'dtype': DataType.I16,
             'multiplier': 0.01,
             'unit': 'mA',
             'device_class': 'current',
@@ -96,7 +96,7 @@ class SungrowLogger(Server):
         'ADC2 voltage': {
             'addr': 8031,
             'count': 1,
-            'dtype': 'S16',
+            'dtype': DataType.I16,
             'multiplier': 0.01,
             'unit': 'V',
             'device_class': 'voltage',
@@ -105,14 +105,14 @@ class SungrowLogger(Server):
         'ADC2 current': {
             'addr': 8032,
             'count': 1,
-            'dtype': 'S16',
+            'dtype': DataType.I16,
             'multiplier': 0.01,
             'unit': 'mA',
             'device_class': 'current',
             'register_type': RegisterTypes.INPUT_REGISTER},
         'ADC3 voltage': {
             'addr': 8033,
-            'dtype': 'S16',
+            'dtype': DataType.I16,
             'count': 1,
             'multiplier': '',
             'unit': '',
@@ -122,7 +122,7 @@ class SungrowLogger(Server):
         'ADC4 voltage': {
             'addr': 8034,
             'count': 1,
-            'dtype': 'S16',
+            'dtype': DataType.I16,
             'multiplier': '',
             'unit': '',
             'device_class': 'voltage',
@@ -131,7 +131,7 @@ class SungrowLogger(Server):
         'ADC3 current': {
             'addr': 8035,
             'count': 1,
-            'dtype': 'S16',
+            'dtype': DataType.I16,
             'multiplier': 0.01,
             'unit': 'mA',
             'device_class': 'current',
@@ -140,7 +140,7 @@ class SungrowLogger(Server):
         'ADC4 current': {
             'addr': 8036,
             'count': 1,
-            'dtype': 'S16',
+            'dtype': DataType.I16,
             'multiplier': 0.01,
             'unit': 'mA',
             'device_class': 'current',
@@ -173,7 +173,7 @@ class SungrowLogger(Server):
         'Min. total nominal reactive power': {
             'addr': 8061,
             'count': 1,
-            'dtype': 'S16',
+            'dtype': DataType.I16,
             'multiplier': 1,
             'unit': 'kVar',
             'device_class': 'reactive_power',
@@ -189,7 +189,7 @@ class SungrowLogger(Server):
         'Inverter preset total reactive power': {
             'addr': 8067,
             'count': 1,
-            'dtype': 'S16',
+            'dtype': DataType.I16,
             'multiplier': 1,
             'unit': 'kVar',
             'device_class': 'reactive_power',

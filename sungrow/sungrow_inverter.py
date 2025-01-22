@@ -86,7 +86,7 @@ class SungrowInverter(Server):
         'Total Running Time': {'addr': 5006, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'h', 'device_class': 'duration', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total'},
 
         # Current measurements
-        'Internal Temperature': {'addr': 5008, 'count': 1, 'dtype': 'S16', 'multiplier': 0.1, 'unit': '°C', 'device_class': 'temperature', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Internal Temperature': {'addr': 5008, 'count': 1, 'dtype': DataType.I16, 'multiplier': 0.1, 'unit': '°C', 'device_class': 'temperature', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         'Total Apparent Power': {'addr': 5009, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'VA', 'device_class': 'apparent_power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
 
         # Power measurements
@@ -100,7 +100,7 @@ class SungrowInverter(Server):
         # Power measurements
         'Total Active Power': {'addr': 5031, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'W', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         'Total Reactive Power': {'addr': 5033, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'var', 'device_class': 'reactive_power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'Power Factor': {'addr': 5035, 'count': 1, 'dtype': 'S16', 'multiplier': 0.001, 'unit': 'no unit of measurement', 'device_class': 'power_factor', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Power Factor': {'addr': 5035, 'count': 1, 'dtype': DataType.I16, 'multiplier': 0.001, 'unit': 'no unit of measurement', 'device_class': 'power_factor', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         'Grid Frequency': {'addr': 5036, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'Hz', 'device_class': 'frequency', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
 
         # State values (no state_class needed)
@@ -128,7 +128,7 @@ class SungrowInverter(Server):
         'Total Power Yields (Increased Accuracy)': {'addr': 5144, 'count': 2, 'dtype': DataType.U32, 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total'},
 
         # Voltage measurements
-        'Negative Voltage to the Ground': {'addr': 5146, 'count': 1, 'dtype': 'S16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Negative Voltage to the Ground': {'addr': 5146, 'count': 1, 'dtype': DataType.I16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         'Bus Voltage': {'addr': 5147, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         'Grid Frequency (Increased Accuracy)': {'addr': 5148, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.01, 'unit': 'Hz', 'device_class': 'frequency', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
 
@@ -227,16 +227,16 @@ class SungrowInverter(Server):
         # 'Installed PV Power': {'addr': 5016, 'dtype': DataType.U16, 'unit': '0.01KW'},
 
         # valid requirement checking needed
-        # 'Power factor setting': {'addr': 5019, 'dtype': 'S16', 'unit': '0.001'},
+        # 'Power factor setting': {'addr': 5019, 'dtype': DataType.I16, 'unit': '0.001'},
         # 'Reactive power adjustment mode': {'addr': 5036, 'dtype': DataType.U16, 'unit': ''},
-        # 'Reactive power percentage setting': {'addr': 5037, 'dtype': 'S16', 'unit': '0.1%'},
+        # 'Reactive power percentage setting': {'addr': 5037, 'dtype': DataType.I16, 'unit': '0.1%'},
 
         # model specific
         # '100% Scheduling to Achieve Active Overload': {'addr': 5020, 'dtype': DataType.U16, 'unit': ''},
         # 'Night SVG Switch': {'addr': 5035, 'dtype': DataType.U16, 'unit': ''},
 
         # 'Power limitation adjustment': {'addr': 5039, 'dtype': DataType.U16, 'unit': '0.1kW'},
-        # 'Reactive power adjustment': {'addr': 5040, 'dtype': 'S16', 'unit': '0.1kVar'},
+        # 'Reactive power adjustment': {'addr': 5040, 'dtype': DataType.I16, 'unit': '0.1kVar'},
         # 'PID Recovery': {'addr': 5041, 'dtype': DataType.U16, 'unit': ''},
         # 'Anti-PID': {'addr': 5042, 'dtype': DataType.U16, 'unit': ''},
         # 'Full-Day PID Suppression': {'addr': 5043, 'dtype': DataType.U16, 'unit': ''},
