@@ -2,6 +2,7 @@ from server import Server
 from enums import RegisterTypes
 import struct
 import logging
+from enums import DataType
 
 logger = logging.getLogger(__name__)
 
@@ -11,9 +12,9 @@ class AbstractedServer(Server):
     supported_models = ('SG110CX', 'SG33CX', 'SG80KTL-20', 'SG50CX') 
     manufacturer = "Sungrow"
     registers = {
-        'Serial Number': {'addr': 4990, 'count': 10, 'dtype': 'UTF-8', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
-        'Device Type Code': {'addr': 5000, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
-        'Nominal Active Power': {'addr': 5001, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'kW', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Serial Number': {'addr': 4990, 'count': 10, 'dtype': DataType.UTF8, 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Device Type Code': {'addr': 5000, 'count': 1, 'dtype': DataType.U16, 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Nominal Active Power': {'addr': 5001, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'kW', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER},
     }
 
     def read_model(self, device_type_code_param_key="Device type code"):
@@ -26,7 +27,7 @@ class AbstractedServer(Server):
     def verify_serialnum(self, serialnum_name_in_definition = "Serial Number"):
         return super().verify_serialnum(serialnum_name_in_definition)
     
-    def _decoded(cls, content, dtype):
+    def _decoded(cls, registers, dtype):
         def _decode_u16(registers):
             """ Unsigned 16-bit big-endian to int """
             return registers[0]
@@ -38,8 +39,8 @@ class AbstractedServer(Server):
             return struct.unpack('>i', packed)[0]
         
 
-        if dtype == "U16": return _decode_u16(content)
-        elif dtype == "I16" or dtype == "S16": return _decode_s16(content)
+        if dtype == DataType.U16: return _decode_u16(registers)
+        elif dtype == "I16" or dtype == DataType.I16: return _decode_s16(registers)
         else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
 
     def _encoded(cls, value):

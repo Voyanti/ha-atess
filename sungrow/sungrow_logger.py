@@ -2,7 +2,7 @@ from server import Server
 from sungrow_inverter import SungrowInverter  
 from pymodbus.client import ModbusSerialClient
 import struct
-from enums import RegisterTypes
+from enums import RegisterTypes, DataType
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ class SungrowLogger(Server):
         'Device type code': {
             'addr': 8000,
             'count': 1,
-            'dtype': 'U16',
+            'dtype': DataType.U16,
             'multiplier': 1,
             'unit': '',
             'device_class': 'enum',
@@ -38,7 +38,7 @@ class SungrowLogger(Server):
         'Protocol number': {
             'addr': 8001,
             'count': 2,
-            'dtype': 'U32',
+            'dtype': DataType.U32,
             'multiplier': 1,
             'unit': '',
             'device_class': 'enum',
@@ -46,7 +46,7 @@ class SungrowLogger(Server):
         'Communication protocol version': {
             'addr': 8003,
             'count': 2,
-            'dtype': 'U32',
+            'dtype': DataType.U32,
             'multiplier': 1,
             'unit': '',
             'device_class': 'enum',
@@ -54,7 +54,7 @@ class SungrowLogger(Server):
         'Total devices connected': {
             'addr': 8005,
             'count': 1,
-            'dtype': 'U16',
+            'dtype': DataType.U16,
             'multiplier': 1,
             'unit': 'Set',
             'device_class': 'enum',
@@ -62,7 +62,7 @@ class SungrowLogger(Server):
         'Total faulty devices': {
             'addr': 8006,
             'count': 1,
-            'dtype': 'U16',
+            'dtype': DataType.U16,
             'multiplier': 1,
             'unit': 'Set',
             'device_class': 'enum',
@@ -70,7 +70,7 @@ class SungrowLogger(Server):
         'Digital input state': {
             'addr': 8021,
             'count': 2,
-            'dtype': 'U32',
+            'dtype': DataType.U32,
             'multiplier': 1,
             'unit': '',
             'device_class': 'enum',
@@ -149,7 +149,7 @@ class SungrowLogger(Server):
         'Max. total nominal active power': {
             'addr': 8058,
             'count': 1,
-            'dtype': 'U16',
+            'dtype': DataType.U16,
             'multiplier': 1,
             'unit': 'kW',
             'device_class': 'power',
@@ -157,7 +157,7 @@ class SungrowLogger(Server):
         'Min. total nominal active power': {
             'addr': 8059,
             'count': 1,
-            'dtype': 'U16',
+            'dtype': DataType.U16,
             'multiplier': 1,
             'unit': 'kW',
             'device_class': 'power',
@@ -165,7 +165,7 @@ class SungrowLogger(Server):
         'Max. total nominal reactive power': {
             'addr': 8060,
             'count': 1,
-            'dtype': 'U16',
+            'dtype': DataType.U16,
             'multiplier': 1,
             'unit': 'kVar',
             'device_class': 'reactive_power',
@@ -181,7 +181,7 @@ class SungrowLogger(Server):
         'Inverter preset total active power': {
             'addr': 8066,
             'count': 1,
-            'dtype': 'U16',
+            'dtype': DataType.U16,
             'multiplier': 1,
             'unit': 'kW',
             'device_class': 'power',
@@ -197,7 +197,7 @@ class SungrowLogger(Server):
         'Logger On/Off state': {
             'addr': 8068,
             'count': 1,
-            'dtype': 'U16',
+            'dtype': DataType.U16,
             'multiplier': 1,
             'unit': '',
             'device_class': 'enum',
@@ -206,7 +206,7 @@ class SungrowLogger(Server):
         'Logger unlatch state': {
             'addr': 8069,
             'count': 1,
-            'dtype': 'U16',
+            'dtype': DataType.U16,
             'multiplier': 1,
             'unit': '',
             'device_class': 'enum',
@@ -215,7 +215,7 @@ class SungrowLogger(Server):
         'Total active power': {
             'addr': 8070,
             'count': 4,
-            'dtype': 'U64',
+            'dtype': DataType.I64,
             'multiplier': 1,
             'unit': 'W',
             'device_class': 'power',
@@ -224,7 +224,7 @@ class SungrowLogger(Server):
         'Daily yield': {
             'addr': 8074,
             'count': 2,
-            'dtype': 'U32',
+            'dtype': DataType.U32,
             'multiplier': 0.1,
             'unit': 'kWh',
             'device_class': 'energy',
@@ -233,7 +233,7 @@ class SungrowLogger(Server):
         'Total reactive power': {
             'addr': 8076,
             'count': 4,
-            'dtype': 'S64',
+            'dtype': DataType.I64,
             'multiplier': 1,
             'unit': 'var',
             'device_class': 'reactive_power',
@@ -242,7 +242,7 @@ class SungrowLogger(Server):
         'Total yield': {
             'addr': 8080,
             'count': 4,
-            'dtype': 'U64',
+            'dtype': DataType.I64,
             'multiplier': 0.1,
             'unit': 'kWh',
             'device_class': 'energy',
@@ -251,7 +251,7 @@ class SungrowLogger(Server):
         'Min. adjustable active power': {
             'addr': 8084,
             'count': 2,
-            'dtype': 'U32',
+            'dtype': DataType.U32,
             'multiplier': 0.1,
             'unit': 'kW',
             'device_class': 'power',
@@ -259,7 +259,7 @@ class SungrowLogger(Server):
         'Max. adjustable active power': {
             'addr': 8086,
             'count': 2,
-            'dtype': 'U32',
+            'dtype': DataType.U32,
             'multiplier': 0.1,
             'unit': 'kW',
             'device_class': 'power',
@@ -267,7 +267,7 @@ class SungrowLogger(Server):
         'Min. adjustable reactive power': {
             'addr': 8088,
             'count': 2,
-            'dtype': 'S32',
+            'dtype': DataType.I32,
             'multiplier': 0.1,
             'unit': 'kVar',
             'device_class': 'reactive_power',
@@ -275,7 +275,7 @@ class SungrowLogger(Server):
         'Max. adjustable reactive power': {
             'addr': 8090,
             'count': 2,
-            'dtype': 'S32',
+            'dtype': DataType.I32,
             'multiplier': 0.1,
             'unit': 'kVar',
             'device_class': 'reactive_power',
@@ -283,7 +283,7 @@ class SungrowLogger(Server):
         'Nominal active power': {
             'addr': 8092,
             'count': 2,
-            'dtype': 'U32',
+            'dtype': DataType.U32,
             'multiplier': 0.1,
             'unit': 'kVar',
             'device_class': 'power',
@@ -291,7 +291,7 @@ class SungrowLogger(Server):
         'Nominal reactive power': {
             'addr': 8094,
             'count': 2,
-            'dtype': 'U32',
+            'dtype': DataType.U32,
             'multiplier': 0.1,
             'unit': 'kVar',
             'device_class': 'reactive_power',
@@ -299,7 +299,7 @@ class SungrowLogger(Server):
         'Grid-connected devices': {
             'addr': 8096,
             'count': 1,
-            'dtype': 'U16',
+            'dtype': DataType.U16,
             'multiplier': 1,
             'unit': 'Set',
             'device_class': 'enum',
@@ -307,7 +307,7 @@ class SungrowLogger(Server):
         'Off-grid devices': {
             'addr': 8097,
             'count': 1,
-            'dtype': 'U16',
+            'dtype': DataType.U16,
             'multiplier': 1,
             'unit': 'Set',
             'device_class': 'enum',
@@ -315,7 +315,7 @@ class SungrowLogger(Server):
         'Monthly yield of array': {
             'addr': 8098,
             'count': 4,
-            'dtype': 'U64',
+            'dtype': DataType.I64,
             'multiplier': 0.1,
             'unit': 'kWh',
             'device_class': 'energy',
@@ -324,7 +324,7 @@ class SungrowLogger(Server):
         'Annual yield of array': {
             'addr': 8102,
             'count': 4,
-            'dtype': 'U64',
+            'dtype': DataType.I64,
             'multiplier': 0.1,
             'unit': 'kWh',
             'device_class': 'energy',
@@ -333,7 +333,7 @@ class SungrowLogger(Server):
         'Apparent power of array': {
             'addr': 8106,
             'count': 4,
-            'dtype': 'U64',
+            'dtype': DataType.I64,
             'multiplier': 1,
             'unit': 'VA',
             'device_class': 'apparent_power',
@@ -348,7 +348,7 @@ class SungrowLogger(Server):
         'Set the sub-array inverter on and off': {
             'addr': 8002,
             'count': 1,
-            'dtype': 'U16',
+            'dtype': DataType.U16,
             'multiplier': 1,
             'unit': '',
             'device_class': 'enum',
@@ -358,7 +358,7 @@ class SungrowLogger(Server):
         'Set active power of subarray inverter': {
             'addr': 8003,
             'count': 2,
-            'dtype': 'U32',
+            'dtype': DataType.U32,
             'multiplier': 0.1,
             'unit': 'kW',
             'device_class': 'power',
@@ -367,7 +367,7 @@ class SungrowLogger(Server):
         'Set active power ratio of subarray inverter': {
             'addr': 8005,
             'count': 2,
-            'dtype': 'U32',
+            'dtype': DataType.U32,
             'multiplier': 0.1,
             'unit': '%',
             'device_class': 'power_factor',
@@ -376,7 +376,7 @@ class SungrowLogger(Server):
         'Set reactive power of subarray inverter': {
             'addr': 8007,
             'count': 2,
-            'dtype': 'S32',
+            'dtype': DataType.I32,
             'multiplier': 0.1,
             'unit': 'kVar',
             'device_class': 'reactive_power',
@@ -385,7 +385,7 @@ class SungrowLogger(Server):
         'Setting reactive power ratio of subarray inverter': {
             'addr': 8009,
             'count': 2,
-            'dtype': 'S32',
+            'dtype': DataType.I32,
             'multiplier': 0.1,
             'unit': '%',
             'device_class': 'power_factor',
@@ -394,7 +394,7 @@ class SungrowLogger(Server):
         'Set the power factor of subarray inverter': {
             'addr': 8011,
             'count': 2,
-            'dtype': 'S32',
+            'dtype': DataType.I32,
             'multiplier': 0.001,
             'unit': '',
             'device_class': 'power_factor',
@@ -420,7 +420,7 @@ class SungrowLogger(Server):
     def is_available(self):
         return super().is_available(register_name='Device type code')
 
-    def _decoded(cls, content, dtype):
+    def _decoded(cls, registers, dtype):
         def _decode_u16(registers):
             """ Unsigned 16-bit big-endian to int """
             return registers[0]
@@ -454,13 +454,13 @@ class SungrowLogger(Server):
         def _decode_utf8(registers):
             return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.STRING)
         
-        if dtype == "UTF-8": return _decode_utf8(content)
-        elif dtype == "U16": return _decode_u16(content)
-        elif dtype == "U32": return _decode_u32(content)
-        elif dtype == "U64": return _decode_u64(content)
-        elif dtype == "I16" or dtype == "S16": return _decode_s16(content)
-        elif dtype == "I32" or dtype == "S32": return _decode_s32(content)
-        elif dtype == "I64" or dtype == "S64": return _decode_s64(content)
+        if dtype == DataType.UTF8: return _decode_utf8(registers)
+        elif dtype == DataType.U16: return _decode_u16(registers)
+        elif dtype == DataType.U32: return _decode_u32(registers)
+        elif dtype == DataType.U64: return _decode_u64(registers)
+        elif dtype == DataType.I16: return _decode_s16(registers)
+        elif dtype == DataType.I32: return _decode_s32(registers)
+        elif dtype == DataType.I64: return _decode_s64(registers)
         else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
 
     
@@ -487,4 +487,4 @@ class SungrowLogger(Server):
 
 if __name__ == "__main__":
     
-    print(SungrowLogger._decoded(SungrowLogger, [0x0304, 0x0102], dtype="U32"))
+    print(SungrowLogger._decoded(SungrowLogger, [0x0304, 0x0102], dtype=DataType.U32))

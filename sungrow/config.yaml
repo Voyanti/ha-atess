@@ -1,5 +1,5 @@
 name: "Sungrow Inverter Addon"
-version: "0.3.32"
+version: "0.3.33"
 slug: "sungrow"
 description: "Sungrow Inverter Addon"
 init: false
@@ -13,66 +13,58 @@ arch:
   - armv7
   - i386
 options:
-  mqtt:
-    host: "core-mosquitto"
-    port: 1883
-    user: "mqtt"
-    password: "mqtt"
-    ha_discovery: true
-    ha_discovery_topic: "homeassistant"
-    base_topic: "modbus"
-  clients:
-    - name: "ModebusTCP"
-      nickname: "Client1"
-      type: "TCP"
-      connection_specs: "Sungrow_Logger"
   servers:
     - name: "Sungrow Inverter 1"
-      nickname: "SG1"
+      ha_display_name: "SG1"
       serialnum: "SERIAL0001"
       server_type: "SUNGROW_INVERTER"
       connected_client: "Client1"
-      device_addr: 1
+      modbus_id: 1
     - name: "Sungrow Logger 1"
-      nickname: "SGL1"
+      ha_display_name: "SGL1"
       serialnum: "SERIAL0004"
       server_type: "SUNGROW_LOGGER"
       connected_client: "Client1"
-      device_addr: 247
+      modbus_id: 247
     - name: "Grid Meter"
-      nickname: "GM"
+      ha_display_name: "GM"
       serialnum: "unknown"
       server_type: "ACREL_METER"
       connected_client: "Client1"
-      device_addr: 2
-  connection_specs:
-    - name: "Sungrow_Logger"
-      connection_method: "TCP"
+      modbus_id: 2
+  clients:
+    - name: "ModbusTCP"
+      ha_display_name: "Client1"
+      type: "TCP"
       host: "10.0.0.15"
       port: 502
+  mqtt_host: "core-mosquitto"
+  mqtt_port: 1883
+  mqtt_user: "mqtt"
+  mqtt_password: "mqtt"
+  mwtt_ha_discovery_topic: "homeassistant"
+  mqtt_base_topic: "modbus"
 schema:
-    mqtt:
-      host: str
-      port: int
-      user: str
-      password: str
-      ha_discovery: bool
-      ha_discovery_topic: str
-      base_topic: str
-    clients:
-      - name: str
-        nickname: str
-        type: str
-        connection_specs: str
-    servers:
-      - name: str
-        nickname: str
-        serialnum: str
-        server_type: str
-        connected_client: str
-        device_addr: int(0,255)
-    connection_specs:
-      - name: str
-        connection_method: str
-        host: str
-        port: int
+  servers:
+    - name: str
+      ha_display_name: str
+      serialnum: str
+      server_type: list(SUNGROW_INVERTER, SUNGROW_LOGGER, ACREL_METER)
+      connected_client: str
+      modbus_id: int(0,255)
+  clients:
+    - name: str
+      ha_display_name: str
+      type: list(TCP|RTU)
+      host: str?
+      port: int?
+      baudrate: int?
+      bytesize: int?
+      parity: bool?
+      stopbits: int?
+  mqtt_host: str
+  mqtt_port: port
+  mqtt_user: str
+  mqtt_password: password
+  mwtt_ha_discovery_topic: str
+  mqtt_base_topic: str

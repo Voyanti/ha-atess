@@ -1,13 +1,11 @@
 from time import sleep
+from datetime import datetime, timedelta
 import atexit
 import logging
-import subprocess
 
-from loader import ConfigLoader
-from client import CustomModbusRtuClient, CustomModbusTcpClient
-from sungrow_inverter import SungrowInverter
-from sungrow_logger import SungrowLogger
-from sungrow_meter import AcrelMeter
+from loader import load_options, Options
+from client import Client
+from implemented_servers import ServerTypes
 from modbus_mqtt import MqttClient
 from paho.mqtt.enums import MQTTErrorCode
 
@@ -34,35 +32,57 @@ def exit_handler(servers, modbus_clients, mqtt_client):
 
     mqtt_client.loop_stop()
 
+
+def sleep_if_midnight():
+    """
+    Sleeps if the current time is within 3 minutes before or 5 minutes after midnight.
+    Uses efficient sleep intervals instead of busy waiting.
+    """
+    while True:
+        current_time = datetime.now()
+        is_before_midnight = (current_time.hour == 23 and current_time.minute >= 57)
+        is_after_midnight = (current_time.hour == 0 and current_time.minute < 5)
+        
+        if not (is_before_midnight or is_after_midnight):
+            break
+            
+        # Calculate appropriate sleep duration
+        if is_before_midnight:
+            # Calculate time until midnight
+            next_check = (current_time + timedelta(days=1)).replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
+        else:
+            # Calculate time until 5 minutes after midnight
+            next_check = current_time.replace(
+                hour=0, minute=5, second=0, microsecond=0
+            )
+            
+        # Sleep until next check, but no longer than 30 seconds at a time
+        sleep_duration = min(30, (next_check - current_time).total_seconds())
+        sleep(sleep_duration)
+
 atexit.register(exit_handler, mqtt_client)
 
 try:
     # Read configuration
-    servers_cfgs, clients_cfgs, connection_specs, mqtt_cfg = ConfigLoader.load()
+    OPTIONS: Options = load_options()
 
     logger.info("Instantiate clients")
-    clients = []
-    for client_cfg in clients_cfgs:
-        if client_cfg["type"] == "RTU": clients.append(CustomModbusRtuClient.from_config(client_cfg, connection_specs))
-        elif client_cfg["type"] == "TCP": clients.append(CustomModbusTcpClient.from_config(client_cfg, connection_specs))
+    clients = [Client(cl_options) for cl_options in OPTIONS.clients]
     logger.info(f"{len(clients)} clients set up")
-    if len(clients) == 0: raise RuntimeError(f"No clients available")
     
     logger.info("Instantiate servers")
-    servers = []
-    for server_cfg in servers_cfgs:
-        if server_cfg["server_type"] == "SUNGROW_INVERTER": servers.append(SungrowInverter.from_config(server_cfg, clients))
-        elif server_cfg["server_type"] == "SUNGROW_LOGGER": servers.append(SungrowLogger.from_config(server_cfg, clients))
-        elif server_cfg["server_type"] == "ACREL_METER": servers.append(AcrelMeter.from_config(server_cfg, clients))
-        else:
-            logging.error(f"Server type key '{server_cfg['server_type']}' not defined in ServerTypes.")
-            raise ValueError(f"Server type key '{server_cfg['server_type']}' not defined in ServerTypes.")
+    servers = [ServerTypes[sr.server_type].value(sr, clients) for sr in OPTIONS.servers]
     logger.info(f"{len(servers)} servers set up")
-    if len(servers) == 0: raise RuntimeError(f"No supported servers configured")
+    # if len(servers) == 0: raise RuntimeError(f"No supported servers configured")
+
+    sleep_if_midnight()
 
     # Connect to clients
     for client in clients:
         client.connect()
+
 
     # Connect to Servers
     for server in servers:
@@ -73,8 +93,8 @@ try:
         server.setup_valid_registers_for_model()
 
     # Setup MQTT Client
-    mqtt_client = MqttClient(mqtt_cfg)
-    succeed: MQTTErrorCode = mqtt_client.connect(host=mqtt_cfg["host"], port=mqtt_cfg["port"])
+    mqtt_client = MqttClient(OPTIONS)
+    succeed: MQTTErrorCode = mqtt_client.connect(host=OPTIONS.mqtt_host, port=OPTIONS.mqtt_port)
     if succeed.value != 0: logger.info(f"MQTT Connection error: {succeed.name}, code {succeed.value}")
     
     sleep(read_interval)
@@ -96,5 +116,8 @@ try:
 
         # publish availability
         sleep(pause_interval)
+
+        sleep_if_midnight()
+
 finally:
     exit_handler(servers, clients, mqtt_client)

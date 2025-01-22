@@ -1,4 +1,4 @@
-from enums import RegisterTypes
+from enums import RegisterTypes, DataType
 from server import Server
 from pymodbus.client import ModbusSerialClient
 import struct
@@ -75,175 +75,175 @@ class SungrowInverter(Server):
     # TODO Combiner Board information p12 - need to check availability before reading?
     input_registers = {
         # Non-measurement values (no state_class needed)
-        'Serial Number': {'addr': 4990, 'count': 10, 'dtype': 'UTF-8', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
-        'Device Type Code': {'addr': 5000, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
-        'Nominal Active Power': {'addr': 5001, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'kW', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER},
-        'Output Type': {'addr': 5002, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Serial Number': {'addr': 4990, 'count': 10, 'dtype': DataType.UTF8, 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Device Type Code': {'addr': 5000, 'count': 1, 'dtype': DataType.U16, 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Nominal Active Power': {'addr': 5001, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'kW', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Output Type': {'addr': 5002, 'count': 1, 'dtype': DataType.U16, 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
 
         # Energy measurements (total and daily/monthly values)
-        'Daily Power Yields': {'addr': 5003, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total_increasing'}, # nico se total
-        'Total Power Yields': {'addr': 5004, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'kWh', 'device_class': 'energy', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total'},              # nico se total_increasing
-        'Total Running Time': {'addr': 5006, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'h', 'device_class': 'duration', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total'},
+        'Daily Power Yields': {'addr': 5003, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total_increasing'}, # nico se total
+        'Total Power Yields': {'addr': 5004, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'kWh', 'device_class': 'energy', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total'},              # nico se total_increasing
+        'Total Running Time': {'addr': 5006, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'h', 'device_class': 'duration', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total'},
 
         # Current measurements
         'Internal Temperature': {'addr': 5008, 'count': 1, 'dtype': 'S16', 'multiplier': 0.1, 'unit': '°C', 'device_class': 'temperature', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'Total Apparent Power': {'addr': 5009, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'VA', 'device_class': 'apparent_power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Total Apparent Power': {'addr': 5009, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'VA', 'device_class': 'apparent_power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
 
         # Power measurements
-        'Total DC Power': {'addr': 5017, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'W', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Total DC Power': {'addr': 5017, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'W', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
 
         # Voltage and current measurements
-        'Phase A Current': {'addr': 5022, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'Phase B Current': {'addr': 5023, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'Phase C Current': {'addr': 5024, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Phase A Current': {'addr': 5022, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Phase B Current': {'addr': 5023, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Phase C Current': {'addr': 5024, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
 
         # Power measurements
-        'Total Active Power': {'addr': 5031, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'W', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'Total Reactive Power': {'addr': 5033, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'var', 'device_class': 'reactive_power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Total Active Power': {'addr': 5031, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'W', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Total Reactive Power': {'addr': 5033, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'var', 'device_class': 'reactive_power', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         'Power Factor': {'addr': 5035, 'count': 1, 'dtype': 'S16', 'multiplier': 0.001, 'unit': 'no unit of measurement', 'device_class': 'power_factor', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'Grid Frequency': {'addr': 5036, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'Hz', 'device_class': 'frequency', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Grid Frequency': {'addr': 5036, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'Hz', 'device_class': 'frequency', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
 
         # State values (no state_class needed)
-        'Work State': {'addr': 5038, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Work State': {'addr': 5038, 'count': 1, 'dtype': DataType.U16, 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
 
         # Power measurements
-        'Nominal Reactive Power': {'addr': 5049, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'kVar', 'device_class': 'reactive_power', 'register_type': RegisterTypes.INPUT_REGISTER},
-        'Array Insulation Resistance': {'addr': 5071, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': 'kΩ',  'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
-        'Active Power Regulation Setpoint': {'addr': 5077, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': 'W', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER},
-        'Reactive Power Regulation Setpoint': {'addr': 5079, 'count': 2, 'dtype': 'S32', 'multiplier': 1, 'unit': 'Var', 'device_class': 'reactive_power', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Nominal Reactive Power': {'addr': 5049, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'kVar', 'device_class': 'reactive_power', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Array Insulation Resistance': {'addr': 5071, 'count': 1, 'dtype': DataType.U16, 'multiplier': 1, 'unit': 'kΩ',  'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Active Power Regulation Setpoint': {'addr': 5077, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'W', 'device_class': 'power', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Reactive Power Regulation Setpoint': {'addr': 5079, 'count': 2, 'dtype': DataType.I32, 'multiplier': 1, 'unit': 'Var', 'device_class': 'reactive_power', 'register_type': RegisterTypes.INPUT_REGISTER},
 
         # State values (no state_class needed)
-        'Work State (Extended)': {'addr': 5081, 'count': 2, 'dtype': 'U32', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Work State (Extended)': {'addr': 5081, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
 
         # Time measurements
-        'Daily Running Time': {'addr': 5113, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': 'min', 'device_class': 'duration', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total_increasing'},
+        'Daily Running Time': {'addr': 5113, 'count': 1, 'dtype': DataType.U16, 'multiplier': 1, 'unit': 'min', 'device_class': 'duration', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total_increasing'},
 
         # State values (no state_class needed)
-        'Present Country': {'addr': 5114, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'Present Country': {'addr': 5114, 'count': 1, 'dtype': DataType.U16, 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
 
         # Energy measurements
-        'Monthly Power Yields': {'addr': 5128, 'count': 2, 'dtype': 'U32', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total_increasing'},
+        'Monthly Power Yields': {'addr': 5128, 'count': 2, 'dtype': DataType.U32, 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total_increasing'},
                         
         # Energy measurements
-        'Total Power Yields (Increased Accuracy)': {'addr': 5144, 'count': 2, 'dtype': 'U32', 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total'},
+        'Total Power Yields (Increased Accuracy)': {'addr': 5144, 'count': 2, 'dtype': DataType.U32, 'multiplier': 0.1, 'unit': 'kWh', 'device_class': 'energy', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'total'},
 
         # Voltage measurements
         'Negative Voltage to the Ground': {'addr': 5146, 'count': 1, 'dtype': 'S16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'Bus Voltage': {'addr': 5147, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'Grid Frequency (Increased Accuracy)': {'addr': 5148, 'count': 1, 'dtype': 'U16', 'multiplier': 0.01, 'unit': 'Hz', 'device_class': 'frequency', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Bus Voltage': {'addr': 5147, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Grid Frequency (Increased Accuracy)': {'addr': 5148, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.01, 'unit': 'Hz', 'device_class': 'frequency', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
 
         # State values (no state_class needed)
-        'PID Work State': {'addr': 5150, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
-        'PID Alarm Code': {'addr': 5151, 'count': 1, 'dtype': 'U16', 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER}
+        'PID Work State': {'addr': 5150, 'count': 1, 'dtype': DataType.U16, 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
+        'PID Alarm Code': {'addr': 5151, 'count': 1, 'dtype': DataType.U16, 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER}
     }
 
     phase_line_voltage = {
         1:
         {
-        'Phase A Voltage': {'addr': 5019, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'Phase B Voltage': {'addr': 5020, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'Phase C Voltage': {'addr': 5019, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'}
+        'Phase A Voltage': {'addr': 5019, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Phase B Voltage': {'addr': 5020, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Phase C Voltage': {'addr': 5019, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'}
         }, 
         2:
         {
-        'A-B Line Voltage': {'addr': 5019, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'B-C Line Voltage': {'addr': 5020, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'C-A Line Voltage': {'addr': 5019, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'}
+        'A-B Line Voltage': {'addr': 5019, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'B-C Line Voltage': {'addr': 5020, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'C-A Line Voltage': {'addr': 5019, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'}
         }
     }
 
     MPPT_parameters = [
         {
-            'MPPT 1 Voltage': {'addr': 5011, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-            'MPPT 1 Current': {'addr': 5012, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 1 Voltage': {'addr': 5011, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 1 Current': {'addr': 5012, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         },
         {
-            'MPPT 2 Voltage': {'addr': 5013, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-            'MPPT 2 Current': {'addr': 5014, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 2 Voltage': {'addr': 5013, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 2 Current': {'addr': 5014, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         },
         {
-            'MPPT 3 Voltage': {'addr': 5015, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-            'MPPT 3 Current': {'addr': 5016, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 3 Voltage': {'addr': 5015, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 3 Current': {'addr': 5016, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         }, 
         {
-            'MPPT 4 Voltage': {'addr': 5115, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-            'MPPT 4 Current': {'addr': 5116, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 4 Voltage': {'addr': 5115, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 4 Current': {'addr': 5116, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         },
         {
-            'MPPT 5 Voltage': {'addr': 5117, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-            'MPPT 5 Current': {'addr': 5118, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 5 Voltage': {'addr': 5117, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 5 Current': {'addr': 5118, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         },
         {
-            'MPPT 6 Voltage': {'addr': 5119, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-            'MPPT 6 Current': {'addr': 5120, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 6 Voltage': {'addr': 5119, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 6 Current': {'addr': 5120, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         },
         {
-            'MPPT 7 Voltage': {'addr': 5121, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-            'MPPT 7 Current': {'addr': 5122, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 7 Voltage': {'addr': 5121, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 7 Current': {'addr': 5122, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         },
         {
-            'MPPT 8 Voltage': {'addr': 5123, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-            'MPPT 8 Current': {'addr': 5124, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},       
+            'MPPT 8 Voltage': {'addr': 5123, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 8 Current': {'addr': 5124, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},       
         },
         {
-            'MPPT 9 Voltage': {'addr': 5130, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-            'MPPT 9 Current': {'addr': 5131, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 9 Voltage': {'addr': 5130, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 9 Current': {'addr': 5131, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         },
         {
-            'MPPT 10 Voltage': {'addr': 5132, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-            'MPPT 10 Current': {'addr': 5133, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 10 Voltage': {'addr': 5132, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 10 Current': {'addr': 5133, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         },
         {
-            'MPPT 11 Voltage': {'addr': 5134, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-            'MPPT 11 Current': {'addr': 5135, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 11 Voltage': {'addr': 5134, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 11 Current': {'addr': 5135, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         },
         {
-            'MPPT 12 Voltage': {'addr': 5136, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-            'MPPT 12 Current': {'addr': 5137, 'count': 1, 'dtype': 'U16', 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 12 Voltage': {'addr': 5136, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+            'MPPT 12 Current': {'addr': 5137, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': 'current', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         }
     ]
 
     # Params 4x register (write) p.13
     holding_registers = {
-        'System clock: Year': {'addr': 5000, 'dtype': 'U16', 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
-        'System clock: Month': {'addr': 5001, 'dtype': 'U16', 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
-        'System clock: Day': {'addr': 5002, 'dtype': 'U16', 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
-        'System clock: Hour': {'addr': 5003, 'dtype': 'U16', 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
-        'System clock: Minute': {'addr': 5004, 'dtype': 'U16', 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
-        'System clock: Second': {'addr': 5005, 'dtype': 'U16', 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        'System clock: Year': {'addr': 5000, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        'System clock: Month': {'addr': 5001, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        'System clock: Day': {'addr': 5002, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        'System clock: Hour': {'addr': 5003, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        'System clock: Minute': {'addr': 5004, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        'System clock: Second': {'addr': 5005, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
 
-        'Start/Stop': {'addr': 5006, 'dtype': 'U16', 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        'Start/Stop': {'addr': 5006, 'dtype': DataType.U16, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.HOLDING_REGISTER},
 
-        # 'Power limitation switch': {'addr': 5007, 'dtype': 'U16', 'unit': ''},
-        # 'Power limitation setting': {'addr': 5008, 'dtype': 'U16', 'unit': '0.1%'},
+        # 'Power limitation switch': {'addr': 5007, 'dtype': DataType.U16, 'unit': ''},
+        # 'Power limitation setting': {'addr': 5008, 'dtype': DataType.U16, 'unit': '0.1%'},
         
         # Europe Only. See export_limitation_supported_models
-        # 'Export power limitation': {'addr': 5010, 'dtype': 'U16', 'unit': ''},
-        # 'Export power limitation value': {'addr': 5011, 'dtype': 'U16', 'unit': ''},
-        # 'Current transformer output current': {'addr': 5012, 'dtype': 'U16', 'unit': 'A'},
-        # 'Current transformer range': {'addr': 5013, 'dtype': 'U16', 'unit': 'A'},
-        # 'Current transformer': {'addr': 5014, 'dtype': 'U16', 'unit': ''},
-        # 'Export power limitation percentage': {'addr': 5015, 'dtype': 'U16', 'unit': '0.1%'},
-        # 'Installed PV Power': {'addr': 5016, 'dtype': 'U16', 'unit': '0.01KW'},
+        # 'Export power limitation': {'addr': 5010, 'dtype': DataType.U16, 'unit': ''},
+        # 'Export power limitation value': {'addr': 5011, 'dtype': DataType.U16, 'unit': ''},
+        # 'Current transformer output current': {'addr': 5012, 'dtype': DataType.U16, 'unit': 'A'},
+        # 'Current transformer range': {'addr': 5013, 'dtype': DataType.U16, 'unit': 'A'},
+        # 'Current transformer': {'addr': 5014, 'dtype': DataType.U16, 'unit': ''},
+        # 'Export power limitation percentage': {'addr': 5015, 'dtype': DataType.U16, 'unit': '0.1%'},
+        # 'Installed PV Power': {'addr': 5016, 'dtype': DataType.U16, 'unit': '0.01KW'},
 
         # valid requirement checking needed
         # 'Power factor setting': {'addr': 5019, 'dtype': 'S16', 'unit': '0.001'},
-        # 'Reactive power adjustment mode': {'addr': 5036, 'dtype': 'U16', 'unit': ''},
+        # 'Reactive power adjustment mode': {'addr': 5036, 'dtype': DataType.U16, 'unit': ''},
         # 'Reactive power percentage setting': {'addr': 5037, 'dtype': 'S16', 'unit': '0.1%'},
 
         # model specific
-        # '100% Scheduling to Achieve Active Overload': {'addr': 5020, 'dtype': 'U16', 'unit': ''},
-        # 'Night SVG Switch': {'addr': 5035, 'dtype': 'U16', 'unit': ''},
+        # '100% Scheduling to Achieve Active Overload': {'addr': 5020, 'dtype': DataType.U16, 'unit': ''},
+        # 'Night SVG Switch': {'addr': 5035, 'dtype': DataType.U16, 'unit': ''},
 
-        # 'Power limitation adjustment': {'addr': 5039, 'dtype': 'U16', 'unit': '0.1kW'},
+        # 'Power limitation adjustment': {'addr': 5039, 'dtype': DataType.U16, 'unit': '0.1kW'},
         # 'Reactive power adjustment': {'addr': 5040, 'dtype': 'S16', 'unit': '0.1kVar'},
-        # 'PID Recovery': {'addr': 5041, 'dtype': 'U16', 'unit': ''},
-        # 'Anti-PID': {'addr': 5042, 'dtype': 'U16', 'unit': ''},
-        # 'Full-Day PID Suppression': {'addr': 5043, 'dtype': 'U16', 'unit': ''},
-        # 'Q(P) curve 1': {'addr': 5048, 'dtype': 'U16', 'unit': ''},
-        # 'Q(U) curve 1': {'addr': 5078, 'dtype': 'U16', 'unit': ''},
-        # 'Q(P) curve 2': {'addr': 5116, 'dtype': 'U16', 'unit': ''},
-        # 'Q(U) curve 2': {'addr': 5135, 'dtype': 'U16', 'unit': ''}
+        # 'PID Recovery': {'addr': 5041, 'dtype': DataType.U16, 'unit': ''},
+        # 'Anti-PID': {'addr': 5042, 'dtype': DataType.U16, 'unit': ''},
+        # 'Full-Day PID Suppression': {'addr': 5043, 'dtype': DataType.U16, 'unit': ''},
+        # 'Q(P) curve 1': {'addr': 5048, 'dtype': DataType.U16, 'unit': ''},
+        # 'Q(U) curve 1': {'addr': 5078, 'dtype': DataType.U16, 'unit': ''},
+        # 'Q(P) curve 2': {'addr': 5116, 'dtype': DataType.U16, 'unit': ''},
+        # 'Q(U) curve 2': {'addr': 5135, 'dtype': DataType.U16, 'unit': ''}
     }
     ################################################################################################################################################
 
@@ -715,13 +715,12 @@ class SungrowInverter(Server):
         return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.STRING)
 
     @classmethod
-    def _decoded(cls, content, dtype):
-        
-        if dtype == "UTF-8": return cls._decode_utf8(content)
-        elif dtype == "U16": return cls._decode_u16(content)
-        elif dtype == "U32": return cls._decode_u32(content)
-        elif dtype == "S16": return cls._decode_s16(content)
-        elif dtype == "S32": return cls._decode_s32(content)
+    def _decoded(cls, registers, dtype):
+        if dtype == DataType.UTF8: return cls._decode_utf8(registers)
+        elif dtype == DataType.U16: return cls._decode_u16(registers)
+        elif dtype == DataType.U32: return cls._decode_u32(registers)
+        elif dtype == DataType.I16: return cls._decode_s16(registers)
+        elif dtype == DataType.I32: return cls._decode_s32(registers)
         else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
 
     @classmethod

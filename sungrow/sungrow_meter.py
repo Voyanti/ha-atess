@@ -1,5 +1,5 @@
 from server import Server
-from enums import RegisterTypes
+from enums import RegisterTypes, DataType
 from sungrow_logger import SungrowLogger
 from pymodbus.client import ModbusSerialClient
 import struct
@@ -30,7 +30,7 @@ class AcrelMeter(Server):
             "addr": 0x0061+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "U16",
+            "dtype": DataType.U16,
             "unit": "V",
             "device_class": "voltage",
             "multiplier": VOLTAGE_MULTIPLIER
@@ -39,7 +39,7 @@ class AcrelMeter(Server):
             "addr": 0x0062+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "U16",
+            "dtype": DataType.U16,
             "unit": "V",
             "device_class": "voltage",
             "multiplier": VOLTAGE_MULTIPLIER
@@ -48,7 +48,7 @@ class AcrelMeter(Server):
             "addr": 0x0063+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "U16",
+            "dtype": DataType.U16,
             "unit": "V",
             "device_class": "voltage",
             "multiplier": VOLTAGE_MULTIPLIER
@@ -57,7 +57,7 @@ class AcrelMeter(Server):
             "addr": 0x0078+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "U16",
+            "dtype": DataType.U16,
             "unit": "V",
             "device_class": "voltage",
             "multiplier": VOLTAGE_MULTIPLIER
@@ -66,7 +66,7 @@ class AcrelMeter(Server):
             "addr": 0x0079+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "U16",
+            "dtype": DataType.U16,
             "unit": "V",
             "device_class": "voltage",
             "multiplier": VOLTAGE_MULTIPLIER
@@ -75,7 +75,7 @@ class AcrelMeter(Server):
             "addr": 0x007A+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "U16",
+            "dtype": DataType.U16,
             "unit": "V",
             "device_class": "voltage",
             "multiplier": VOLTAGE_MULTIPLIER
@@ -84,7 +84,7 @@ class AcrelMeter(Server):
             "addr": 0x0064+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "U16",
+            "dtype": DataType.U16,
             "unit": "A",
             "device_class": "current",
             "multiplier": CURRENT_MULTIPLIER
@@ -93,7 +93,7 @@ class AcrelMeter(Server):
             "addr": 0x0065+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "U16",
+            "dtype": DataType.U16,
             "unit": "A",
             "device_class": "current",
             "multiplier": CURRENT_MULTIPLIER
@@ -102,7 +102,7 @@ class AcrelMeter(Server):
             "addr": 0x0066+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "U16",
+            "dtype": DataType.U16,
             "unit": "A",
             "device_class": "current",
             "multiplier": CURRENT_MULTIPLIER
@@ -111,7 +111,7 @@ class AcrelMeter(Server):
             "addr": 0x0164+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "S32",
+            "dtype": DataType.I32,
             "unit": "kW",
             "device_class": "power",
             "multiplier": POWER_MULTIPLIER
@@ -120,7 +120,7 @@ class AcrelMeter(Server):
             "addr": 0x0166+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "S32",
+            "dtype": DataType.I32,
             "unit": "kW",
             "device_class": "power",
             "multiplier": POWER_MULTIPLIER
@@ -129,7 +129,7 @@ class AcrelMeter(Server):
             "addr": 0x0168+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "S32",
+            "dtype": DataType.I32,
             "unit": "kW",
             "device_class": "power",
             "multiplier": POWER_MULTIPLIER
@@ -138,7 +138,7 @@ class AcrelMeter(Server):
             "addr": 0x017F+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "S16",
+            "dtype": DataType.I16,
             "unit": None,
             "device_class": "power_factor",
             "multiplier": 0.001
@@ -147,7 +147,7 @@ class AcrelMeter(Server):
             "addr": 0x0077+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "U16",
+            "dtype": DataType.U16,
             "unit": "Hz",
             "device_class": "frequency",
             "multiplier": 0.01
@@ -156,7 +156,7 @@ class AcrelMeter(Server):
             "addr": 0x016A+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "S32",
+            "dtype": DataType.I32,
             "unit": "kW",
             "device_class": "power",
             "multiplier": POWER_MULTIPLIER
@@ -165,7 +165,7 @@ class AcrelMeter(Server):
             "addr": 0x0172+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "S32",
+            "dtype": DataType.I32,
             "unit": "kVar",
             "device_class": "reactive_power",
             "multiplier": POWER_MULTIPLIER
@@ -174,7 +174,7 @@ class AcrelMeter(Server):
             "addr": 0x017A+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "S32",
+            "dtype": DataType.I32,
             "unit": "kVA",
             "device_class": "apparent_power",
             "multiplier": POWER_MULTIPLIER
@@ -183,7 +183,7 @@ class AcrelMeter(Server):
             "addr": 0x000A+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "S32",
+            "dtype": DataType.I32,
             "unit": "kWh",
             "device_class": "energy",
             "multiplier": ENERGY_MULTIPLIER,
@@ -193,7 +193,7 @@ class AcrelMeter(Server):
             "addr": 0x0014+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "S32",
+            "dtype": DataType.I32,
             "unit": "kWh",
             "device_class": "energy",
             "multiplier": ENERGY_MULTIPLIER,
@@ -203,7 +203,7 @@ class AcrelMeter(Server):
             "addr": 0x0028+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "S32",
+            "dtype": DataType.I32,
             "unit": "kVarh",
             "device_class": "energy",
             "multiplier": ENERGY_MULTIPLIER
@@ -212,7 +212,7 @@ class AcrelMeter(Server):
             "addr": 0x0032+1,
             "count": 2,
             "register_type": RegisterTypes.HOLDING_REGISTER,
-            "dtype": "S32",
+            "dtype": DataType.I32,
             "unit": "kVarh",
             "device_class": "energy",
             "multiplier": ENERGY_MULTIPLIER
@@ -236,7 +236,7 @@ class AcrelMeter(Server):
     def is_available(self, register_name="Phase A Voltage"):
         return super().is_available(register_name=register_name)
     
-    def _decoded(cls, content, dtype):
+    def _decoded(cls, registers, dtype):
         def _decode_u16(registers):
             """ Unsigned 16-bit big-endian to int """
             return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.UINT16)
@@ -256,11 +256,11 @@ class AcrelMeter(Server):
         def _decode_utf8(registers):
             return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.STRING)
 
-        if dtype == "UTF-8": return _decode_utf8(content)
-        elif dtype == "U16": return _decode_u16(content)
-        elif dtype == "U32": return _decode_u32(content)
-        elif dtype == "S16": return _decode_s16(content)
-        elif dtype == "S32": return _decode_s32(content)
+        if dtype == DataType.UTF8: return _decode_utf8(registers)
+        elif dtype == DataType.U16: return _decode_u16(registers)
+        elif dtype == DataType.U32: return _decode_u32(registers)
+        elif dtype == DataType.I16: return _decode_s16(registers)
+        elif dtype == DataType.I32: return _decode_s32(registers)
         else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
         
     def _encoded(cls, value):

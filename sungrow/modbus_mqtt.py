@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 from paho.mqtt.enums import CallbackAPIVersion
 import json
 import logging
+from loader import Options
 
 from random import getrandbits
 from time import time
@@ -11,7 +12,7 @@ def slugify(text):
     return text.replace(' ', '_').replace('(', '').replace(')', '').replace('/', 'OR').replace('&', ' ').replace(':', '').replace('.', '').lower()
 
 class MqttClient(mqtt.Client):
-    def __init__(self, mqtt_cfg):
+    def __init__(self, options: Options):
         def generate_uuid():
             random_part = getrandbits(64)
             timestamp = int(time() * 1000)  # Get current timestamp in milliseconds
@@ -22,8 +23,9 @@ class MqttClient(mqtt.Client):
             
         uuid = generate_uuid()
         super().__init__(CallbackAPIVersion.VERSION2, f"modbus-{uuid}")
-        self.username_pw_set(mqtt_cfg["user"], mqtt_cfg["password"])
-        self.mqtt_cfg = mqtt_cfg
+        self.username_pw_set(options.mqtt_user, options.mqtt_password)
+        self.base_topic = options.mqtt_base_topic
+        self.ha_discovery_topic = options.mwtt_ha_discovery_topic
 
         def on_connect(client, userdata, connect_flags, reason_code, properties):
             if reason_code == 0:
@@ -57,10 +59,10 @@ class MqttClient(mqtt.Client):
 
         # publish discovery topics for legal registers
         # assume registers in server.registers
-        availability_topic = f"{self.mqtt_cfg['base_topic']}_{server.nickname}/availability"
+        availability_topic = f"{self.base_topic}_{server.nickname}/availability"
 
         for register_name, details in server.registers.items():
-            state_topic = f"{self.mqtt_cfg['base_topic']}/{server.nickname}/{slugify(register_name)}/state"
+            state_topic = f"{self.base_topic}/{server.nickname}/{slugify(register_name)}/state"
             discovery_payload = {
                     "name": register_name,
                     "unique_id": f"{server.nickname}_{slugify(register_name)}",
@@ -72,15 +74,16 @@ class MqttClient(mqtt.Client):
                 }
             state_class = details.get("state_class", False)
             if state_class: discovery_payload['state_class'] = state_class
-            discovery_topic = f"{self.mqtt_cfg['ha_discovery_topic']}/sensor/{server.nickname}/{slugify(register_name)}/config"
+            discovery_topic = f"{self.ha_discovery_topic}/sensor/{server.nickname}/{slugify(register_name)}/config"
             self.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
 
         self.publish_availability(True, server)
 
     def publish_to_ha(self, register_name, value, server):
-        state_topic = f"{self.mqtt_cfg['base_topic']}/{server.nickname}/{slugify(register_name)}/state"
+        state_topic = f"{self.base_topic}/{server.nickname}/{slugify(register_name)}/state"
         self.publish(state_topic, value) #, retain=True)
 
     def publish_availability(self, avail, server):
-        availability_topic = f"{self.mqtt_cfg['base_topic']}_{server.nickname}/availability"
+        availability_topic = f"{self.base_topic}_{server.nickname}/availability"
         self.publish(availability_topic, "online" if avail else "offline", retain=True)
+        

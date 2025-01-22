@@ -1,33 +1,29 @@
 import abc
 import logging
+from enums import DataType
+# from loader import ServerOptions
 
 logger = logging.getLogger(__name__)
 
 
 class Server(metaclass=abc.ABCMeta):
-    def __init__(self, name:str, nickname:str, serialnum:str, device_addr:int, connected_client=None):
-        self.name: str = name
-        self.nickname: str = nickname
-        self.serialnum: str = serialnum
-        self.connected_client = connected_client
-        self.model:str | None = None
-        self.model_info: dict | None = None
-        self.device_addr:int| None = device_addr
+    def __init__(self, sr_options, clients):
+        self.name = sr_options.name
+        self.nickname = sr_options.ha_display_name
+        self.serialnum = sr_options.serialnum
+        self.device_addr:int| None = sr_options.modbus_id           # modbus slave_id
 
-    @classmethod
-    def from_config(cls, server_cfg:dict, clients:list):
-        """ Returns instance of Server/subclass after finding a pointer to the connected client, using its nickname as key.
-        """
-        # assume valid configLoader object
         try:
-            idx = [str(client) for client in clients].index(server_cfg["connected_client"])  # TODO ugly
+            idx = [str(client) for client in clients].index(sr_options.connected_client)  # TODO ugly
         except:
-            raise ValueError(f"Client {server_cfg['connected_client']} from server {server_cfg['nickname']} config not defined in client list")
+            raise ValueError(f"Client {sr_options.connected_client} from server {self.nickname} config not defined in client list")
+        self.connected_client = clients[idx]
 
-        instance = cls(server_cfg["name"], server_cfg["nickname"], server_cfg["serialnum"], server_cfg['device_addr'], connected_client=clients[idx])
-        logger.info(f"Server {instance.nickname} set up.")
-        return instance
-        # return Server(server_cfg["name"], server_cfg["nickname"], server_cfg["serialnum"], server_cfg['device_addr'], connected_client=clients[idx])
+        
+        self.model:str | None = None                                # model name
+        self.model_info: dict | None = None                         # additional model-specific info e.g. 'mppt': 3
+
+        logger.info(f"Server {self.nickname} set up.")
     
     def read_model(self, device_type_code_param_key="Device type code"):
         logger.info(f"Reading model for server")
@@ -58,8 +54,16 @@ class Server(metaclass=abc.ABCMeta):
     
     @classmethod
     @abc.abstractmethod
-    def _decoded(cls, content, dtype):
-        "Server-specific decoding must be implemented."
+    def _decoded(cls, registers: list, dtype: DataType):
+        """
+        Server-specific decoding must be implemented.
+
+        Parameters:
+        -----------
+        registers: list: list of ints as read from 16-bit ModBus Registers
+        dtype: (DataType.U16, DataType.I16, DataType.U32, DataType.I32 
+
+        """
         pass
 
     @classmethod
