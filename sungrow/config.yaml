@@ -1,5 +1,5 @@
 name: "Sungrow Inverter Addon"
-version: "0.3.33"
+version: "0.3.34"
 slug: "sungrow"
 description: "Sungrow Inverter Addon"
 init: false
@@ -49,7 +49,7 @@ schema:
     - name: str
       ha_display_name: str
       serialnum: str
-      server_type: list(SUNGROW_INVERTER, SUNGROW_LOGGER, ACREL_METER)
+      server_type: list(SUNGROW_INVERTER|SUNGROW_LOGGER|ACREL_METER)
       connected_client: str
       modbus_id: int(0,255)
   clients:
