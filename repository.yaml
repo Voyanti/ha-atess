@@ -1,4 +1,0 @@
-# https://developers.home-assistant.io/docs/add-ons/repository#repository-configuration
-name: SunGrow Inverter Add-on
-url: 'https://github.com/heinrich321/voyanti-sungrow'
-maintainer: Stephan Carstens <carstensstephan@outlook.com>
