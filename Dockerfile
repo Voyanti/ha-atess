@@ -11,7 +11,10 @@ COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
 # Copy code
-COPY src/ ../modbus_mqtt/ ./
-RUN chmod a+x run.sh
+COPY src/  ./
+RUN chmod a+x prepare.sh
+RUN ./prepare.sh
 
+# Run
+RUN chmod a+x run.sh
 CMD [ "sh", "./run.sh" ]
