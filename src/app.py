@@ -91,7 +91,7 @@ atexit.register(exit_handler, mqtt_client)
 
 try:
     # Read configuration
-    OPTIONS: Options = load_options(json_rel_path="../data/options.yaml")
+    OPTIONS: Options = load_options()
 
     logger.info("Instantiate clients")
     clients = [Client(cl_options) for cl_options in OPTIONS.clients]
