@@ -1,5 +1,5 @@
 name: "Sungrow Inverter"
-version: "0.4.3"
+version: "0.4.4"
 slug: "sungrow"
 description: "Sungrow Inverter"
 init: false
@@ -12,6 +12,10 @@ arch:
   - armhf
   - armv7
   - i386
+build_from:
+  amd64: "ghcr.io/home-assistant/amd64-base-python:3.10"
+build_options:
+  build_context: true
 options:
   servers:
     - name: "Sungrow Inverter 1"
