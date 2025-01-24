@@ -1,5 +1,5 @@
 name: "Sungrow Inverter"
-version: "0.4.6"
+version: "0.4.7"
 slug: "sungrow"
 description: "Sungrow Inverter"
 init: false
@@ -12,8 +12,6 @@ arch:
   - armhf
   - armv7
   - i386
-build_options:
-  build_context: true
 options:
   servers:
     - name: "Sungrow Inverter 1"
