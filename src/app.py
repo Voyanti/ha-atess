@@ -6,7 +6,7 @@ from queue import Queue
 
 if __name__ == "__main__":
     import sys, os
-    p = os.path.abspath('../../modbus_mqtt')
+    p = os.path.abspath('modbus_mqtt')
     print(p)
     sys.path.insert(0, p)
 from loader import load_options, Options
