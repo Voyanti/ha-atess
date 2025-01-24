@@ -1,5 +1,4 @@
 from server import Server
-from sungrow_inverter import SungrowInverter  
 from pymodbus.client import ModbusSerialClient
 import struct
 from enums import RegisterTypes, DataType
@@ -403,7 +402,7 @@ class SungrowLogger(Server):
     }
 
     registers = logger_input_registers
-
+    write_parameters = {}
 
 
     def __init__(self, *args, **kwargs):

@@ -1,8 +1,6 @@
 from server import Server
 from enums import RegisterTypes, DataType
-from sungrow_logger import SungrowLogger
 from pymodbus.client import ModbusSerialClient
-import struct
 import logging
 
 logger = logging.getLogger(__name__)
@@ -219,6 +217,7 @@ class AcrelMeter(Server):
         }
     }
     registers = relevant_registers
+    write_parameters = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

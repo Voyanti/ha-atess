@@ -1,3 +1,9 @@
+if __name__ == "__main__":
+    import sys, os
+    p = os.path.abspath('../../modbus_mqtt')
+    print(p)
+    sys.path.insert(0, p)
+
 from enums import RegisterTypes, DataType
 from server import Server
 from pymodbus.client import ModbusSerialClient
@@ -208,6 +214,7 @@ class SungrowInverter(Server):
         'System clock: Year': {'addr': 5000, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
         'System clock: Month': {'addr': 5001, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
         'System clock: Day': {'addr': 5002, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+
         'System clock: Hour': {'addr': 5003, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
         'System clock: Minute': {'addr': 5004, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
         'System clock: Second': {'addr': 5005, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
@@ -638,7 +645,7 @@ class SungrowInverter(Server):
     ################################################################################################################################################
 
     registers = dict(input_registers)
-    # registers.update(holding_registers)
+    write_parameters = holding_registers
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -733,21 +740,18 @@ class SungrowInverter(Server):
         elif value < 0:     raise ValueError(f"Cannot write negative {value=} to U16 register.")
 
         if isinstance(value, float):
-            # Convert the float value to 4 bytes using IEEE 754 format TODO
-            # value_bytes = list(struct.pack('>f', value))
-            raise NotImplemented(f"Writing floats to registers is not yet supported.")
-
-        value_bytes = list(value.to_bytes(4, byteorder='big', signed=False))
+            value = int(value)
             
-        return value_bytes
+        return [value]
    
     def _validate_write_val(self, register_name:str, val):
         """ Model-specific writes might be necessary to support more models """
         assert val in self.write_valid_values[register_name]
 
 if __name__ == "__main__":
-    print(SungrowInverter._encoded(2**16-1, False))
-    print(SungrowInverter._encoded(-1, False))
+    print(SungrowInverter._encoded(2**16-1))
+    print(SungrowInverter._encoded(4.1))
+    # print(SungrowInverter._encoded(-1))
 
     print(len(SungrowInverter.registers))
 
