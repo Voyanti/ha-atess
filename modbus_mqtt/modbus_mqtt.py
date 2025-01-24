@@ -84,7 +84,7 @@ class MqttClient(mqtt.Client):
 
         self.publish_availability(True, server)
 
-        for register_name, details in server.write_parameters:
+        for register_name, details in server.write_parameters.items():
             discovery_payload = {
                 "name": register_name,
                 "unique_id": f"{server.nickname}_{slugify(register_name)}",
