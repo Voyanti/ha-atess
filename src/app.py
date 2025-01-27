@@ -9,7 +9,8 @@ if __name__ == "__main__":
     p = os.path.abspath('modbus_mqtt')
     print(p)
     sys.path.insert(0, p)
-from loader import load_options, Options
+from loader import load_options
+from options import Options
 from client import Client
 from implemented_servers import ServerTypes
 from modbus_mqtt import MqttClient, RECV_Q
@@ -58,7 +59,7 @@ def message_handler(q: Queue[MQTTMessage], servers: list):
         register_name: str = msg.topic.split('/')[2]
         value: str = msg.payload.decode('utf-8')
 
-        server.connected_client.write_registers(float(value), server = s, register_name = register_name, register_info=server.registers[register_name])    
+        server.write_registers(float(value), server = s, register_name = register_name, register_info=server.registers[register_name])    
 
 
 def sleep_if_midnight():
@@ -101,7 +102,7 @@ try:
     logger.info(f"{len(clients)} clients set up")
     
     logger.info("Instantiate servers")
-    servers = [ServerTypes[sr.server_type].value(sr, clients) for sr in OPTIONS.servers]
+    servers = [ServerTypes[sr.server_type].value.from_ServerOptions(sr, clients) for sr in OPTIONS.servers]
     logger.info(f"{len(servers)} servers set up")
     # if len(servers) == 0: raise RuntimeError(f"No supported servers configured")
 
@@ -137,8 +138,7 @@ try:
     while True:
         for server in servers:
             for register_name, details in server.registers.items():
-                client = server.connected_client
-                value = client.read_registers(server, register_name, details)
+                value = server.read_registers(server, register_name, details)
                 mqtt_client.publish_to_ha(register_name, value, server)
                 sleep(read_interval)
             logger.info(f"Published all parameter values for {server.name=}")   

@@ -1,73 +1,138 @@
 import abc
 import logging
+from typing import Optional
 from enums import DataType
-from dataclasses import dataclass
-# from loader import ServerOptions
+from client import Client
+from options import ServerOptions
+from parameter_types import ParamInfo, HAParamInfo
 
 logger = logging.getLogger(__name__)
 
 
 class Server(metaclass=abc.ABCMeta):
     """
-        Base server class. Represents modbus server: its name, serial, model, modbus slave_id. e.g. SungrowInverter(Server).
+        Base server class. Represents modbus server: its unique_name, serial, model, modbus slave_id. e.g. SungrowInverter(Server).
 
         Includes functions to be abstracted by model/ manufacturer-specific implementations for 
         decoding, encoding data read/ write, reading model code, setting up model-specific registers and checking availability.
     """
-    def __init__(self, sr_options, clients):
-        """
-            Initialised from modbus_mqtt.loader.ServerOptions object
+    def __init__(self, unique_name, serial, modbus_id, connected_client):
+        self.unique_name: str = unique_name
+        self.serial: str = serial
+        self.modbus_id: int = modbus_id
+        self.connected_client: Client = connected_client
+        
+        # Define in implementation
+        self.supported_models: list = []
+        self.model:str | None = None
+        self.device_info:dict | None = None
+        self.parameters: Optional[dict[str, ParamInfo]] = None
+
+        # Optional: if used for home assistant
+        self.ha_parameters: Optional[dict[str, HAParamInfo]] = None
+
+        logger.info(f"Server {self.unique_name} set up.")
+
+    def __str__(self):
+        return f"{self.unique_name}"
+    
+    def read_registers(self, parameter_name:str):
+        """ Read a group of registers (parameter) using pymodbus 
+        
+            Requires implementation of the abstract method 'Server._decoded()'
 
             Parameters:
             -----------
-                - sr_options: modbus_mqtt.loader.ServerOptions - options as read from config json
-                - clients: list[modbus_mqtt.client.Client] - list of all TCP/Serial clients connected to machine
-
-            TODO move to classmethod, to separate home-assistant dependency out
+                - parameter_name: str: slave parameter name string as defined in register map
         """
-        self.name = sr_options.name
-        self.nickname = sr_options.ha_display_name
-        self.serialnum = sr_options.serialnum
-        self.device_addr:int| None = sr_options.modbus_id           # modbus slave_id
+        param = self.parameters[parameter_name]
 
-        try:
-            idx = [str(client) for client in clients].index(sr_options.connected_client)  # TODO ugly
-        except:
-            raise ValueError(f"Client {sr_options.connected_client} from server {self.nickname} config not defined in client list")
-        self.connected_client = clients[idx]
+        address = param["addr"]
+        dtype =  param["dtype"]
+        multiplier = param["multiplier"]
+        count = dtype.size // 2
+        unit = param["unit"]
+        slave_id = self.modbus_id
+        register_type = param['register_type']
 
-        
-        self.model:str | None = None                                # model name
-        self.model_info: dict | None = None                         # additional model-specific info e.g. 'mppt': 3
+        logger.info(f"Reading param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {self.modbus_id=}") # TODO count
 
-        logger.info(f"Server {self.nickname} set up.")
+        result = self.connected_client._read(address, count, self.modbus_id, register_type)
 
-    def __str__(self):
-        return f"{self.nickname}"
+        if result.isError(): 
+            self.connected_client._handle_error_response(result)
+            raise Exception(f"Error reading register {parameter_name}")
+
+        logger.info(f"Raw register begin value: {result.registers[0]}")
+        val = self._decoded(result.registers, param.dtype)
+        if multiplier != 1: val*=multiplier
+        if isinstance(val, int) or isinstance(val, float): val = round(val, 2)
+        logger.info(f"Decoded Value = {val} {unit}")
+
+        return val
     
-    def read_model(self, device_type_code_param_key="Device type code"):
+    # def write_registers(self, value:float, server:Server, register_name: str, register_info:dict):
+    #     """ 
+    #         Write to an individual register using pymodbus.
+
+    #         Reuires implementation of the abstract methods 
+    #         'Server._validate_write_val()' and 'Server._encode()'
+    #     """
+    #     logger.info(f"Validating write message")
+    #     server._validate_write_val(register_name, value)
+
+    #     address = register_info["addr"]
+    #     dtype =  register_info["dtype"]
+    #     multiplier = register_info["multiplier"]
+    #     count = register_info["count"]
+    #     unit = register_info["unit"]
+    #     slave_id = server.device_addr
+    #     register_type = register_info['register_type']
+
+    #     if multiplier != 1: value/=multiplier
+    #     values = server._encoded(value)
+        
+    #     logger.info(f"Writing {value=} {unit=} to param {register_name} at {address=}, {dtype=}, {multiplier=}, {count=}, {register_type=}, {slave_id=}")
+        
+    #     self.client.write_registers( address=address-1,
+    #                                 value=values,
+    #                                 slave=slave_id)
+
+
+    @abc.abstractmethod
+    def read_model(self) -> str:
         """
-            Reads model-holding register and sets self.model to its value.
-            Can be used in abstractions as-is by specifying model code register name in param device_type_code_param_key
+            Reads model name register and decodes it. Returns model name string. 
+
+            Must be overridden.
         """
-        logger.info(f"Reading model for server")
-        modelcode = self.connected_client.read_registers(self, device_type_code_param_key, self.registers[device_type_code_param_key])
-        self.model = self.device_info[modelcode]['model']
-        self.model_info = self.device_info[modelcode]
+    
+    def set_model(self):
+        """
+            Reads model-holding register, decodes it and sets self.model: str to its value..
+            Specify decoding in Server.device_info = {modelcode:    {name:modelname, ...}  }
+        """
+        logger.info(f"Reading model for server {self.unique_name}")
+        self.model = self.read_model()
         logger.info(f"Model read as {self.model}")
 
         if self.model not in self.supported_models: raise NotImplementedError(f"Model not supported in implementation of Server, {self}")
 
     def is_available(self, register_name="Device type code"):
         """ Contacts any server register and returns true if the server is available """
-        logger.info(f"Verifying availability of server {self.nickname}")
+        logger.info(f"Verifying availability of server {self.unique_name}")
 
         available = True
 
-        address = self.registers[register_name]["addr"]
-        count = self.registers[register_name]["count"]
-        slave_id = self.device_addr
-        register_type = self.registers[register_name]['register_type']
+        address = self.parameters[register_name]["addr"]
+        dtype =  self.parameters[register_name]["dtype"]
+        multiplier = self.parameters[register_name]["multiplier"]
+        count = dtype.size // 2
+        unit = self.parameters[register_name]["unit"]
+        slave_id = self.modbus_id
+        register_type = self.parameters[register_name]['register_type']
+
+        # count = self.parameters[register_name].dtype TODO
         response = self.connected_client._read(address, count, slave_id, register_type)
 
         if response.isError(): 
@@ -80,21 +145,21 @@ class Server(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def _decoded(cls, registers: list, dtype: DataType):
         """
-        Server-specific decoding must be implemented.
+        Server-specific decoding for registers read.
+
+        Must be overridden.
 
         Parameters:
         -----------
         registers: list: list of ints as read from 16-bit ModBus Registers
-        dtype: (DataType.U16, DataType.I16, DataType.U32, DataType.I32 
+        dtype: (DataType.U16, DataType.I16, DataType.U32, DataType.I32, ...)
 
         """
-        pass
 
     @classmethod
     @abc.abstractmethod
     def _encoded(cls, content):
         "Server-specific encoding must be implemented."
-        pass
 
     @abc.abstractmethod
     def setup_valid_registers_for_model(self):
@@ -102,4 +167,30 @@ class Server(metaclass=abc.ABCMeta):
             registers for the specific model must be implemented.
             Removes invalid registers for the specific model of inverter.
             Requires self.model. Call self.read_model() first."""
-        pass
+
+    @classmethod
+    def from_ServerOptions(
+        cls,
+        opts: ServerOptions, 
+        clients: list[Client]
+        ):
+        """
+            Initialises modbus_mqtt.server.Server from modbus_mqtt.loader.ServerOptions object
+
+            Parameters:
+            -----------
+                - sr_options: modbus_mqtt.loader.ServerOptions - options as read from config json
+                - clients: list[modbus_mqtt.client.Client] - list of all TCP/Serial clients connected to machine
+        """
+        name = opts.name
+        nickname = opts.ha_display_name
+        serial = opts.serialnum
+        modbus_id: int| None = opts.modbus_id           # modbus slave_id
+
+        try:
+            idx = [str(client) for client in clients].index(opts.connected_client)  # TODO ugly
+        except:
+            raise ValueError(f"Client {opts.connected_client} from server {nickname} config not defined in client list")
+        connected_client = clients[idx]
+
+        return cls(name, serial, modbus_id, connected_client)

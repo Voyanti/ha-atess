@@ -1,13 +1,10 @@
 from pymodbus.client import ModbusSerialClient, ModbusTcpClient
 from pymodbus.pdu import ExceptionResponse
-from enums import RegisterTypes, DataType
+from enums import RegisterTypes
 import logging
-from loader import ModbusTCPOptions, ModbusRTUOptions
+from options import ModbusTCPOptions, ModbusRTUOptions
 from time import sleep
 logger = logging.getLogger(__name__)
-
-from server import Server
-
 
 class Client:
     """
@@ -50,70 +47,6 @@ class Client:
             logger.info(f"unsupported register type {register_type}") # will maybe never happen?
             raise ValueError(f"unsupported register type {register_type}")
         return result
-
-    def read_registers(self, server:Server, register_name:str, register_info:dict):
-        """ Read a group of registers (parameter) using pymodbus 
-        
-            Requires implementation of the abstract method 'Server._decoded()'
-
-            Parameters:
-            -----------
-                - server: modbus_mqtt.server.Server: used to find client and modbus slave address to read from
-                - register_name: str: slave parameter name
-                - register_info: dict: slave parameter info dict(addr=, dtyoe=, multiplier=. count=. unit=, slave_id=, register_type=)
-
-        """
-
-        address = register_info["addr"]
-        dtype =  register_info["dtype"]
-        multiplier = register_info["multiplier"]
-        count = register_info["count"]
-        unit = register_info["unit"]
-        slave_id = server.device_addr
-        register_type = register_info['register_type']
-
-        logger.info(f"Reading param {register_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {slave_id=}")
-
-        result = self._read(address, count, slave_id, register_type)
-
-        if result.isError(): 
-            self._handle_error_response(result)
-            raise Exception(f"Error reading register {register_name}")
-
-        logger.info(f"Raw register begin value: {result.registers[0]}")
-        val = server._decoded(result.registers, dtype)
-        if multiplier != 1: val*=multiplier
-        if isinstance(val, int) or isinstance(val, float): val = round(val, 2)
-        logger.info(f"Decoded Value = {val} {unit}")
-
-        return val
-
-    def write_registers(self, value:float, server:Server, register_name: str, register_info:dict):
-        """ 
-            Write to an individual register using pymodbus.
-
-            Reuires implementation of the abstract methods 
-            'Server._validate_write_val()' and 'Server._encode()'
-        """
-        logger.info(f"Validating write message")
-        server._validate_write_val(register_name, value)
-
-        address = register_info["addr"]
-        dtype =  register_info["dtype"]
-        multiplier = register_info["multiplier"]
-        count = register_info["count"]
-        unit = register_info["unit"]
-        slave_id = server.device_addr
-        register_type = register_info['register_type']
-
-        if multiplier != 1: value/=multiplier
-        values = server._encoded(value)
-        
-        logger.info(f"Writing {value=} {unit=} to param {register_name} at {address=}, {dtype=}, {multiplier=}, {count=}, {register_type=}, {slave_id=}")
-        
-        self.client.write_registers( address=address-1,
-                                    value=values,
-                                    slave=slave_id)
 
     def connect(self, num_retries=2, sleep_interval=3):
         logger.info(f"Connecting to client {self}")

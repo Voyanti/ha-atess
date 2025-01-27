@@ -1,18 +1,16 @@
 if __name__ == "__main__":
     import sys, os
-    p = os.path.abspath('../../modbus_mqtt')
+    p = os.path.abspath('modbus_mqtt')
     print(p)
     sys.path.insert(0, p)
 
 from enums import RegisterTypes, DataType
-from server import Server
+from server import Server, ParamInfo, HAParamInfo
 from pymodbus.client import ModbusSerialClient
 import struct
 import logging
 
 logger = logging.getLogger(__name__)
-
-U16_MAX = 2**16-1
 
 class SungrowInverter(Server):
     """
@@ -78,6 +76,40 @@ class SungrowInverter(Server):
     # Register Map
     ################################################################################################################################################
     # TODO Combiner Board information p12 - need to check availability before reading?
+    # parameters = {
+    #     ParamInfo(name='Serial Number', address=4990, dtype=DataType.UTF8, register_type=RegisterTypes.INPUT_REGISTER, unit=None, multiplier=None),
+    #     ParamInfo(name='Device Type Code', address=5000, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit=None, multiplier=None),
+    #     ParamInfo(name='Nominal Active Power', address=5001, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit='kW', multiplier=0.1),
+    #     ParamInfo(name='Output Type', address=5002, dtype=DataType.U16 register_type=RegisterTypes.INPUT_REGISTER, unit=None, multiplier=None),
+    #     ParamInfo(name='Daily Power Yields', address=5003, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit='kWh', multiplier=0.1),
+    #     ParamInfo(name='Total Power Yields', address=5004, dtype=DataType.U32, register_type=RegisterTypes.INPUT_REGISTER, unit='kWh', multiplier=None),
+    #     ParamInfo(name='Total Running Time', address=5006, dtype=DataType.U32, register_type=RegisterTypes.INPUT_REGISTER, unit='h', multiplier=None),
+    #     ParamInfo(name='Internal Temperature', address=5008, dtype=DataType.I16, register_type=RegisterTypes.INPUT_REGISTER, unit='°C', multiplier=0.1),
+    #     ParamInfo(name='Total Apparent Power', address=5009, dtype=DataType.U32, register_type=RegisterTypes.INPUT_REGISTER, unit='VA', multiplier=None),
+    #     ParamInfo(name='Total DC Power', address=5017, dtype=DataType.U32, register_type=RegisterTypes.INPUT_REGISTER, unit='W', multiplier=None),
+    #     ParamInfo(name='Phase A Current', address=5022, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit='A', multiplier=0.1),
+    #     ParamInfo(name='Phase B Current', address=5023, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit='A', multiplier=0.1),
+    #     ParamInfo(name='Phase C Current', address=5024, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit='A', multiplier=0.1),
+    #     ParamInfo(name='Total Active Power', address=5031, dtype=DataType.U32, register_type=RegisterTypes.INPUT_REGISTER, unit='W', multiplier=None),
+    #     ParamInfo(name='Total Reactive Power', address=5033, dtype=DataType.U32, register_type=RegisterTypes.INPUT_REGISTER, unit='var', multiplier=None),
+    #     ParamInfo(name='Power Factor', address=5035, dtype=DataType.I16, register_type=RegisterTypes.INPUT_REGISTER, unit='no unit of measurement', multiplier=0.001),
+    #     ParamInfo(name='Grid Frequency', address=5036, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit='Hz', multiplier=0.1),
+    #     ParamInfo(name='Work State', address=5038, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit=None, multiplier=None),
+    #     ParamInfo(name='Nominal Reactive Power', address=5049, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit='kVar', multiplier=0.1),
+    #     ParamInfo(name='Array Insulation Resistance', address=5071, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit='kΩ', multiplier=None),
+    #     ParamInfo(name='Active Power Regulation Setpoint', address=5077, dtype=DataType.U32, register_type=RegisterTypes.INPUT_REGISTER, unit='W', multiplier=None),
+    #     ParamInfo(name='Reactive Power Regulation Setpoint', address=5079, dtype=DataType.I32, register_type=RegisterTypes.INPUT_REGISTER, unit='Var', multiplier=None),
+    #     ParamInfo(name='Work State (Extended)', address=5081, dtype=DataType.U32, register_type=RegisterTypes.INPUT_REGISTER, unit=None, multiplier=None),
+    #     ParamInfo(name='Daily Running Time', address=5113, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit='min', multiplier=None),
+    #     ParamInfo(name='Present Country', address=5114, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit=None, multiplier=None),
+    #     ParamInfo(name='Monthly Power Yields', address=5128, dtype=DataType.U32, register_type=RegisterTypes.INPUT_REGISTER, unit='kWh', multiplier=0.1),
+    #     ParamInfo(name='Total Power Yields (Increased Accuracy)', address=5144, dtype=DataType.U32, register_type=RegisterTypes.INPUT_REGISTER, unit='kWh', multiplier=0.1),
+    #     ParamInfo(name='Negative Voltage to the Ground', address=5146, dtype=DataType.I16, register_type=RegisterTypes.INPUT_REGISTER, unit='V', multiplier=0.1),
+    #     ParamInfo(name='Bus Voltage', address=5147, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit='V', multiplier=0.1),
+    #     ParamInfo(name='Grid Frequency (Increased Accuracy)', address=5148, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit='Hz', multiplier=0.01),
+    #     ParamInfo(name='PID Work State', address=5150, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit=None, multiplier=None),
+    #     ParamInfo(name='PID Alarm Code', address=5151, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit=None, multiplier=None)
+    # }
     input_registers = {
         # Non-measurement values (no state_class needed)
         'Serial Number': {'addr': 4990, 'count': 10, 'dtype': DataType.UTF8, 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER},
@@ -653,28 +685,37 @@ class SungrowInverter(Server):
         super().__init__(*args, **kwargs)
         # self.model = None
 
-    def read_model(self, device_type_code_param_key="Device Type Code"):
-        super().read_model(device_type_code_param_key)
+    def read_model(self, device_type_code_param_key="Device type code") -> str:
+        """
+            Reads model-holding register and sets self.model to its value.
+            Can be used in abstractions as-is by specifying model code register name in param device_type_code_param_key
+        """
+        logger.info(f"Reading model for server")
+        modelcode = self.read_registers(self, device_type_code_param_key, self.registers[device_type_code_param_key])
+        model = self.device_info[modelcode]['model']
+        self.model_info = self.device_info[modelcode]
+
+        return model
+
     
     def setup_valid_registers_for_model(self):
         """ Removes invalid registers for the specific model of inverter.
             Requires self.model. Call self.read_model() first."""
-        logger.info(f"Removing invalid registers for server {self.nickname}, with serial {self.serialnum}.")
+        logger.info(f"Removing invalid registers for server {self.unique_name}, with serial {self.serial}.")
 
         if self.model is None or not self.model or not self.model_info:
-            # read_model()
             logger.error(f"Inverter model not set. Cannot setup valid registers. {self.serialnum=}, {self.nickname=}")
             raise ValueError(f"Inverter model not set. Cannot setup valid registers. {self.serialnum=}, {self.nickname=}")
 
-        for param, supported_models in self.limited_params.items():
-            if self.model not in self.supported_models: self.registers.pop(param)
+        for param, models in self.limited_params.items():
+            if self.model not in models: self.registers.pop(param)
 
         # select the available number of mppt registers for the specific model
         mppt_registers: list[dict] = self.MPPT_parameters[:self.model_info["mppt"]]
         for item in mppt_registers: self.registers.update(item)
 
         # show line / phase voltage depending on configuration
-        config_id = self.connected_client.read_registers(self, "Output Type", self.registers["Output Type"])
+        config_id = self.read_registers(self, "Output Type")
         self.registers.update(self.phase_line_voltage[config_id])
 
     def verify_serialnum(self, serialnum_name_in_definition:str="Serial Number") -> bool:
@@ -686,14 +727,13 @@ class SungrowInverter(Server):
             - serialnum_name_in_definition: str: Name of the register in server.registers containing the serial number
         """
         logger.info("Verifying serialnumber")
-        serialnum = self.connected_client.read_registers(self, serialnum_name_in_definition, 
-                                                            self.registers[serialnum_name_in_definition])
+        serialnum = self.read_registers(self, serialnum_name_in_definition)                                                
 
         if serialnum is None: 
-            logger.info(f"Server with serial {self.serialnum} not available")
+            logger.info(f"Server with serial {self.serial} not available")
             return False
-        elif self.serialnum != serialnum: raise ValueError(f"Mismatch in configured serialnum {self.serialnum} \
-                                                                        and actual serialnum {serialnum} for server {self.nickname}.")
+        elif self.serial != serialnum: raise ValueError(f"Mismatch in configured serialnum {self.serial} \
+                                                                        and actual serialnum {serialnum} for server {self.unique_name}.")
         return True
 
     def is_available(self):
@@ -737,6 +777,7 @@ class SungrowInverter(Server):
         """ Convert a float or integer to big-endian register.
             Supports U16 only.
         """
+        U16_MAX = 2**16-1
 
         if value > U16_MAX: raise ValueError(f"Cannot write {value=} to U16 register.")
         elif value < 0:     raise ValueError(f"Cannot write negative {value=} to U16 register.")
@@ -751,10 +792,29 @@ class SungrowInverter(Server):
         assert val in self.write_valid_values[register_name]
 
 if __name__ == "__main__":
-    print(SungrowInverter._encoded(2**16-1))
-    print(SungrowInverter._encoded(4.1))
-    # print(SungrowInverter._encoded(-1))
+    # print(SungrowInverter._encoded(2**16-1))
+    # print(SungrowInverter._encoded(4.1))
+    # # print(SungrowInverter._encoded(-1))
 
-    print(len(SungrowInverter.registers))
+    # print(len(SungrowInverter.registers))
 
-    print(RegisterTypes.INPUT_REGISTER.value)
+    # print(RegisterTypes.INPUT_REGISTER.value)
+    params = {}
+    ha_params = {}
+
+    for reg, info in SungrowInverter.registers.items():
+        params[reg] = ParamInfo(reg, 
+                      info['addr'], 
+                      info['dtype'], 
+                      info['register_type'], 
+                      info['unit'] if info['unit']!='' else None, 
+                      info['multiplier'] if info['multiplier']!=1 else None)
+        
+        ha_params[reg] = HAParamInfo(reg, info['device_class'], info.get("state_class"))
+    from pprint import pprint
+    for k, v in params.items():
+        pprint(f"'{k}': {v}")
+    for p in ha_params.items():
+        print(p)
+    # pprint(params)
+    # pprint(ha_params)
