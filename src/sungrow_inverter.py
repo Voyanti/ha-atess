@@ -16,15 +16,14 @@ U16_MAX = 2**16-1
 
 class SungrowInverter(Server):
     """
-    Sungrow
-        SGKTL-20        not found
+    Sungrow Inverter register map definition. Includes functions for decoding, encoding, model reading and setup of relevant register for specific models.
 
-        SG50CX  # de leeuwenhof
+        TODO SGKTL-20        not found
     """
     supported_models = ('SG110CX', 'SG33CX', 'SG80KTL-20', 'SG50CX') 
     manufacturer = "Sungrow"
 
-    # Parameters with limited availability:
+    # Parameters with model-specific availability:
     ################################################################################################################################################
     total_apparant_power_supported_models = [
         'SG5KTL-MT','SG6KTL-MT','SG8KTL-M','SG10KTL-M','SG10KTL-MT','SG12KTL-M','SG15KTL-M','SG17KTL-M','SG20KTL-M','SG3.0RT','SG4.0RT','SG5.0RT',
@@ -143,6 +142,7 @@ class SungrowInverter(Server):
         'PID Alarm Code': {'addr': 5151, 'count': 1, 'dtype': DataType.U16, 'multiplier': 1, 'unit': '', 'device_class': 'enum', 'register_type': RegisterTypes.INPUT_REGISTER}
     }
 
+    # same registers store either phase or line voltage, depending on a flag. see setup_valid_register_for_model
     phase_line_voltage = {
         1:
         {
@@ -158,6 +158,7 @@ class SungrowInverter(Server):
         }
     }
 
+    # model-specific amount of MPPT support. see device_info
     MPPT_parameters = [
         {
             'MPPT 1 Voltage': {'addr': 5011, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
@@ -256,6 +257,7 @@ class SungrowInverter(Server):
 
     # Enum Types
     ################################################################################################################################################
+    # supported values for holding registers
     write_valid_values = {
         'Start/Stop': {'Start': 0xCF, 'Stop': 0xCE},
         'Power limitation switch': {'Enable': 0xAA, 'Disable': 0x55},

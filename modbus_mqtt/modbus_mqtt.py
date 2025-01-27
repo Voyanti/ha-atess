@@ -15,6 +15,9 @@ def slugify(text):
     return text.replace(' ', '_').replace('(', '').replace(')', '').replace('/', 'OR').replace('&', ' ').replace(':', '').replace('.', '').lower()
 
 class MqttClient(mqtt.Client):
+    """ 
+        paho MQTT abstraction for home assistant
+    """
     def __init__(self, options: Options):
         def generate_uuid():
             random_part = getrandbits(64)

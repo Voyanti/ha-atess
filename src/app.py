@@ -40,6 +40,9 @@ def exit_handler(servers, modbus_clients, mqtt_client):
     mqtt_client.loop_stop()
 
 def message_handler(q: Queue[MQTTMessage], servers: list):
+    """
+        Writes appropriate server registers for each message in mqtt receive queue
+    """
     logger.info(f"Checking for command messages.")
     while not q.empty():
         msg = q.get()
