@@ -223,6 +223,7 @@ class AcrelMeter(Server):
         self.model = AcrelMeter.model
         self.manufacturer = AcrelMeter.manufacturer
         self.parameters = AcrelMeter.relevant_registers
+        self.serial = 'unknown'
         # self.serialnum = AcrelMeter..
 
     def read_model(self):

@@ -687,7 +687,7 @@ class SungrowInverter(Server):
 
         # self.model = None
 
-    def read_model(self, device_type_code_param_key="Device type code") -> str:
+    def read_model(self, device_type_code_param_key="Device Type Code") -> str:
         """
             Reads model-holding register and sets self.model to its value.
             Can be used in abstractions as-is by specifying model code register name in param device_type_code_param_key

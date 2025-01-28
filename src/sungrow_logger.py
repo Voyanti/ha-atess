@@ -409,9 +409,20 @@ class SungrowLogger(Server):
         self.model = SungrowLogger.model              # only 1000b model
         self.manufacturer = SungrowLogger.manufacturer
         self.parameters = self.logger_input_registers
+        self.serial = 'unknown'
+        
+    def read_model(self, device_type_code_param_key="Device type code") -> str:
+        """
+            Reads model-holding register and sets self.model to its value.
+            Can be used in abstractions as-is by specifying model code register name in param device_type_code_param_key
+        """
+        logger.info(f"Reading model for server")
+        modelcode = self.read_registers(device_type_code_param_key)
+        model = self.device_info[modelcode]['model']
+        self.model_info = self.device_info[modelcode]
 
-    def read_model(self, device_type_code_param_key="Device type code"):
-        return super().read_model(device_type_code_param_key)
+        return model
+
     
     def setup_valid_registers_for_model(self):
         # only support logger 1000 for now
