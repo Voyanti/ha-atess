@@ -678,11 +678,13 @@ class SungrowInverter(Server):
     # Appendix 7, 8, 9?
     ################################################################################################################################################
 
-    registers = dict(input_registers)
     write_parameters = holding_registers
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.manufacturer = "Sungrow"
+        self.parameters = self.input_registers
+
         # self.model = None
 
     def read_model(self, device_type_code_param_key="Device type code") -> str:
@@ -704,19 +706,19 @@ class SungrowInverter(Server):
         logger.info(f"Removing invalid registers for server {self.unique_name}, with serial {self.serial}.")
 
         if self.model is None or not self.model or not self.model_info:
-            logger.error(f"Inverter model not set. Cannot setup valid registers. {self.serialnum=}, {self.nickname=}")
-            raise ValueError(f"Inverter model not set. Cannot setup valid registers. {self.serialnum=}, {self.nickname=}")
+            logger.error(f"Inverter model not set. Cannot setup valid registers. {self.serial=}, {self.unique_name=}")
+            raise ValueError(f"Inverter model not set. Cannot setup valid registers. {self.serial=}, {self.unique_name=}")
 
         for param, models in self.limited_params.items():
-            if self.model not in models: self.registers.pop(param)
+            if self.model not in models: self.parameters.pop(param)
 
         # select the available number of mppt registers for the specific model
         mppt_registers: list[dict] = self.MPPT_parameters[:self.model_info["mppt"]]
-        for item in mppt_registers: self.registers.update(item)
+        for item in mppt_registers: self.parameters.update(item)
 
         # show line / phase voltage depending on configuration
         config_id = self.read_registers(self, "Output Type")
-        self.registers.update(self.phase_line_voltage[config_id])
+        self.parameters.update(self.phase_line_voltage[config_id])
 
     def verify_serialnum(self, serialnum_name_in_definition:str="Serial Number") -> bool:
         """ Verify that the serialnum specified in config.yaml matches 
@@ -802,7 +804,7 @@ if __name__ == "__main__":
     params = {}
     ha_params = {}
 
-    for reg, info in SungrowInverter.registers.items():
+    for reg, info in SungrowInverter.parameters.items():
         params[reg] = ParamInfo(reg, 
                       info['addr'], 
                       info['dtype'], 

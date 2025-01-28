@@ -216,13 +216,13 @@ class AcrelMeter(Server):
             "multiplier": ENERGY_MULTIPLIER
         }
     }
-    registers = relevant_registers
     write_parameters = {}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = AcrelMeter.model
         self.manufacturer = AcrelMeter.manufacturer
+        self.parameters = AcrelMeter.relevant_registers
         # self.serialnum = AcrelMeter..
 
     def read_model(self):

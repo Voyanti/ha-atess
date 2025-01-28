@@ -401,13 +401,14 @@ class SungrowLogger(Server):
         },
     }
 
-    registers = logger_input_registers
     write_parameters = {}
 
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = SungrowLogger.model              # only 1000b model
+        self.manufacturer = SungrowLogger.manufacturer
+        self.parameters = self.logger_input_registers
 
     def read_model(self, device_type_code_param_key="Device type code"):
         return super().read_model(device_type_code_param_key)

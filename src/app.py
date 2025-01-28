@@ -137,8 +137,8 @@ try:
     # every read_interval seconds, read the registers and publish to mqtt
     while True:
         for server in servers:
-            for register_name, details in server.registers.items():
-                value = server.read_registers(server, register_name, details)
+            for register_name, details in server.parameters.items():
+                value = server.read_registers(register_name)
                 mqtt_client.publish_to_ha(register_name, value, server)
                 sleep(read_interval)
             logger.info(f"Published all parameter values for {server.unique_name=}")   

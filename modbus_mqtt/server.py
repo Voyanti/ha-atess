@@ -24,6 +24,7 @@ class Server(metaclass=abc.ABCMeta):
         
         # Define in implementation
         self.supported_models: list = []
+        self.manufacturer:str | None = None
         self.model:str | None = None
         self.device_info:dict | None = None
         self.parameters: Optional[dict[str, ParamInfo]] = None
@@ -50,7 +51,8 @@ class Server(metaclass=abc.ABCMeta):
         address = param["addr"]
         dtype =  param["dtype"]
         multiplier = param["multiplier"]
-        count = dtype.size // 2
+        # count = param.get('count', dtype.size // 2) #TODO
+        count = param["count"] #TODO
         unit = param["unit"]
         slave_id = self.modbus_id
         register_type = param['register_type']
@@ -64,7 +66,7 @@ class Server(metaclass=abc.ABCMeta):
             raise Exception(f"Error reading register {parameter_name}")
 
         logger.info(f"Raw register begin value: {result.registers[0]}")
-        val = self._decoded(result.registers, param.dtype)
+        val = self._decoded(result.registers, dtype)
         if multiplier != 1: val*=multiplier
         if isinstance(val, int) or isinstance(val, float): val = round(val, 2)
         logger.info(f"Decoded Value = {val} {unit}")
@@ -194,4 +196,4 @@ class Server(metaclass=abc.ABCMeta):
             raise ValueError(f"Client {opts.connected_client} from server {nickname} config not defined in client list")
         connected_client = clients[idx]
 
-        return cls(name, serial, modbus_id, connected_client)
+        return cls(nickname, serial, modbus_id, connected_client)
