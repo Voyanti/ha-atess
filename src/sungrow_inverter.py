@@ -693,7 +693,7 @@ class SungrowInverter(Server):
             Can be used in abstractions as-is by specifying model code register name in param device_type_code_param_key
         """
         logger.info(f"Reading model for server")
-        modelcode = self.read_registers(self, device_type_code_param_key, self.registers[device_type_code_param_key])
+        modelcode = self.read_registers(device_type_code_param_key)
         model = self.device_info[modelcode]['model']
         self.model_info = self.device_info[modelcode]
 
@@ -717,7 +717,7 @@ class SungrowInverter(Server):
         for item in mppt_registers: self.parameters.update(item)
 
         # show line / phase voltage depending on configuration
-        config_id = self.read_registers(self, "Output Type")
+        config_id = self.read_registers("Output Type")
         self.parameters.update(self.phase_line_voltage[config_id])
 
     def verify_serialnum(self, serialnum_name_in_definition:str="Serial Number") -> bool:
