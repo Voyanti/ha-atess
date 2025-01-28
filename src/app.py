@@ -22,7 +22,7 @@ SPOOF = False
 if len(sys.argv) > 1:
     if sys.argv[1] == "SPOOF":
         from client import SpoofClient as Client
-        spoof = True
+        SPOOF = True
 
 logging.basicConfig(
     level=logging.INFO,  # Set logging level
@@ -120,7 +120,7 @@ try:
 
     # Connect to Servers
     for server in servers:
-        if spoof: server.model = "spoof"
+        if SPOOF: server.model = "spoof"
         else: 
             if not server.is_available():
                 logger.error(f"Server {server.unique_name} not available")
