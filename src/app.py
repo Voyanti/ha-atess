@@ -17,6 +17,12 @@ from modbus_mqtt import MqttClient, RECV_Q
 from paho.mqtt.enums import MQTTErrorCode
 from paho.mqtt.client import MQTTMessage
 
+import sys
+SPOOF = False
+if len(sys.argv) > 1:
+    if sys.argv[1] == "SPOOF":
+        from client import SpoofClient as Client
+        spoof = True
 
 logging.basicConfig(
     level=logging.INFO,  # Set logging level
@@ -112,14 +118,15 @@ try:
     for client in clients:
         client.connect()
 
-
     # Connect to Servers
     for server in servers:
-        if not server.is_available():
-            logger.error(f"Server {server.unique_name} not available")
-            raise ConnectionError()                             
-        server.read_model()
-        server.setup_valid_registers_for_model()
+        if spoof: server.model = "spoof"
+        else: 
+            if not server.is_available():
+                logger.error(f"Server {server.unique_name} not available")
+                raise ConnectionError()                             
+            server.read_model()
+            server.setup_valid_registers_for_model()
 
     # Setup MQTT Client
     mqtt_client = MqttClient(OPTIONS)
