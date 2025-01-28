@@ -229,7 +229,7 @@ class AcrelMeter(Server):
         self.device_info:dict | None = None
 
     def read_model(self):
-        return
+        return self.supported_models[0]
     
     def setup_valid_registers_for_model(self):
         # only support logger 1000 for now

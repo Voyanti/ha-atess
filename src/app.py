@@ -125,7 +125,7 @@ try:
             if not server.is_available():
                 logger.error(f"Server {server.unique_name} not available")
                 raise ConnectionError()                             
-            server.read_model()
+            server.set_model()
             server.setup_valid_registers_for_model()
 
     # Setup MQTT Client
