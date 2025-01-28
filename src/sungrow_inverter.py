@@ -727,7 +727,7 @@ class SungrowInverter(Server):
             - serialnum_name_in_definition: str: Name of the register in server.registers containing the serial number
         """
         logger.info("Verifying serialnumber")
-        serialnum = self.read_registers(self, serialnum_name_in_definition)                                                
+        serialnum = self.read_registers(serialnum_name_in_definition)                                                
 
         if serialnum is None: 
             logger.info(f"Server with serial {self.serial} not available")
