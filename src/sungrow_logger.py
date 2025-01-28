@@ -410,7 +410,11 @@ class SungrowLogger(Server):
         self.manufacturer = SungrowLogger.manufacturer
         self.parameters = self.logger_input_registers
         self.serial = 'unknown'
-        
+
+        self.supported_models = SungrowLogger.supported_models
+        self.device_info = SungrowLogger.device_info
+
+
     def read_model(self, device_type_code_param_key="Device type code") -> str:
         """
             Reads model-holding register and sets self.model to its value.

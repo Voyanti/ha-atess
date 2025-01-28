@@ -685,6 +685,9 @@ class SungrowInverter(Server):
         self.manufacturer = "Sungrow"
         self.parameters = self.input_registers
 
+        self.supported_models = SungrowInverter.supported_models
+        self.device_info = SungrowInverter.device_info
+
         # self.model = None
 
     def read_model(self, device_type_code_param_key="Device Type Code") -> str:
