@@ -95,3 +95,54 @@ class Client:
             error_message = exception_messages.get(exception_code, "Unknown Exception")
             logger.error(f"Modbus Exception Code {exception_code}: {error_message}")
         else: logger.error(f"Non Standard Modbus Exception. Cannot Decode Response")
+
+
+
+class SpoofClient:
+    class SpoofResponse:
+        def __init__(self, registers:list[int]):
+            self.registers = registers
+        def isError(self): return False
+    """
+        Spoofed Modbus client representation: name, nickname (ha_display_name), and pymodbus client. 
+
+        Wraps around pymodbus.client.ModbusSerialClient | pymodbus.client.ModbusTCPClient to 
+        fan out dictionary information, and decode/ encode register values when reading/ writing/
+    """
+    def __init__(self, cl_options: ModbusTCPOptions | ModbusRTUOptions):
+        """
+            Initialised from modbus_mqtt.loader.ClientOptions object
+
+            Parameters:
+            -----------
+                - cl_options: modbus_mqtt.loader.ClientOptions - options as read from config json
+
+            TODO move to classmethod, to separate home-assistant dependency out
+        """
+        self.name = cl_options.name
+        self.nickname = cl_options.ha_display_name
+        self.client: ModbusSerialClient | ModbusTcpClient
+
+        if isinstance(cl_options, ModbusTCPOptions):
+            self.client = ModbusTcpClient(host=cl_options.host, port=cl_options.port)
+        elif isinstance(cl_options, ModbusRTUOptions):
+            self.client = ModbusSerialClient(port=cl_options.port, baudrate=cl_options.baudrate, 
+                                                bytesize=cl_options.bytesize, parity='Y' if cl_options.parity else 'N', 
+                                                stopbits=cl_options.stopbits)
+
+    def _read(self, address, count, slave_id, register_type):
+        logger.info(f"SPOOFING READ")
+        response = SpoofClient.SpoofResponse([73 for _ in range(count)])
+        return response
+
+    def connect(self, num_retries=2, sleep_interval=3):
+        logger.info(f"SPOOFING CONNECT to {self}")
+
+    def close(self):
+        logger.info(f"SPOOFING DISCONNECT to {self}")
+
+    def __str__(self):
+        """
+            self.nickname is used as a unique id for finding the client to which each server is connected.
+        """
+        return f"{self.nickname}"
