@@ -71,32 +71,33 @@ class Server(metaclass=abc.ABCMeta):
 
         return val
     
-    # def write_registers(self, value:float, server:Server, register_name: str, register_info:dict):
-    #     """ 
-    #         Write to an individual register using pymodbus.
+    def write_registers(self, value:float, parameter_name: str):
+        """ 
+            Write to an individual register using pymodbus.
 
-    #         Reuires implementation of the abstract methods 
-    #         'Server._validate_write_val()' and 'Server._encode()'
-    #     """
-    #     logger.info(f"Validating write message")
-    #     server._validate_write_val(register_name, value)
+            Reuires implementation of the abstract methods 
+            'Server._validate_write_val()' and 'Server._encode()'
+        """
+        logger.info(f"Validating write message")
+        self._validate_write_val(parameter_name, value)
 
-    #     address = register_info["addr"]
-    #     dtype =  register_info["dtype"]
-    #     multiplier = register_info["multiplier"]
-    #     count = register_info["count"]
-    #     unit = register_info["unit"]
-    #     slave_id = server.device_addr
-    #     register_type = register_info['register_type']
+        param = self.parameters[parameter_name]
+        address = param["addr"]
+        dtype =  param["dtype"]
+        multiplier = param["multiplier"]
+        count = param["count"]
+        unit = param["unit"]
+        slave_id = self.modbus_id
+        register_type = param['register_type']
 
-    #     if multiplier != 1: value/=multiplier
-    #     values = server._encoded(value)
+        if multiplier != 1: value/=multiplier
+        values = self._encoded(value)
         
-    #     logger.info(f"Writing {value=} {unit=} to param {register_name} at {address=}, {dtype=}, {multiplier=}, {count=}, {register_type=}, {slave_id=}")
+        logger.info(f"Writing {value=} {unit=} to param {parameter_name} at {address=}, {dtype=}, {multiplier=}, {count=}, {register_type=}, {slave_id=}")
         
-    #     self.client.write_registers( address=address-1,
-    #                                 value=values,
-    #                                 slave=slave_id)
+        self.connected_client.client.write_registers( address=address-1,
+                                    value=values,
+                                    slave=slave_id)
 
 
     @abc.abstractmethod
