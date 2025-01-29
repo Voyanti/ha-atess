@@ -13,6 +13,7 @@ from loader import load_options
 from options import Options
 from client import Client
 from implemented_servers import ServerTypes
+from server import Server
 from modbus_mqtt import MqttClient, RECV_Q
 from paho.mqtt.enums import MQTTErrorCode
 from paho.mqtt.client import MQTTMessage
@@ -35,7 +36,7 @@ mqtt_client = None
 pause_interval = 3
 read_interval = 0.001
 
-def exit_handler(servers, modbus_clients, mqtt_client):          
+def exit_handler(servers: list[Server], modbus_clients: list[Client], mqtt_client: MqttClient):          
     logger.info("Exiting")
     # publish offline availability for each server
     for server in servers:

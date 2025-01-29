@@ -176,6 +176,7 @@ class SungrowInverter(Server):
 
     # same registers store either phase or line voltage, depending on a flag. see setup_valid_register_for_model
     phase_line_voltage = {
+        0: {},
         1:
         {
         'Phase A Voltage': {'addr': 5019, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': 'voltage', 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
@@ -720,7 +721,7 @@ class SungrowInverter(Server):
         for item in mppt_registers: self.parameters.update(item)
 
         # show line / phase voltage depending on configuration
-        config_id = self.read_registers("Output Type")
+        config_id = self.read_registers("Output Type")  # TODO not supposed to change during operation, but does for leeuwenhof
         self.parameters.update(self.phase_line_voltage[config_id])
 
     def verify_serialnum(self, serialnum_name_in_definition:str="Serial Number") -> bool:
