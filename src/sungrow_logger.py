@@ -7,21 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-U16_MAX = 2**16-1
-
 class SungrowLogger(Server):
-    
-    manufacturer = "Sungrow"
-    model = "Logger 1000x"
-
-    device_info = {
-        0x0705: { "model":"Logger3000"},
-        0x0710: { "model":"Logger1000"}, 
-        0x0718: { "model":"Logger4000"}
-    }
-
-    supported_models = ("Logger1000")
-                        #  "Logger3000", "Logger4000")
 
     # Sungrow 1.0.2.7 definitions 04 input registers
     logger_input_registers = {
@@ -406,13 +392,18 @@ class SungrowLogger(Server):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model = SungrowLogger.model              # only 1000b model
-        self.manufacturer = SungrowLogger.manufacturer
+
+        self.model = "Logger 1000x"              # only 1000b model
+        self.manufacturer = "Sungrow"
         self.parameters = self.logger_input_registers
         self.serial = 'unknown'
 
-        self.supported_models = SungrowLogger.supported_models
-        self.device_info = SungrowLogger.device_info
+        self.supported_models = ("Logger1000") #  "Logger3000", "Logger4000")
+        self.device_info = {
+            0x0705: { "model":"Logger3000"},
+            0x0710: { "model":"Logger1000"}, 
+            0x0718: { "model":"Logger4000"}
+        }
 
 
     def read_model(self, device_type_code_param_key="Device type code") -> str:
@@ -485,7 +476,7 @@ class SungrowLogger(Server):
             Supports U16 only.
         """
 
-        if value > U16_MAX: raise ValueError(f"Cannot write {value=} to U16 register.")
+        if value > DataType.U16.max_value: raise ValueError(f"Cannot write {value=} to U16 register.")
         elif value < 0:     raise ValueError(f"Cannot write negative {value=} to U16 register.")
 
         if isinstance(value, float):

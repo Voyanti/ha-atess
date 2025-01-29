@@ -4,11 +4,6 @@ import atexit
 import logging
 from queue import Queue
 
-if __name__ == "__main__":
-    import sys, os
-    p = os.path.abspath('modbus_mqtt')
-    print(p)
-    sys.path.insert(0, p)
 from loader import load_options
 from options import Options
 from client import Client
@@ -60,7 +55,7 @@ def message_handler(q: Queue[MQTTMessage], servers: list):
         server_ha_display_name: str = msg.topic.split('/')[1]
         s = None
         for s in servers: 
-            if s.unique_name == server_ha_display_name:
+            if s.name == server_ha_display_name:
                 server = s
         if s is None: raise ValueError(f"Server {server_ha_display_name} not available. Cannot write.")
         register_name: str = msg.topic.split('/')[2]

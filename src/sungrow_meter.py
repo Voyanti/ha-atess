@@ -5,8 +5,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-U16_MAX = 2**16-1
 
+# TODO shouod be read in from registers not hard-coded
 PT_RATIO = 1                        # Voltage Transfer
 CT_RATIO = 40                       # Current Transfer
 
@@ -17,10 +17,7 @@ POWER_MULTIPLIER = 0.001 * PT_RATIO * CT_RATIO
 ENERGY_MULTIPLIER = 0.01 * PT_RATIO * CT_RATIO
 
 class AcrelMeter(Server):
-    supported_models = ('DTSD1352', ) 
-    manufacturer = "Acrel"
-    model = supported_models[0]
-
+    
     # subset of all registers in documentation
     # ssume regisister definitions in document are 0-indexed. Add 1
     relevant_registers = {
@@ -220,12 +217,12 @@ class AcrelMeter(Server):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model = AcrelMeter.model
-        self.manufacturer = AcrelMeter.manufacturer
+        self.supported_models = ('DTSD1352', ) 
+        self.model = self.supported_models[0]
+        self.manufacturer = "Acrel"
         self.parameters = AcrelMeter.relevant_registers
         self.serial = 'unknown'
 
-        self.supported_models = AcrelMeter.supported_models
         self.device_info:dict | None = None
 
     def read_model(self):

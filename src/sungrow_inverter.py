@@ -1,9 +1,3 @@
-if __name__ == "__main__":
-    import sys, os
-    p = os.path.abspath('modbus_mqtt')
-    print(p)
-    sys.path.insert(0, p)
-
 from enums import RegisterTypes, DataType
 from server import Server, ParamInfo, HAParamInfo
 from pymodbus.client import ModbusSerialClient
@@ -18,8 +12,6 @@ class SungrowInverter(Server):
 
         TODO SGKTL-20        not found
     """
-    supported_models = ('SG110CX', 'SG33CX', 'SG80KTL-20', 'SG50CX') 
-    manufacturer = "Sungrow"
 
     # Parameters with model-specific availability:
     ################################################################################################################################################
@@ -686,10 +678,9 @@ class SungrowInverter(Server):
         self.manufacturer = "Sungrow"
         self.parameters = self.input_registers
 
-        self.supported_models = SungrowInverter.supported_models
+        self.supported_models = ('SG110CX', 'SG33CX', 'SG80KTL-20', 'SG50CX') 
+        self.manufacturer = "Sungrow"
         self.device_info = SungrowInverter.device_info
-
-        # self.model = None
 
     def read_model(self, device_type_code_param_key="Device Type Code") -> str:
         """

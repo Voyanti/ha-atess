@@ -1,5 +1,5 @@
 name: "Sungrow Inverter"
-version: "0.4.20"
+version: "0.4.21"
 slug: "sungrow"
 description: "Sungrow Inverter"
 init: false
@@ -14,27 +14,23 @@ arch:
   - i386
 options:
   servers:
-    - name: "Sungrow Inverter 1"
-      ha_display_name: "SG1"
+    - name: "SG1"
       serialnum: "SERIAL0001"
       server_type: "SUNGROW_INVERTER"
       connected_client: "Client1"
       modbus_id: 1
-    - name: "Sungrow Logger 1"
-      ha_display_name: "SGL1"
+    - name: "SGL1"
       serialnum: "SERIAL0004"
       server_type: "SUNGROW_LOGGER"
       connected_client: "Client1"
       modbus_id: 247
-    - name: "Grid Meter"
-      ha_display_name: "GM"
+    - name: "GM"
       serialnum: "unknown"
       server_type: "ACREL_METER"
       connected_client: "Client1"
       modbus_id: 2
   clients:
-    - name: "ModbusTCP"
-      ha_display_name: "Client1"
+    - name: "Client1"
       type: "TCP"
       host: "10.0.0.15"
       port: 502
@@ -49,14 +45,12 @@ options:
 schema:
   servers:
     - name: str
-      ha_display_name: str
       serialnum: str
       server_type: list(SUNGROW_INVERTER|SUNGROW_LOGGER|ACREL_METER)
       connected_client: str
       modbus_id: int(0,255)
   clients:
     - name: str
-      ha_display_name: str
       type: list(TCP|RTU)
       host: str?
       port: int?
