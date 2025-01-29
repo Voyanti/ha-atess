@@ -119,7 +119,7 @@ try:
         if SPOOF: server.model = "spoof"
         else: 
             if not server.is_available():
-                logger.error(f"Server {server.unique_name} not available")
+                logger.error(f"Server {server.name} not available")
                 raise ConnectionError()                             
             server.set_model()
             server.setup_valid_registers_for_model()
@@ -141,10 +141,10 @@ try:
     while True:
         for server in servers:
             for register_name, details in server.parameters.items():
+                sleep(read_interval)
                 value = server.read_registers(register_name)
                 mqtt_client.publish_to_ha(register_name, value, server)
-                sleep(read_interval)
-            logger.info(f"Published all parameter values for {server.unique_name=}")   
+            logger.info(f"Published all parameter values for {server.name=}")   
 
             if not RECV_Q.empty(): message_handler(RECV_Q, servers)
 
