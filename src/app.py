@@ -93,7 +93,6 @@ def sleep_if_midnight():
         sleep_duration = min(30, (next_check - current_time).total_seconds())
         sleep(sleep_duration)
 
-atexit.register(exit_handler, mqtt_client)
 
 try:
     # Read configuration
@@ -107,6 +106,8 @@ try:
     servers = [ServerTypes[sr.server_type].value.from_ServerOptions(sr, clients) for sr in OPTIONS.servers]
     logger.info(f"{len(servers)} servers set up")
     # if len(servers) == 0: raise RuntimeError(f"No supported servers configured")
+
+    atexit.register(exit_handler, servers, clients, mqtt_client)
 
     sleep_if_midnight()
 

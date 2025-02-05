@@ -52,6 +52,9 @@ class MqttClient(mqtt.Client):
         self.on_message = on_message
 
     def publish_discovery_topics(self, server):
+        while not self.is_connected():
+            logger.info(f"Not connected to mqtt broker yet, sleep 100ms and retry. Before publishing discovery topics.")
+            sleep(0.1)
         # TODO check if more separation from server is necessary/ possible
         nickname = server.name
         if not server.model or not server.manufacturer or not server.serial or not nickname or not server.parameters:
