@@ -18,7 +18,7 @@ class MqttClient(mqtt.Client):
     """ 
         paho MQTT abstraction for home assistant
     """
-    def __init__(self, options: Options):
+    def __init__(self, options: Options) -> None:
         def generate_uuid():
             random_part = getrandbits(64)
             timestamp = int(time() * 1000)  # Get current timestamp in milliseconds

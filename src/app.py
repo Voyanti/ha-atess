@@ -116,7 +116,8 @@ try:
 
     # Connect to Servers
     for server in servers:
-        if SPOOF: server.model = "spoof"
+        if SPOOF: 
+            server.model = "spoof"
         else: 
             if not server.is_available():
                 logger.error(f"Server {server.name} not available")
