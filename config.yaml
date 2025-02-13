@@ -34,6 +34,9 @@ options:
       type: "TCP"
       host: "10.0.0.15"
       port: 502
+  pause_interval_seconds: 10
+  sleep_over_midnight: true
+  sleep_midnight_minutes: 10
   # mqtt_host: "localhost"
   # mqtt_port: 1884
   mqtt_host: "core-mosquitto"
@@ -58,6 +61,9 @@ schema:
       bytesize: int?
       parity: bool?
       stopbits: int?
+  pause_interval_seconds: int
+  sleep_over_midnight: bool
+  sleep_midnight_minutes: int
   mqtt_host: str
   mqtt_port: port
   mqtt_user: str

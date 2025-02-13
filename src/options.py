@@ -35,6 +35,11 @@ class Options:
     servers: list[ServerOptions]
     clients: list[Union[ModbusRTUOptions, ModbusTCPOptions]]
 
+    pause_interval_seconds: int
+
+    sleep_over_midnight: bool
+    sleep_midnight_minutes: int
+
     mqtt_host: str
     mqtt_port: int
     mqtt_user: str
