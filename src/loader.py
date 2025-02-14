@@ -61,6 +61,7 @@ def read_yaml(json_rel_path):
         data = yaml.load(file, Loader=yaml.FullLoader)["options"]
     return data
 
+
 def load_options(json_rel_path="/data/options.json") -> Options:
     """Load server, client configurations and connection specs as dicts from options json."""
     converter = Converter()
@@ -79,7 +80,8 @@ def load_options(json_rel_path="/data/options.json") -> Options:
     else:
         logger.info("ConfigLoader error")
         logger.info(os.path.join(os.getcwd(), json_rel_path))
-        raise FileNotFoundError(f"Config options json/yaml not found at {os.path.join(os.getcwd(), json_rel_path)}")
+        raise FileNotFoundError(
+            f"Config options json/yaml not found at {os.path.join(os.getcwd(), json_rel_path)}")
 
     opts = converter.structure(data, Options)
     return opts

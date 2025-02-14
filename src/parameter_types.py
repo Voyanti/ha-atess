@@ -14,6 +14,7 @@ class ParamInfo:
     unit: Optional[str]
     multiplier: Optional[int]
 
+
 @dataclass
 class HAParamInfo:
     """
