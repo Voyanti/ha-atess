@@ -8,7 +8,7 @@ from enums import DataType
 logger = logging.getLogger(__name__)
 
 
-class AbstractedServer(Server):
+class AtessInverter(Server):
     supported_models = ('PCS150') 
     manufacturer = "Atess"
     # RS485 address is 1-32

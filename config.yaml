@@ -1,0 +1,62 @@
+name: "Paneltrack"
+version: "0.1.9"
+slug: "paneltrack_modbus"
+description: "Paneltrack"
+init: false
+startup: application
+boot: auto
+url: "https://github.com/stephan-carstens/ha-paneltrack"
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+options:
+  servers:
+    - name: "PT1"
+      serialnum: "unknown"
+      server_type: "PANELTRACK"
+      connected_client: "Client1"
+      modbus_id: 3
+  clients:
+    - name: "Client1"
+      type: "TCP"
+      host: "192.168.1.91"
+      port: 1234
+  pause_interval_seconds: 10
+  sleep_over_midnight: true
+  sleep_midnight_minutes: 10
+  # mqtt_host: "192.168.1.104"
+  # mqtt_port: 1883
+  mqtt_host: "localhost"
+  mqtt_port: 1884
+  mqtt_user: "mqtt"
+  mqtt_password: "mqtt-users"
+  mwtt_ha_discovery_topic: "homeassistant"
+  mqtt_base_topic: "modbus"
+schema:
+  servers:
+    - name: str
+      serialnum: str
+      server_type: list(PANELTRACK)
+      connected_client: str
+      modbus_id: int(0,255)
+  clients:
+    - name: str
+      type: list(TCP|RTU)
+      host: str?
+      port: int?
+      baudrate: int?
+      bytesize: int?
+      parity: bool?
+      stopbits: int?
+  pause_interval_seconds: int
+  sleep_over_midnight: bool
+  sleep_midnight_minutes: int
+  mqtt_host: str
+  mqtt_port: port
+  mqtt_user: str
+  mqtt_password: password
+  mwtt_ha_discovery_topic: str
+  mqtt_base_topic: str

@@ -1,10 +1,6 @@
 from enum import Enum
 
-from sungrow_inverter import SungrowInverter
-from sungrow_logger import SungrowLogger
-from sungrow_meter import AcrelMeter
+from atess_inverter import AtessInverter
 
 class ServerTypes(Enum):
-    SUNGROW_INVERTER = SungrowInverter
-    SUNGROW_LOGGER = SungrowLogger
-    ACREL_METER = AcrelMeter
+    ATESS_INVERTER = AtessInverter
