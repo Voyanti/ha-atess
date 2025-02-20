@@ -55,7 +55,7 @@ class MqttClient(mqtt.Client):
         self.on_disconnect = on_disconnect
         self.on_message = on_message
 
-    def publish_discovery_topics(self, server: "Server") -> None:
+    def publish_discovery_topics(self, server) -> None:
         while not self.is_connected():
             logger.info(
                 f"Not connected to mqtt broker yet, sleep 100ms and retry. Before publishing discovery topics.")

@@ -406,7 +406,7 @@ class SungrowLogger(Server):
             0x0718: { "model":"Logger4000"}
         }
 
-        self.write_parameters = dict()
+        self.write_parameters: dict = dict()
 
     @property
     def manufacturer(self):

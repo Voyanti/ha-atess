@@ -1,6 +1,6 @@
 from typing import final
 from .server import Server
-from .enums import RegisterTypes, DataType
+from .enums import DeviceClass, Parameter, RegisterTypes, DataType
 from pymodbus.client import ModbusSerialClient
 import logging
 
@@ -22,14 +22,14 @@ class AcrelMeter(Server):
     
     # subset of all registers in documentation
     # regisister definitions in document are 0-indexed. Add 1
-    relevant_registers = {
+    relevant_registers: dict[str, Parameter] = {
         "Phase A Voltage": {
             "addr": 0x0061+1,
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.U16,
             "unit": "V",
-            "device_class": "voltage",
+            "device_class": DeviceClass.VOLTAGE,
             "multiplier": VOLTAGE_MULTIPLIER
         },
         "Phase B Voltage": {
@@ -38,7 +38,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.U16,
             "unit": "V",
-            "device_class": "voltage",
+            "device_class": DeviceClass.VOLTAGE,
             "multiplier": VOLTAGE_MULTIPLIER
         },
         "Phase C Voltage": {
@@ -47,7 +47,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.U16,
             "unit": "V",
-            "device_class": "voltage",
+            "device_class": DeviceClass.VOLTAGE,
             "multiplier": VOLTAGE_MULTIPLIER
         },
         "A-B Line Voltage": {
@@ -56,7 +56,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.U16,
             "unit": "V",
-            "device_class": "voltage",
+            "device_class": DeviceClass.VOLTAGE,
             "multiplier": VOLTAGE_MULTIPLIER
         },
         "B-C Line Voltage": {
@@ -65,7 +65,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.U16,
             "unit": "V",
-            "device_class": "voltage",
+            "device_class": DeviceClass.VOLTAGE,
             "multiplier": VOLTAGE_MULTIPLIER
         },
         "C-A Line Voltage": {
@@ -74,7 +74,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.U16,
             "unit": "V",
-            "device_class": "voltage",
+            "device_class": DeviceClass.VOLTAGE,
             "multiplier": VOLTAGE_MULTIPLIER
         },
         "Phase A Current": {
@@ -83,7 +83,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.U16,
             "unit": "A",
-            "device_class": "current",
+            "device_class": DeviceClass.CURRENT,
             "multiplier": CURRENT_MULTIPLIER
         },
         "Phase B Current": {
@@ -92,7 +92,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.U16,
             "unit": "A",
-            "device_class": "current",
+            "device_class": DeviceClass.CURRENT,
             "multiplier": CURRENT_MULTIPLIER
         },
         "Phase C Current": {
@@ -101,7 +101,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.U16,
             "unit": "A",
-            "device_class": "current",
+            "device_class": DeviceClass.CURRENT,
             "multiplier": CURRENT_MULTIPLIER
         },
         "Phase A Active Power": {
@@ -110,7 +110,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.I32,
             "unit": "kW",
-            "device_class": "power",
+            "device_class": DeviceClass.POWER,
             "multiplier": POWER_MULTIPLIER
         },
         "Phase B Active Power": {
@@ -119,7 +119,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.I32,
             "unit": "kW",
-            "device_class": "power",
+            "device_class": DeviceClass.POWER,
             "multiplier": POWER_MULTIPLIER
         },
         "Phase C Active Power": {
@@ -128,7 +128,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.I32,
             "unit": "kW",
-            "device_class": "power",
+            "device_class": DeviceClass.POWER,
             "multiplier": POWER_MULTIPLIER
         },
         "PF": {
@@ -136,8 +136,8 @@ class AcrelMeter(Server):
             "count": 1,
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.I16,
-            "unit": None,
-            "device_class": "power_factor",
+            "unit": "",
+            "device_class": DeviceClass.POWER_FACTOR,
             "multiplier": 0.001
         },
         "Grid Frequency": {
@@ -146,7 +146,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.U16,
             "unit": "Hz",
-            "device_class": "frequency",
+            "device_class": DeviceClass.FREQUENCY,
             "multiplier": 0.01
         },
         "Active Power": {
@@ -155,7 +155,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.I32,
             "unit": "kW",
-            "device_class": "power",
+            "device_class": DeviceClass.POWER,
             "multiplier": POWER_MULTIPLIER
         },
         "Reactive Power": {
@@ -164,7 +164,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.I32,
             "unit": "kVar",
-            "device_class": "reactive_power",
+            "device_class": DeviceClass.REACTIVE_POWER,
             "multiplier": POWER_MULTIPLIER
         },
         "Apparent Power": {
@@ -173,7 +173,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.I32,
             "unit": "kVA",
-            "device_class": "apparent_power",
+            "device_class": DeviceClass.APPARENT_POWER,
             "multiplier": POWER_MULTIPLIER
         },
         "Total Grid Import": {                    # was 'Forward Active Energy'
@@ -182,7 +182,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.I32,
             "unit": "kWh",
-            "device_class": "energy",
+            "device_class": DeviceClass.ENERGY,
             "multiplier": ENERGY_MULTIPLIER,
             'state_class': 'total'
         },
@@ -192,7 +192,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.I32,
             "unit": "kWh",
-            "device_class": "energy",
+            "device_class": DeviceClass.ENERGY,
             "multiplier": ENERGY_MULTIPLIER,
             'state_class': 'total'
         },
@@ -202,7 +202,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.I32,
             "unit": "kVarh",
-            "device_class": "energy",
+            "device_class": DeviceClass.ENERGY,
             "multiplier": ENERGY_MULTIPLIER
         },
         "Reverse Reactive Energy": {
@@ -211,7 +211,7 @@ class AcrelMeter(Server):
             "register_type": RegisterTypes.HOLDING_REGISTER,
             "dtype": DataType.I32,
             "unit": "kVarh",
-            "device_class": "energy",
+            "device_class": DeviceClass.ENERGY,
             "multiplier": ENERGY_MULTIPLIER
         }
     }
@@ -222,7 +222,7 @@ class AcrelMeter(Server):
         self._supported_models = ('DTSD1352', ) 
         self._manufacturer = "Acrel"
         self._parameters = AcrelMeter.relevant_registers
-        self.write_parameters = dict()
+        self.write_parameters: dict = dict()
         self.serial = 'unknown'
 
         self.device_info:dict | None = None

@@ -105,7 +105,7 @@ class SungrowInverter(Server):
     #     ParamInfo(name='PID Work State', address=5150, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit=None, multiplier=None),
     #     ParamInfo(name='PID Alarm Code', address=5151, dtype=DataType.U16, register_type=RegisterTypes.INPUT_REGISTER, unit=None, multiplier=None)
     # }
-    input_registers = {
+    input_registers: dict[str, Parameter] = {
         # Non-measurement values (no state_class needed)
         'Serial Number': {'addr': 4990, 'count': 10, 'dtype': DataType.UTF8, 'multiplier': 1, 'unit': '', 'device_class': DeviceClass.ENUM, 'register_type': RegisterTypes.INPUT_REGISTER},
         'Device Type Code': {'addr': 5000, 'count': 1, 'dtype': DataType.U16, 'multiplier': 1, 'unit': '', 'device_class': DeviceClass.ENUM, 'register_type': RegisterTypes.INPUT_REGISTER},
@@ -679,7 +679,7 @@ class SungrowInverter(Server):
 
     write_parameters = holding_registers
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         # self.manufacturer = "Sungrow"
         self._parameters = self.input_registers
@@ -688,7 +688,7 @@ class SungrowInverter(Server):
         self._manufacturer = "Sungrow"
         self.device_info = SungrowInverter.device_info
 
-        self.write_parameters = dict()
+        # self.write_parameters: dict = dict()
 
     @property
     def manufacturer(self):
@@ -733,7 +733,7 @@ class SungrowInverter(Server):
 
         # show line / phase voltage depending on configuration
         config_id = self.read_registers("Output Type")  # TODO not supposed to change during operation, but does for leeuwenhof
-        self._parameters.update(self.phase_line_voltage[config_id])
+        self._parameters.update(self.phase_line_voltage[int(config_id)])
 
     def verify_serialnum(self, serialnum_name_in_definition:str="Serial Number") -> bool:
         """ Verify that the serialnum specified in config.yaml matches 
