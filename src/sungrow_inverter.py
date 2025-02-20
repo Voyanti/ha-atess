@@ -730,7 +730,7 @@ class SungrowInverter(Server):
             logger.info(f"Server with serial {self.serial} not available")
             return False
         elif self.serial != serialnum: raise ValueError(f"Mismatch in configured serialnum {self.serial} \
-                                                                        and actual serialnum {serialnum} for server {self.unique_name}.")
+                                                                        and actual serialnum {serialnum} for server {self.name}.")
         return True
 
     def is_available(self):
