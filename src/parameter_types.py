@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-from enums import RegisterTypes, DataType
+from .enums import RegisterTypes, DataType
 
 @dataclass
 class ParamInfo:

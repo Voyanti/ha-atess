@@ -4,8 +4,8 @@ import os
 import logging
 import yaml
 from cattrs import structure, unstructure, Converter
-from options import *
-from implemented_servers import ServerTypes
+from .options import *
+from .implemented_servers import ServerTypes
 
 logger = logging.getLogger(__name__)
 

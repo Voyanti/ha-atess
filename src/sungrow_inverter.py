@@ -1,5 +1,5 @@
-from enums import RegisterTypes, DataType
-from server import Server, ParamInfo, HAParamInfo
+from .enums import RegisterTypes, DataType
+from .server import Server, ParamInfo, HAParamInfo
 from pymodbus.client import ModbusSerialClient
 import struct
 import logging

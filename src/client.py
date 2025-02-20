@@ -1,8 +1,8 @@
 from pymodbus.client import ModbusSerialClient, ModbusTcpClient
 from pymodbus.pdu import ExceptionResponse
-from enums import RegisterTypes
+from .enums import RegisterTypes
 import logging
-from options import ModbusTCPOptions, ModbusRTUOptions
+from .options import ModbusTCPOptions, ModbusRTUOptions
 from time import sleep
 logger = logging.getLogger(__name__)
 
