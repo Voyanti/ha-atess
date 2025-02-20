@@ -26,9 +26,11 @@ options:
       modbus_id: 247
     - name: "GM"
       serialnum: "unknown"
-      server_type: "ACREL_METER"
+      server_type: "SUNGROW_METER"
       connected_client: "Client1"
       modbus_id: 2
+      # PT: 1
+      # CT: 320
   clients:
     - name: "Client1"
       type: "TCP"
@@ -37,10 +39,10 @@ options:
   pause_interval_seconds: 10
   sleep_over_midnight: true
   sleep_midnight_minutes: 10
-  # mqtt_host: "localhost"
-  # mqtt_port: 1884
-  mqtt_host: "core-mosquitto"
-  mqtt_port: 1883
+  mqtt_host: "localhost"
+  mqtt_port: 1884
+  # mqtt_host: "core-mosquitto"
+  # mqtt_port: 1883
   mqtt_user: "mqtt"
   mqtt_password: "mqtt"
   mwtt_ha_discovery_topic: "homeassistant"
@@ -52,6 +54,8 @@ schema:
       server_type: list(SUNGROW_INVERTER|SUNGROW_LOGGER|SUNGROW_METER)
       connected_client: str
       modbus_id: int(0,255)
+      # PT: int?
+      # CT: int?
   clients:
     - name: str
       type: list(TCP|RTU)

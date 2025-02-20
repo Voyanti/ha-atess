@@ -131,9 +131,9 @@ class DeviceClass(Enum):
     WEIGHT = "weight"
     WIND_SPEED = "wind_speed"
 
-
-Parameter = TypedDict(
-    "Parameter",
+# all oarameters are required to have these fields
+ParameterReq = TypedDict(
+    "ParameterReq",
     {
         "addr": int,
         "count": int,
@@ -144,6 +144,11 @@ Parameter = TypedDict(
         "register_type": RegisterTypes,
     },
 )
+
+# inherits required parameters, while defining optinoal parameters
+class Parameter(ParameterReq, total=False):
+    remarks: str
+    state_class: str
 
 if __name__ == "__main__":
     print(DataType.U16.min_value)

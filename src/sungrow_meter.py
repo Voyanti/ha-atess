@@ -1,3 +1,4 @@
+from typing import final
 from .server import Server
 from .enums import RegisterTypes, DataType
 from pymodbus.client import ModbusSerialClient
@@ -8,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 # TODO shouod be read in from registers not hard-coded
 PT_RATIO = 1                        # Voltage Transfer
-CT_RATIO = 40                       # Current Transfer
+CT_RATIO = 320                       # Current Transfer
 
 # Calculate actual multipliers using PT and CT ratios
 VOLTAGE_MULTIPLIER = 0.1 * PT_RATIO
@@ -16,10 +17,11 @@ CURRENT_MULTIPLIER = 0.01 * CT_RATIO
 POWER_MULTIPLIER = 0.001 * PT_RATIO * CT_RATIO
 ENERGY_MULTIPLIER = 0.01 * PT_RATIO * CT_RATIO
 
+@final
 class AcrelMeter(Server):
     
     # subset of all registers in documentation
-    # ssume regisister definitions in document are 0-indexed. Add 1
+    # regisister definitions in document are 0-indexed. Add 1
     relevant_registers = {
         "Phase A Voltage": {
             "addr": 0x0061+1,
@@ -213,17 +215,27 @@ class AcrelMeter(Server):
             "multiplier": ENERGY_MULTIPLIER
         }
     }
-    write_parameters = {}
+    # write_parameters = {}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.supported_models = ('DTSD1352', ) 
-        self.model = self.supported_models[0]
-        self.manufacturer = "Acrel"
-        self.parameters = AcrelMeter.relevant_registers
+        self._supported_models = ('DTSD1352', ) 
+        self._manufacturer = "Acrel"
+        self._parameters = AcrelMeter.relevant_registers
+        self.write_parameters = dict()
         self.serial = 'unknown'
 
         self.device_info:dict | None = None
+
+    @property
+    def manufacturer(self):
+        return self._manufacturer
+    @property
+    def parameters(self):
+        return self._parameters
+    @property
+    def supported_models(self):
+        return self._supported_models
 
     def read_model(self):
         return self.supported_models[0]
@@ -265,11 +277,11 @@ class AcrelMeter(Server):
     def _encoded(cls, value):
         pass
    
-    def _validate_write_val(register_name:str, val):
+    def _validate_write_val(self, register_name:str, val):
         raise NotImplementedError()
     
 
 if __name__ == "__main__":
     print(AcrelMeter.__dict__)
-    server = AcrelMeter.from_config({})
+    # server = AcrelMeter.from_config({})
     # if not server.model or not server.manufacturer or not server.serialnum or not server.nickname or not server.registers: 
