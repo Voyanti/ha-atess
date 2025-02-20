@@ -682,7 +682,7 @@ class SungrowInverter(Server):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         # self.manufacturer = "Sungrow"
-        self._parameters = self.input_registers
+        self._parameters = dict.copy(self.input_registers)
 
         self._supported_models = ('SG110CX', 'SG33CX', 'SG80KTL-20', 'SG50CX', 'SG125CX-P2') 
         self._manufacturer = "Sungrow"
