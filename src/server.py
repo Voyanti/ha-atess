@@ -101,7 +101,7 @@ class Server(ABC):
         logger.info(f"Model read as {self.model}")
 
         if self.model not in self.supported_models:
-            raise NotImplementedError(
+            raise ValueError(
                 f"Model not supported in implementation of Server, {self}")
 
     def is_available(self, register_name="Device type code"):

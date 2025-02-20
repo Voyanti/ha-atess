@@ -684,7 +684,7 @@ class SungrowInverter(Server):
         # self.manufacturer = "Sungrow"
         self._parameters = self.input_registers
 
-        self._supported_models = ('SG110CX', 'SG33CX', 'SG80KTL-20', 'SG50CX') 
+        self._supported_models = ('SG110CX', 'SG33CX', 'SG80KTL-20', 'SG50CX', 'SG125CX-P2') 
         self._manufacturer = "Sungrow"
         self.device_info = SungrowInverter.device_info
 
