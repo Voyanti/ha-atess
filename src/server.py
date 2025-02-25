@@ -191,7 +191,7 @@ class Server(ABC):
 
         return val
     
-    def write_registers(self, parameter_name_slug: str, value: Any) -> None:
+    def write_registers(self, parameter_name_slug: str, value: Any, modbus_id_override: Optional[int]=None) -> None:
         """ 
         Write a group of registers (parameter) using pymodbus
 
@@ -206,7 +206,10 @@ class Server(ABC):
         dtype = param["dtype"]
         multiplier = param["multiplier"]
         count = param["count"]  # TODO
-        modbus_id = self.modbus_id
+        if modbus_id_override is not None: 
+            modbus_id = modbus_id_override
+        else:
+            modbus_id = self.modbus_id
         register_type = param["register_type"]
         unit = param["unit"]
 
