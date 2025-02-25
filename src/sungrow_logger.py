@@ -453,8 +453,9 @@ class SungrowLogger(Server):
     def is_available(self):
         return super().is_available(register_name='Device type code')
     
-    def write_registers(self, parameter_name_slug: str, value: Any, modbus_id_override: Optional[int]=None) -> None:
-        return super().write_registers(parameter_name_slug, value, modbus_id_override=0)
+    # writing should be to broadcast address of 0 on logger
+    # def write_registers(self, parameter_name_slug: str, value: Any, modbus_id_override: Optional[int]=None) -> None:
+    #     return super().write_registers(parameter_name_slug, value, modbus_id_override=0)
 
     def _decoded(cls, registers, dtype):
         def _decode_u16(registers):
