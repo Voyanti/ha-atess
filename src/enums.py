@@ -131,6 +131,11 @@ class DeviceClass(Enum):
     WEIGHT = "weight"
     WIND_SPEED = "wind_speed"
 
+class HAEntityType(Enum):
+    NUMBER = 'number'
+    SWITCH = 'switch'
+    SENSOR = 'sensor'
+
 # all parameters are required to have these fields
 ParameterReq = TypedDict(
     "ParameterReq",
@@ -159,6 +164,7 @@ WriteParameterReq = TypedDict(
         "dtype": DataType,
         "multiplier": float,
         "register_type": RegisterTypes,
+        'ha_entity_type': HAEntityType,
     },
 )
 
@@ -167,6 +173,8 @@ class WriteParameter(WriteParameterReq, total=False):
     device_class: DeviceClass
     min: float
     max: float
+    payload_off: str
+    payload_on: str
 
 if __name__ == "__main__":
     print(DataType.U16.min_value)

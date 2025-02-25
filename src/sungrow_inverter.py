@@ -1,6 +1,6 @@
 from typing import TypedDict, final
 from .server import Server
-from .enums import RegisterTypes, DataType, Parameter, DeviceClass
+from .enums import HAEntityType, RegisterTypes, DataType, Parameter, DeviceClass, WriteParameter
 from pymodbus.client import ModbusSerialClient
 import struct
 import logging
@@ -239,19 +239,19 @@ class SungrowInverter(Server):
     ]
 
     # Params 4x register (write) p.13
-    holding_registers = {
-        'System clock: Year': {'addr': 5000, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
-        'System clock: Month': {'addr': 5001, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
-        'System clock: Day': {'addr': 5002, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+    holding_registers: dict[str, WriteParameter] = {
+        # 'System clock: Year': {'addr': 5000, 'dtype': DataType.U16, 'count': 1, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        # 'System clock: Month': {'addr': 5001, 'dtype': DataType.U16, 'count': 1, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        # 'System clock: Day': {'addr': 5002, 'dtype': DataType.U16, 'count': 1, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
 
-        'System clock: Hour': {'addr': 5003, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
-        'System clock: Minute': {'addr': 5004, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
-        'System clock: Second': {'addr': 5005, 'dtype': DataType.U16, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        # 'System clock: Hour': {'addr': 5003, 'dtype': DataType.U16, 'count': 1, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        # 'System clock: Minute': {'addr': 5004, 'dtype': DataType.U16, 'count': 1, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
+        # 'System clock: Second': {'addr': 5005, 'dtype': DataType.U16, 'count': 1, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER},
 
-        'Start/Stop': {'addr': 5006, 'dtype': DataType.U16, 'unit': '', 'device_class': DeviceClass.ENUM, 'register_type': RegisterTypes.HOLDING_REGISTER},
+        # 'Start/Stop': {'addr': 5006, 'dtype': DataType.U16, 'count': 1, 'unit': '', 'device_class': DeviceClass.ENUM, 'register_type': RegisterTypes.HOLDING_REGISTER},
 
-        'Power limitation switch': {'addr': 5007, 'dtype': DataType.U16, 'unit': ''},
-        'Power limitation setting': {'addr': 5008, 'dtype': DataType.U16, 'unit': '0.1%'},
+        'Power limitation switch': {'addr': 5007, 'dtype': DataType.U16, 'count': 1, 'multiplier': 1, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER, 'ha_entity_type': HAEntityType.SWITCH, 'payload_off': '0x55', 'payload_on': '0xAA'},
+        'Power limitation setting': {'addr': 5008, 'dtype': DataType.U16, 'count': 1, 'multiplier': 0.1, 'unit': '%', 'register_type': RegisterTypes.HOLDING_REGISTER, 'ha_entity_type': HAEntityType.NUMBER, 'min': 80 , 'max': 100},
         
         # Europe Only. See export_limitation_supported_models
         # 'Export power limitation': {'addr': 5010, 'dtype': DataType.U16, 'unit': ''},
@@ -813,7 +813,11 @@ class SungrowInverter(Server):
         assert val in self.write_valid_values[register_name]
 
 if __name__ == "__main__":
-    pass
+    server = SungrowInverter('', '', '', '')
+    for register_name, details in server.write_parameters.items():
+        if register_name == 'Power limitation switch':
+            print(details)
+    # pass
     # print(SungrowInverter._encoded(2**16-1))
     # print(SungrowInverter._encoded(4.1))
     # # print(SungrowInverter._encoded(-1))

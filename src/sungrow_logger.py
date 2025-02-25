@@ -4,7 +4,7 @@ from .helpers import slugify
 from .server import Server
 from pymodbus.client import ModbusSerialClient
 import struct
-from .enums import DeviceClass, Parameter, RegisterTypes, DataType, WriteParameter
+from .enums import DeviceClass, HAEntityType, Parameter, RegisterTypes, DataType, WriteParameter
 import logging
 
 logger = logging.getLogger(__name__)
@@ -353,6 +353,7 @@ class SungrowLogger(Server):
             'unit': 'kW',
             'min': 0,
             'max': 125,
+            'ha_entity_type': HAEntityType.NUMBER,
             # 'device_class': DeviceClass.POWER,
             'register_type': RegisterTypes.HOLDING_REGISTER
         },
