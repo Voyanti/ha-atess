@@ -251,7 +251,7 @@ class SungrowInverter(Server):
         # 'Start/Stop': {'addr': 5006, 'dtype': DataType.U16, 'count': 1, 'unit': '', 'device_class': DeviceClass.ENUM, 'register_type': RegisterTypes.HOLDING_REGISTER},
 
         'Power limitation switch': {'addr': 5007, 'dtype': DataType.U16, 'count': 1, 'multiplier': 1, 'unit': '', 'register_type': RegisterTypes.HOLDING_REGISTER, 'ha_entity_type': HAEntityType.SWITCH, 'payload_off': '0x55', 'payload_on': '0xAA'},
-        'Power limitation setting': {'addr': 5008, 'dtype': DataType.U16, 'count': 1, 'multiplier': 0.1, 'unit': '%', 'register_type': RegisterTypes.HOLDING_REGISTER, 'ha_entity_type': HAEntityType.NUMBER, 'min': 80 , 'max': 100},
+        'Power limitation setting': {'addr': 5008, 'dtype': DataType.U16, 'count': 1, 'multiplier': 0.1, 'unit': '%', 'register_type': RegisterTypes.HOLDING_REGISTER, 'ha_entity_type': HAEntityType.NUMBER, 'min': 0 , 'max': 100},
         
         # Europe Only. See export_limitation_supported_models
         # 'Export power limitation': {'addr': 5010, 'dtype': DataType.U16, 'unit': ''},
