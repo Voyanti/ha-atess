@@ -2,7 +2,7 @@ import unittest
 import src.app as app
 from src.client import SpoofClient
 import logging
-# logging.disable(logging.CRITICAL)
+logging.disable(logging.CRITICAL)
 
 
 class TestApp(unittest.TestCase):

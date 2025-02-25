@@ -1,6 +1,6 @@
 from typing import TypedDict, final
+from .server import Server
 from .enums import RegisterTypes, DataType, Parameter, DeviceClass
-from .server import Server, ParamInfo, HAParamInfo
 from pymodbus.client import ModbusSerialClient
 import struct
 import logging
@@ -170,7 +170,7 @@ class SungrowInverter(Server):
     }
 
     # same registers store either phase or line voltage, depending on a flag. see setup_valid_register_for_model
-    phase_line_voltage = {
+    phase_line_voltage: dict[int, dict[str, Parameter]] = {
         0: {},
         1:
         {
@@ -187,7 +187,7 @@ class SungrowInverter(Server):
     }
 
     # model-specific amount of MPPT support. see device_info
-    MPPT_parameters = [
+    MPPT_parameters: list[dict[str, Parameter]] = [
         {
             'MPPT 1 Voltage': {'addr': 5011, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'V', 'device_class': DeviceClass.VOLTAGE, 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
             'MPPT 1 Current': {'addr': 5012, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'A', 'device_class': DeviceClass.CURRENT, 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
@@ -250,8 +250,8 @@ class SungrowInverter(Server):
 
         'Start/Stop': {'addr': 5006, 'dtype': DataType.U16, 'unit': '', 'device_class': DeviceClass.ENUM, 'register_type': RegisterTypes.HOLDING_REGISTER},
 
-        # 'Power limitation switch': {'addr': 5007, 'dtype': DataType.U16, 'unit': ''},
-        # 'Power limitation setting': {'addr': 5008, 'dtype': DataType.U16, 'unit': '0.1%'},
+        'Power limitation switch': {'addr': 5007, 'dtype': DataType.U16, 'unit': ''},
+        'Power limitation setting': {'addr': 5008, 'dtype': DataType.U16, 'unit': '0.1%'},
         
         # Europe Only. See export_limitation_supported_models
         # 'Export power limitation': {'addr': 5010, 'dtype': DataType.U16, 'unit': ''},
@@ -677,7 +677,6 @@ class SungrowInverter(Server):
     # Appendix 7, 8, 9?
     ################################################################################################################################################
 
-    write_parameters = holding_registers
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -688,6 +687,7 @@ class SungrowInverter(Server):
         self._manufacturer = "Sungrow"
         self.device_info = SungrowInverter.device_info
 
+        self._write_parameters = self.holding_registers.copy()
         # self.write_parameters: dict = dict()
 
     @property
@@ -697,6 +697,10 @@ class SungrowInverter(Server):
     @property
     def parameters(self):
         return self._parameters
+    
+    @property
+    def write_parameters(self):
+        return self._write_parameters
     
     @property
     def supported_models(self):

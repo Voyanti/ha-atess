@@ -1,10 +1,11 @@
 from abc import abstractmethod, ABC
 import logging
-from typing import Optional, TypedDict
-from .enums import DataType, RegisterTypes, Parameter, DeviceClass
+from typing import Any, Optional, TypedDict
+
+from .helpers import slugify
+from .enums import DataType, RegisterTypes, Parameter, DeviceClass, WriteParameter
 from .client import Client
 from .options import ServerOptions
-from .parameter_types import ParamInfo, HAParamInfo
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,18 @@ class Server(ABC):
     @property
     @abstractmethod
     def parameters(self) -> dict[str, Parameter]:
-        """ Return a string model name for the implementation."""
+        """ Return a dictionary of parameter names and parameter objects."""
+
+    @property
+    @abstractmethod
+    def write_parameters(self) -> dict[str, WriteParameter]:
+        """ Return a dictionary of WriteParameter names and WriteParameter objects."""
+
+    @property
+    def write_parameters_slug_to_name(self) -> dict[str, str]:
+        """ Return a dictionary of mapping slugs to writeparameter names."""
+        write_parameters_slug_to_name: dict[str, str] = {slugify(name):name for name in self.write_parameters.copy()}
+        return write_parameters_slug_to_name
 
     @abstractmethod
     def read_model(self) -> str:
@@ -74,7 +86,7 @@ class Server(ABC):
 
     @classmethod
     @abstractmethod
-    def _encoded(cls, content):
+    def _encoded(cls, value: int, dtype: DataType) -> list[int]:
         "Server-specific encoding of content"
 
     @property
@@ -154,7 +166,7 @@ class Server(ABC):
         count = param["count"]  # TODO
         unit = param["unit"]
         device_class = param["device_class"]
-        slave_id = self.modbus_id
+        modbus_id = self.modbus_id
         register_type = param["register_type"]
 
         # TODO count
@@ -162,13 +174,13 @@ class Server(ABC):
             f"Reading param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {self.modbus_id=}")
 
         result = self.connected_client.read(
-            address, count, self.modbus_id, register_type)
+            address, count, modbus_id, register_type)
 
         if result.isError():
             self.connected_client._handle_error_response(result)
             raise Exception(f"Error reading register {parameter_name}")
 
-        logger.info(f"Raw register begin value: {result.registers[0]}")
+        logger.debug(f"Raw register begin value: {result.registers[0]}")
         val = self._decoded(result.registers, dtype)
         if multiplier != 1:
             val *= multiplier
@@ -178,36 +190,42 @@ class Server(ABC):
         logger.info(f"Decoded Value = {val} {unit}")
 
         return val
+    
+    def write_registers(self, parameter_name_slug: str, value: Any) -> None:
+        """ 
+        Write a group of registers (parameter) using pymodbus
 
-    # def write_registers(self, value: float, parameter_name: str):
-    #     """
-    #         Write to an individual register using pymodbus.
+        Requires implementation of the abstract method 'Server._encoded()'
 
-    #         Reuires implementation of the abstract methods
-    #         'Server._validate_write_val()' and 'Server._encode()'
-    #     """
-    #     logger.info(f"Validating write message")
-    #     self._validate_write_val(parameter_name, value)
+        Finds correct write register name using mapping from Server.write_registers_slug_to_name
+        """
+        parameter_name = self.write_parameters_slug_to_name[parameter_name_slug]
+        param = self.write_parameters[parameter_name]
 
-    #     param = self.parameters[parameter_name]
-    #     address = param["addr"]
-    #     dtype = param["dtype"]
-    #     multiplier = param["multiplier"]
-    #     count = param["count"]
-    #     unit = param["unit"]
-    #     slave_id = self.modbus_id
-    #     register_type = param['register_type']
+        address = param["addr"]
+        dtype = param["dtype"]
+        multiplier = param["multiplier"]
+        count = param["count"]  # TODO
+        modbus_id = self.modbus_id
+        register_type = param["register_type"]
+        unit = param["unit"]
 
-    #     if multiplier != 1:
-    #         value /= multiplier
-    #     values = self._encoded(value)
+        if isinstance(value, int) or isinstance(value, float):
+            if multiplier != 1:
+                value /= multiplier
 
-    #     logger.info(
-    #         f"Writing {value=} {unit=} to param {parameter_name} at {address=}, {dtype=}, {multiplier=}, {count=}, {register_type=}, {slave_id=}")
+        values = self._encoded(value, dtype)
 
-    #     self.connected_client.client.write_registers(address=address-1,
-    #                                                  value=values,
-    #                                                  slave=slave_id)
+        logger.info(
+            f"Writing param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {self.modbus_id=}")
+
+        result = self.connected_client.write(values, address, modbus_id, register_type)
+
+        if result.isError():
+            self.connected_client._handle_error_response(result)
+            raise Exception(f"Error writing register {parameter_name}")
+
+        logger.debug(f"Wrote {value=} {unit=} as {values=} to {parameter_name}.")
 
     def connect(self):
         if not self.is_available():

@@ -2,6 +2,8 @@ import paho.mqtt.client as mqtt
 from paho.mqtt.enums import CallbackAPIVersion
 import json
 import logging
+
+from .helpers import slugify
 from .loader import Options
 
 from random import getrandbits
@@ -10,10 +12,6 @@ from queue import Queue
 
 logger = logging.getLogger(__name__)
 RECV_Q: Queue = Queue()
-
-
-def slugify(text):
-    return text.replace(' ', '_').replace('(', '').replace(')', '').replace('/', 'OR').replace('&', ' ').replace(':', '').replace('.', '').lower()
 
 
 class MqttClient(mqtt.Client):
@@ -48,7 +46,7 @@ class MqttClient(mqtt.Client):
 
         def on_message(client, userdata, message):
             logger.info("Received message on MQTT")
-            sleep(0.01)
+            sleep(0.01) # TODO why is this here again?
             RECV_Q.put(message)                         # thread-safe
 
         self.on_connect = on_connect
@@ -106,16 +104,23 @@ class MqttClient(mqtt.Client):
 
         for register_name, details in server.write_parameters.items():
             discovery_payload = {
+                # required
+                "command_topic": f"{self.base_topic}/{nickname}/{slugify(register_name)}/set", 
+                # optional
                 "name": register_name,
                 "unique_id": f"{nickname}_{slugify(register_name)}",
-                "command_topic": f"{self.base_topic}/{nickname}/{slugify(register_name)}/set",
                 "unit_of_measurement": details["unit"],
                 "availability_topic": availability_topic,
                 "device": device
             }
+            if details.get("min") and details.get("max"):
+                discovery_payload.update(min=details["min"], max=details["max"])
 
             discovery_topic = f"{self.ha_discovery_topic}/number/{nickname}/{slugify(register_name)}/config"
             self.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
+
+            # subscribe to write topics
+            self.subscribe(discovery_payload["command_topic"])
 
     def publish_to_ha(self, register_name, value, server):
         nickname = server.name

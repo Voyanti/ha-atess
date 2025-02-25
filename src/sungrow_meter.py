@@ -228,7 +228,7 @@ class AcrelMeter(Server):
         self._supported_models = ('DTSD1352', ) 
         self._manufacturer = "Acrel"
         self._parameters = AcrelMeter.relevant_registers
-        self.write_parameters: dict = dict()
+        self._write_parameters: dict = dict()
         self.serial = 'unknown'
 
         self.device_info:dict | None = None
@@ -239,6 +239,11 @@ class AcrelMeter(Server):
     @property
     def parameters(self):
         return self._parameters
+    
+    @property
+    def write_parameters(self):
+        return self._write_parameters
+
     @property
     def supported_models(self):
         return self._supported_models

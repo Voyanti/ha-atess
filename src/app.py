@@ -53,12 +53,12 @@ def message_handler(q: Queue[MQTTMessage], servers: list):
         s = None
         for s in servers: 
             if s.name == server_ha_display_name:
-                server = s
+                server: Server = s
         if s is None: raise ValueError(f"Server {server_ha_display_name} not available. Cannot write.")
         register_name: str = msg.topic.split('/')[2]
         value: str = msg.payload.decode('utf-8')
 
-        server.write_registers(float(value), server = s, register_name = register_name, register_info=server.parameters[register_name])    
+        server.write_registers(register_name, value)
 
 
 class App:
@@ -134,6 +134,9 @@ class App:
                 logger.info(
                     f"Published all parameter values for {server.name=}")
 
+            if not RECV_Q.empty():
+                message_handler(RECV_Q, self.servers)
+
             if loop_once:
                 break
 
@@ -194,6 +197,7 @@ if __name__ == "__main__":
         app = App(instantiate_clients, instantiate_servers, sys.argv[1])
         app.OPTIONS.mqtt_host = "localhost"
         app.OPTIONS.mqtt_port = 1884
+        app.OPTIONS.pause_interval_seconds = 15
 
         def instantiate_spoof_clients(Options) -> list[SpoofClient]:
             return [SpoofClient()]
@@ -208,7 +212,7 @@ if __name__ == "__main__":
         for s in app.servers:
             s.connect = lambda: None
         app.connect()
-        app.loop(True)
+        app.loop(False)
 
     # finally:
     #     exit_handler(servers, clients, mqtt_client) TODO NB

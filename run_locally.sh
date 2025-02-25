@@ -11,6 +11,8 @@ echo "---"
 
 python3 -m src.app data/options.yaml
 
+echo "sleep"
+sleep 3
 echo "LOCAL Stop Mosquitto"
 echo ""
 kill $(pgrep -f "mosquitto -p 1884")

@@ -131,7 +131,7 @@ class DeviceClass(Enum):
     WEIGHT = "weight"
     WIND_SPEED = "wind_speed"
 
-# all oarameters are required to have these fields
+# all parameters are required to have these fields
 ParameterReq = TypedDict(
     "ParameterReq",
     {
@@ -149,6 +149,24 @@ ParameterReq = TypedDict(
 class Parameter(ParameterReq, total=False):
     remarks: str
     state_class: Literal["measurement", "total", "total_increasing"]
+
+    # all oarameters are required to have these fields
+WriteParameterReq = TypedDict(
+    "WriteParameterReq",
+    {
+        "addr": int,
+        "count": int,
+        "dtype": DataType,
+        "multiplier": float,
+        "register_type": RegisterTypes,
+    },
+)
+
+class WriteParameter(WriteParameterReq, total=False):
+    unit: str
+    device_class: DeviceClass
+    min: float
+    max: float
 
 if __name__ == "__main__":
     print(DataType.U16.min_value)

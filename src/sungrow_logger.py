@@ -1,8 +1,10 @@
 from typing import final
+
+from .helpers import slugify
 from .server import Server
 from pymodbus.client import ModbusSerialClient
 import struct
-from .enums import DeviceClass, Parameter, RegisterTypes, DataType
+from .enums import DeviceClass, Parameter, RegisterTypes, DataType, WriteParameter
 import logging
 
 logger = logging.getLogger(__name__)
@@ -100,8 +102,8 @@ class SungrowLogger(Server):
             'addr': 8033,
             'dtype': DataType.I16,
             'count': 1,
-            'multiplier': 1,
-            'unit': '',
+            'multiplier': 0.01,
+            'unit': 'V',
             'device_class': DeviceClass.VOLTAGE,
             'remarks': 'Logger3000 and Logger1000 share the voltage. Logger3000 consumes 0.01mV, and Logger1000 consumes 0.01V',
             'register_type': RegisterTypes.INPUT_REGISTER},
@@ -109,8 +111,8 @@ class SungrowLogger(Server):
             'addr': 8034,
             'count': 1,
             'dtype': DataType.I16,
-            'multiplier': 1,
-            'unit': '',
+            'multiplier': 0.01,
+            'unit': 'V',
             'device_class': DeviceClass.VOLTAGE,
             'remarks': 'Logger3000 and Logger1000 share the voltage. Logger3000 consumes 0.01mV, and Logger1000 consumes 0.01V',
             'register_type': RegisterTypes.INPUT_REGISTER},
@@ -132,6 +134,7 @@ class SungrowLogger(Server):
             'device_class': DeviceClass.CURRENT,
             'remarks': 'Logger1000/Logger4000',
             'register_type': RegisterTypes.INPUT_REGISTER},
+
         'Max. total nominal active power': {
             'addr': 8058,
             'count': 1,
@@ -330,62 +333,66 @@ class SungrowLogger(Server):
     # Sungrow Logger holding register 
     # The holding register is set to support single function only. All commands from the
     # broadcast address 0 are directly transparently transmitted to the inverter
-    logger_holding_registers = {
-        'Set the sub-array inverter on and off': {
-            'addr': 8002,
-            'count': 1,
-            'dtype': DataType.U16,
-            'multiplier': 1,
-            'unit': '',
-            'device_class': DeviceClass.ENUM,
-            'register_type': RegisterTypes.HOLDING_REGISTER,
-            'remarks': '0: Off\n1: On'
-        },
-        'Set active power of subarray inverter': {
+    logger_holding_registers: dict[str, WriteParameter] = {
+        # 'Set Subarray inverters on or off': {
+        #     'addr': 8002,
+        #     'count': 1,
+        #     'dtype': DataType.U16,
+        #     'multiplier': 1,
+        #     'unit': '',
+        #     # 'device_class': DeviceClass.ENUM,
+        #     'register_type': RegisterTypes.HOLDING_REGISTER,
+        #     'remarks': '0: Off\n1: On'
+        # },
+        'Set Subarray inverter active power': {
             'addr': 8003,
             'count': 2,
             'dtype': DataType.U32,
             'multiplier': 0.1,
             'unit': 'kW',
-            'device_class': DeviceClass.POWER,
+            'min': 0,
+            'max': 125,
+            # 'device_class': DeviceClass.POWER,
             'register_type': RegisterTypes.HOLDING_REGISTER
         },
-        'Set active power ratio of subarray inverter': {
-            'addr': 8005,
-            'count': 2,
-            'dtype': DataType.U32,
-            'multiplier': 0.1,
-            'unit': '%',
-            'device_class': 'power_factor',
-            'register_type': RegisterTypes.HOLDING_REGISTER
-        },
-        'Set reactive power of subarray inverter': {
-            'addr': 8007,
-            'count': 2,
-            'dtype': DataType.I32,
-            'multiplier': 0.1,
-            'unit': 'kVar',
-            'device_class': DeviceClass.REACTIVE_POWER,
-            'register_type': RegisterTypes.HOLDING_REGISTER
-        },
-        'Setting reactive power ratio of subarray inverter': {
-            'addr': 8009,
-            'count': 2,
-            'dtype': DataType.I32,
-            'multiplier': 0.1,
-            'unit': '%',
-            'device_class': 'power_factor',
-            'register_type': RegisterTypes.HOLDING_REGISTER
-        },
-        'Set the power factor of subarray inverter': {
-            'addr': 8011,
-            'count': 2,
-            'dtype': DataType.I32,
-            'multiplier': 0.001,
-            'unit': '',
-            'device_class': 'power_factor',
-            'register_type': RegisterTypes.HOLDING_REGISTER
-        },
+
+        # 'Set active power ratio of subarray inverter': {
+        #     'addr': 8005,
+        #     'count': 2,
+        #     'dtype': DataType.U32,
+        #     'multiplier': 0.1,
+        #     'unit': '%',
+        #     'device_class': 'power_factor',
+        #     'register_type': RegisterTypes.HOLDING_REGISTER
+        # },
+
+        # 'Set Subarray inverter reactive power': {
+        #     'addr': 8007,
+        #     'count': 2,
+        #     'dtype': DataType.I32,
+        #     'multiplier': 0.1,
+        #     'unit': 'kVar',
+        #     'device_class': DeviceClass.REACTIVE_POWER,
+        #     'register_type': RegisterTypes.HOLDING_REGISTER
+        # },
+        # 'Setting reactive power ratio of subarray inverter': {
+        #     'addr': 8009,
+        #     'count': 2,
+        #     'dtype': DataType.I32,
+        #     'multiplier': 0.1,
+        #     'unit': '%',
+        #     'device_class': 'power_factor',
+        #     'register_type': RegisterTypes.HOLDING_REGISTER
+        # },
+        # 'Set the power factor of subarray inverter': {
+        #     'addr': 8011,
+        #     'count': 2,
+        #     'dtype': DataType.I32,
+        #     'multiplier': 0.001,
+        #     'unit': '',
+        #     'device_class': 'power_factor',
+        #     'register_type': RegisterTypes.HOLDING_REGISTER
+        # },
     }
 
     # write_parameters = {}
@@ -406,7 +413,7 @@ class SungrowLogger(Server):
             0x0718: { "model":"Logger4000"}
         }
 
-        self.write_parameters: dict = dict()
+        self._write_parameters: dict[str, WriteParameter] = self.logger_holding_registers.copy()
 
     @property
     def manufacturer(self):
@@ -415,6 +422,10 @@ class SungrowLogger(Server):
     @property
     def parameters(self):
         return self._parameters
+    
+    @property
+    def write_parameters(self):
+        return self._write_parameters
     
     @property
     def supported_models(self):
@@ -485,27 +496,33 @@ class SungrowLogger(Server):
         else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
 
     
-
-    def _encoded(cls, value):
-        """ Convert a float or integer to big-endian register.
-            Supports U16 only.
+    @classmethod
+    def _encoded(cls, value: int, dtype: DataType) -> list[int]:
+        """ Convert a float or integer to a list of big-endian 16-bit register ints.
+            
+            Tested on U32
         """
-
-        if value > DataType.U16.max_value: raise ValueError(f"Cannot write {value=} to U16 register.")
-        elif value < 0:     raise ValueError(f"Cannot write negative {value=} to U16 register.")
-
-        if isinstance(value, float):
+        # if isinstance(value, float) or isinstance(value, str):
+        #     raise NotImplementedError(f"Writing floats to registers is not yet supported.")
             # Convert the float value to 4 bytes using IEEE 754 format TODO
             # value_bytes = list(struct.pack('>f', value))
-            raise NotImplemented(f"Writing floats to registers is not yet supported.")
 
-        value_bytes = list(value.to_bytes(4, byteorder='big', signed=False))
-            
-        return value_bytes
+        def _encode_u32(value) -> list[int]:
+            """ Mixed endian unsigned 32-bit """
+            high_word: int = value >> 16
+            low_word: int = value & 0xFFFF
+            return [low_word, high_word]
+        
+        if dtype == DataType.U32: return _encode_u32(int(value))
+        else:
+            raise ValueError(f"String decoding not suported yet. Couldn't calculate registers size.")
+        
    
     def _validate_write_val(self, register_name:str, val):
         raise NotImplementedError()
 
 if __name__ == "__main__":
     pass
-    # print(SungrowLogger._decoded(SungrowLogger, [0x0304, 0x0102], dtype=DataType.U32))
+    # res = SungrowLogger._encoded(32, dtype=DataType.U32)
+    # print(res)
+    # print(SungrowLogger._decoded(SungrowLogger, res, DataType.U32))
