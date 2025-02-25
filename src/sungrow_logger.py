@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 class SungrowLogger(Server):
     # modbus slave id is usually 247
     # Sungrow 1.0.2.7 definitions 04 input registers
+    # https://www.studocu.com/row/document/cukurova-universitesi/english-b1-level/ti-20211201-logger-communication-protocol-10/31069893
     logger_input_registers: dict[str, Parameter] = {
         'Device type code': {
             'addr': 8000,

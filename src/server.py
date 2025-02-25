@@ -210,7 +210,8 @@ class Server(ABC):
         register_type = param["register_type"]
         unit = param["unit"]
 
-        if isinstance(value, int) or isinstance(value, float):
+        if dtype != DataType.UTF8:
+            value = float(value)
             if multiplier != 1:
                 value /= multiplier
 
