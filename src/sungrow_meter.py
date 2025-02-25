@@ -258,7 +258,8 @@ class AcrelMeter(Server):
     def is_available(self, register_name="Phase A Voltage"):
         return super().is_available(register_name=register_name)
     
-    def _decoded(cls, registers, dtype):
+    @staticmethod
+    def _decoded(registers, dtype):
         def _decode_u16(registers):
             """ Unsigned 16-bit big-endian to int """
             return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.UINT16)
@@ -285,7 +286,8 @@ class AcrelMeter(Server):
         elif dtype == DataType.I32: return _decode_s32(registers)
         else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
         
-    def _encoded(cls, value):
+    @staticmethod
+    def _encoded(value, dtype):
         pass
    
     def _validate_write_val(self, register_name:str, val):

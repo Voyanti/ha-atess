@@ -761,40 +761,40 @@ class SungrowInverter(Server):
         self.verify_serialnum()
         return super().is_available(register_name="Device Type Code")
 
-    def _decode_u16(registers):
-        """ Unsigned 16-bit big-endian to int """
-        return registers[0]
-    
-    def _decode_s16(registers):
-        """ Signed 16-bit big-endian to int """
-        sign = 0xFFFF if registers[0] & 0x1000 else 0
-        packed = struct.pack('>HH', sign, registers[0])
-        return struct.unpack('>i', packed)[0]
 
-    def _decode_u32(registers):
-        """ Unsigned 32-bit mixed-endian word"""
-        packed = struct.pack('>HH', registers[1], registers[0])
-        return struct.unpack('>I', packed)[0]
-    
-    def _decode_s32(registers):
-        """ Signed 32-bit mixed-endian word"""
-        packed = struct.pack('>HH', registers[1], registers[0])
-        return struct.unpack('>i', packed)[0]
+    @staticmethod
+    def _decoded(registers, dtype):
+        def _decode_u16(registers):
+            """ Unsigned 16-bit big-endian to int """
+            return registers[0]
+        
+        def _decode_s16(registers):
+            """ Signed 16-bit big-endian to int """
+            sign = 0xFFFF if registers[0] & 0x1000 else 0
+            packed = struct.pack('>HH', sign, registers[0])
+            return struct.unpack('>i', packed)[0]
 
-    def _decode_utf8(registers):
-        return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.STRING)
+        def _decode_u32(registers):
+            """ Unsigned 32-bit mixed-endian word"""
+            packed = struct.pack('>HH', registers[1], registers[0])
+            return struct.unpack('>I', packed)[0]
+        
+        def _decode_s32(registers):
+            """ Signed 32-bit mixed-endian word"""
+            packed = struct.pack('>HH', registers[1], registers[0])
+            return struct.unpack('>i', packed)[0]
 
-    @classmethod
-    def _decoded(cls, registers, dtype):
-        if dtype == DataType.UTF8: return cls._decode_utf8(registers)
-        elif dtype == DataType.U16: return cls._decode_u16(registers)
-        elif dtype == DataType.U32: return cls._decode_u32(registers)
-        elif dtype == DataType.I16: return cls._decode_s16(registers)
-        elif dtype == DataType.I32: return cls._decode_s32(registers)
+        def _decode_utf8(registers):
+            return ModbusSerialClient.convert_from_registers(registers=registers, data_type=ModbusSerialClient.DATATYPE.STRING)
+        if dtype == DataType.UTF8: return _decode_utf8(registers)
+        elif dtype == DataType.U16: return _decode_u16(registers)
+        elif dtype == DataType.U32: return _decode_u32(registers)
+        elif dtype == DataType.I16: return _decode_s16(registers)
+        elif dtype == DataType.I32: return _decode_s32(registers)
         else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
 
-    @classmethod
-    def _encoded(cls, value):
+    @staticmethod
+    def _encoded(value, dtype):
         """ Convert a float or integer to big-endian register.
             Supports U16 only.
         """

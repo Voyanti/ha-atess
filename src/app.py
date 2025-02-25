@@ -197,7 +197,7 @@ if __name__ == "__main__":
         app = App(instantiate_clients, instantiate_servers, sys.argv[1])
         app.OPTIONS.mqtt_host = "localhost"
         app.OPTIONS.mqtt_port = 1884
-        app.OPTIONS.pause_interval_seconds = 15
+        app.OPTIONS.pause_interval_seconds = 10
 
         def instantiate_spoof_clients(Options) -> list[SpoofClient]:
             return [SpoofClient()]

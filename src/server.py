@@ -3,7 +3,7 @@ import logging
 from typing import Any, Optional, TypedDict
 
 from .helpers import slugify
-from .enums import DataType, RegisterTypes, Parameter, DeviceClass, WriteParameter
+from .enums import DataType, HAEntityType, RegisterTypes, Parameter, DeviceClass, WriteParameter
 from .client import Client
 from .options import ServerOptions
 
@@ -72,9 +72,9 @@ class Server(ABC):
             Removes invalid registers for the specific model of inverter.
             Requires self.model. Call self.read_model() first."""
 
-    @classmethod
+    @staticmethod
     @abstractmethod
-    def _decoded(cls, registers: list, dtype: DataType):
+    def _decoded(registers: list, dtype: DataType):
         """
         Server-specific decoding for registers read.
 
@@ -84,9 +84,9 @@ class Server(ABC):
         dtype: (DataType.U16, DataType.I16, DataType.U32, DataType.I32, ...)
         """
 
-    @classmethod
+    @staticmethod
     @abstractmethod
-    def _encoded(cls, value: int, dtype: DataType) -> list[int]:
+    def _encoded(value: int, dtype: DataType) -> list[int]:
         "Server-specific encoding of content"
 
     @property
@@ -200,7 +200,7 @@ class Server(ABC):
         Finds correct write register name using mapping from Server.write_registers_slug_to_name
         """
         parameter_name = self.write_parameters_slug_to_name[parameter_name_slug]
-        param = self.write_parameters[parameter_name]
+        param: WriteParameter = self.write_parameters[parameter_name]
 
         address = param["addr"]
         dtype = param["dtype"]
@@ -213,11 +213,13 @@ class Server(ABC):
         register_type = param["register_type"]
         unit = param["unit"]
 
-        if dtype != DataType.UTF8:
+        if param["ha_entity_type"] == HAEntityType.SWITCH:
+            value = int(value, base=0) # interpret string as integer literal. supports auto detecting base
+        elif dtype != DataType.UTF8:
             value = float(value)
             if multiplier != 1:
                 value /= multiplier
-
+        print(value, dtype)
         values = self._encoded(value, dtype)
 
         logger.info(

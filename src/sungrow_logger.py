@@ -458,7 +458,8 @@ class SungrowLogger(Server):
     # def write_registers(self, parameter_name_slug: str, value: Any, modbus_id_override: Optional[int]=None) -> None:
     #     return super().write_registers(parameter_name_slug, value, modbus_id_override=0)
 
-    def _decoded(cls, registers, dtype):
+    @staticmethod
+    def _decoded(registers, dtype):
         def _decode_u16(registers):
             """ Unsigned 16-bit big-endian to int """
             return registers[0]
@@ -502,8 +503,8 @@ class SungrowLogger(Server):
         else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
 
     
-    @classmethod
-    def _encoded(cls, value: int, dtype: DataType) -> list[int]:
+    @staticmethod
+    def _encoded(value: int, dtype: DataType) -> list[int]:
         """ Convert a float or integer to a list of big-endian 16-bit register ints.
             
             Tested on U32
