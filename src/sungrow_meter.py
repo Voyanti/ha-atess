@@ -111,6 +111,7 @@ class AcrelMeter(Server):
             "dtype": DataType.I32,
             "unit": "kW",
             "device_class": DeviceClass.POWER,
+            "state_class": "measurement",
             "multiplier": POWER_MULTIPLIER
         },
         "Phase B Active Power": {
@@ -120,6 +121,7 @@ class AcrelMeter(Server):
             "dtype": DataType.I32,
             "unit": "kW",
             "device_class": DeviceClass.POWER,
+            "state_class": "measurement",
             "multiplier": POWER_MULTIPLIER
         },
         "Phase C Active Power": {
@@ -129,6 +131,7 @@ class AcrelMeter(Server):
             "dtype": DataType.I32,
             "unit": "kW",
             "device_class": DeviceClass.POWER,
+            "state_class": "measurement",
             "multiplier": POWER_MULTIPLIER
         },
         "PF": {
@@ -156,6 +159,7 @@ class AcrelMeter(Server):
             "dtype": DataType.I32,
             "unit": "kW",
             "device_class": DeviceClass.POWER,
+            "state_class": "measurement",
             "multiplier": POWER_MULTIPLIER
         },
         "Reactive Power": {
@@ -165,6 +169,7 @@ class AcrelMeter(Server):
             "dtype": DataType.I32,
             "unit": "kVar",
             "device_class": DeviceClass.REACTIVE_POWER,
+            "state_class": "measurement",
             "multiplier": POWER_MULTIPLIER
         },
         "Apparent Power": {
@@ -174,6 +179,7 @@ class AcrelMeter(Server):
             "dtype": DataType.I32,
             "unit": "kVA",
             "device_class": DeviceClass.APPARENT_POWER,
+            "state_class": "measurement",
             "multiplier": POWER_MULTIPLIER
         },
         "Total Grid Import": {                    # was 'Forward Active Energy'

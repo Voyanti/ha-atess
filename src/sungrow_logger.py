@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 @final
 class SungrowLogger(Server):
-
+    # modbus slave id is usually 247
     # Sungrow 1.0.2.7 definitions 04 input registers
     logger_input_registers: dict[str, Parameter] = {
         'Device type code': {
@@ -254,32 +254,32 @@ class SungrowLogger(Server):
             'addr': 8088,
             'count': 2,
             'dtype': DataType.I32,
-            'multiplier': 0.1,
-            'unit': 'kVar',
+            'multiplier': 0.1*1000,
+            'unit': 'var',
             'device_class': DeviceClass.REACTIVE_POWER,
             'register_type': RegisterTypes.INPUT_REGISTER},
         'Max. adjustable reactive power': {
             'addr': 8090,
             'count': 2,
             'dtype': DataType.I32,
-            'multiplier': 0.1,
-            'unit': 'kVar',
+            'multiplier': 0.1*1000,
+            'unit': 'var',
             'device_class': DeviceClass.REACTIVE_POWER,
             'register_type': RegisterTypes.INPUT_REGISTER},
         'Nominal active power': {
             'addr': 8092,
             'count': 2,
             'dtype': DataType.U32,
-            'multiplier': 0.1,
-            'unit': 'kVar',
+            'multiplier': 0.1*1000,
+            'unit': 'W',    # TODO check!
             'device_class': DeviceClass.POWER,
             'register_type': RegisterTypes.INPUT_REGISTER},
         'Nominal reactive power': {
             'addr': 8094,
             'count': 2,
             'dtype': DataType.U32,
-            'multiplier': 0.1,
-            'unit': 'kVar',
+            'multiplier': 0.1*1000,
+            'unit': 'var',
             'device_class': DeviceClass.REACTIVE_POWER,
             'register_type': RegisterTypes.INPUT_REGISTER},
         'Grid-connected devices': {

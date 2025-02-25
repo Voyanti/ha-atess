@@ -131,7 +131,7 @@ class SungrowInverter(Server):
 
         # Power measurements
         'Total Active Power': {'addr': 5031, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'W', 'device_class': DeviceClass.POWER, 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
-        'Total Reactive Power': {'addr': 5033, 'count': 2, 'dtype': DataType.U32, 'multiplier': 1, 'unit': 'var', 'device_class': DeviceClass.REACTIVE_POWER, 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
+        'Total Reactive Power': {'addr': 5033, 'count': 2, 'dtype': DataType.I32, 'multiplier': 1, 'unit': 'var', 'device_class': DeviceClass.REACTIVE_POWER, 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         'Power Factor': {'addr': 5035, 'count': 1, 'dtype': DataType.I16, 'multiplier': 0.001, 'unit': 'no unit of measurement', 'device_class': DeviceClass.POWER_FACTOR, 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
         'Grid Frequency': {'addr': 5036, 'count': 1, 'dtype': DataType.U16, 'multiplier': 0.1, 'unit': 'Hz', 'device_class': DeviceClass.FREQUENCY, 'register_type': RegisterTypes.INPUT_REGISTER, 'state_class': 'measurement'},
 

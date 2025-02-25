@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Any, TypedDict
+from typing import Literal, Optional, Any, TypedDict
 
 
 class RegisterTypes(Enum):
@@ -145,10 +145,10 @@ ParameterReq = TypedDict(
     },
 )
 
-# inherits required parameters, while defining optinoal parameters
+# inherit required parameters, add optional parameters
 class Parameter(ParameterReq, total=False):
     remarks: str
-    state_class: str
+    state_class: Literal["measurement", "total", "total_increasing"]
 
 if __name__ == "__main__":
     print(DataType.U16.min_value)
