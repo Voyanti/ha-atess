@@ -150,7 +150,7 @@ class SpoofClient:
         self.name = "Client1"
 
     def read(self, address, count, slave_id, register_type):
-        logger.info(f"SPOOFING READ")
+        logger.debug(f"SPOOFING READ")
         response = SpoofClient.SpoofResponse([73 for _ in range(count)])
         return response
     

@@ -173,7 +173,7 @@ class Server(ABC):
         register_type = param["register_type"]
 
         # TODO count
-        logger.info(
+        logger.debug(
             f"Reading param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {self.modbus_id=}")
 
         result = self.connected_client.read(
@@ -190,7 +190,7 @@ class Server(ABC):
         if device_class is not None and isinstance(val, int) or isinstance(val, float):
             val = round(
                 val, device_class_to_rounding.get(device_class, 2))
-        logger.info(f"Decoded Value = {val} {unit}")
+        logger.debug(f"Decoded Value = {val} {unit}")
 
         return val
     
@@ -234,7 +234,7 @@ class Server(ABC):
             self.connected_client._handle_error_response(result)
             raise Exception(f"Error writing register {parameter_name}")
 
-        logger.debug(f"Wrote {value=} {unit=} as {values=} to {parameter_name}.")
+        logger.info(f"Wrote {value=} {unit=} as {values=} to {parameter_name}.")
 
     def connect(self):
         if not self.is_available():
