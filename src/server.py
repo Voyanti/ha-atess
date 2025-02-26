@@ -157,7 +157,10 @@ class Server(ABC):
             DeviceClass.VOLTAGE: 0,
             DeviceClass.POWER: 0
         }
-        param = self.parameters[parameter_name]  # type: ignore
+        param = self.parameters.get(parameter_name, self.write_parameters.get(parameter_name))  # type: ignore
+        if param is None:
+            logger.info(f"No parameter {parameter_name=} for server {self.name} defined. Attempt to read.")
+            raise ValueError(f"No parameter {parameter_name=} for server {self.name} defined. Attempt to read.")
 
         address = param["addr"]
         dtype = param["dtype"]
@@ -165,7 +168,7 @@ class Server(ABC):
         # count = param.get('count', dtype.size // 2) #TODO
         count = param["count"]  # TODO
         unit = param["unit"]
-        device_class = param["device_class"]
+        device_class = param.get("device_class")
         modbus_id = self.modbus_id
         register_type = param["register_type"]
 
