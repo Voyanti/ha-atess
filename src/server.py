@@ -187,7 +187,7 @@ class Server(ABC):
         val = self._decoded(result.registers, dtype)
         if multiplier != 1:
             val *= multiplier
-        if isinstance(val, int) or isinstance(val, float):
+        if device_class is not None and isinstance(val, int) or isinstance(val, float):
             val = round(
                 val, device_class_to_rounding.get(device_class, 2))
         logger.info(f"Decoded Value = {val} {unit}")

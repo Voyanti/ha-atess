@@ -174,7 +174,7 @@ class SpoofClient:
             logger.info(f"unsupported write register type {register_type}")
             raise ValueError(f"unsupported register type {register_type}")
         
-        logger.info(f"Spoof Write at {address=} ({register_type=}) of {values=} on {slave_id=}")
+        logger.info(f"Spoof Write of {values} at {address=} ({register_type=}) of {values=} on {slave_id=}")
         return SpoofClient.SpoofResponse()
 
     def connect(self, num_retries=2, sleep_interval=3):

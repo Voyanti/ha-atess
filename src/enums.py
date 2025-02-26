@@ -173,8 +173,8 @@ class WriteParameter(WriteParameterReq, total=False):
     device_class: DeviceClass
     min: float
     max: float
-    payload_off: str
-    payload_on: str
+    payload_off: int
+    payload_on: int
 
 if __name__ == "__main__":
     print(DataType.U16.min_value)
