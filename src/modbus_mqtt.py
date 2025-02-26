@@ -52,7 +52,7 @@ class MqttClient(mqtt.Client):
         self.on_disconnect = on_disconnect
         self.on_message = on_message
 
-    def message_handler(self, msg, servers: list):
+    def message_handler(self, msg):
         """
             Writes appropriate server registers for each message in mqtt receive queue
         """

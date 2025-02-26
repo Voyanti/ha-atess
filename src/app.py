@@ -122,7 +122,7 @@ class App:
                         register_name, value, server)
                 logger.info(
                     f"Published all Read parameter values for {server.name=}")
-            print("")
+            logger.info("")
             
             # if not RECV_Q.empty():
             #     message_handler(RECV_Q, self.servers)
