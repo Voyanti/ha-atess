@@ -70,6 +70,7 @@ class MqttClient(mqtt.Client):
 
 
         value = server.read_registers(server.write_parameters_slug_to_name[register_name])
+        logger.info(f"read {value=}")
         self.publish_to_ha(
             register_name, value, server)
 
