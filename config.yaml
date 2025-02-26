@@ -1,5 +1,5 @@
 name: "Sungrow Inverter"
-version: "0.4.40"
+version: "0.4.41"
 slug: "sungrow"
 description: "Sungrow Inverter"
 init: false
@@ -36,7 +36,7 @@ options:
       type: "TCP"
       host: "10.0.0.15"
       port: 502
-  pause_interval_seconds: 10
+  pause_interval_seconds: 0.5
   sleep_over_midnight: true
   sleep_midnight_minutes: 10
   mqtt_host: "localhost"

@@ -9,7 +9,7 @@ from .options import Options
 from .client import Client
 from .implemented_servers import ServerTypes
 from .server import Server
-from .modbus_mqtt import MqttClient, RECV_Q
+from .modbus_mqtt import MqttClient
 from paho.mqtt.enums import MQTTErrorCode
 from paho.mqtt.client import MQTTMessage
 
@@ -39,26 +39,7 @@ def exit_handler(
 
     mqtt_client.loop_stop()
 
-def message_handler(q: Queue[MQTTMessage], servers: list):
-    """
-        Writes appropriate server registers for each message in mqtt receive queue
-    """
-    logger.info(f"Checking for command messages.")
-    while not q.empty():
-        msg = q.get()
-        if msg is None: continue
 
-        # command_topic = f"{self.base_topic}/{server.nickname}/{slugify(register_name)}/set"
-        server_ha_display_name: str = msg.topic.split('/')[1]
-        s = None
-        for s in servers: 
-            if s.name == server_ha_display_name:
-                server: Server = s
-        if s is None: raise ValueError(f"Server {server_ha_display_name} not available. Cannot write.")
-        register_name: str = msg.topic.split('/')[2]
-        value: str = msg.payload.decode('utf-8')
-
-        server.write_registers(register_name, value)
 
 
 class App:
@@ -100,6 +81,7 @@ class App:
 
         # Setup MQTT Client
         self.mqtt_client = MqttClient(self.OPTIONS)
+        self.mqtt_client.servers = self.servers
         succeed: MQTTErrorCode = self.mqtt_client.connect(
             host=self.OPTIONS.mqtt_host, port=self.OPTIONS.mqtt_port
         )
@@ -141,9 +123,9 @@ class App:
                 logger.info(
                     f"Published all Read parameter values for {server.name=}")
 
-                
-            if not RECV_Q.empty():
-                message_handler(RECV_Q, self.servers)
+            
+            # if not RECV_Q.empty():
+            #     message_handler(RECV_Q, self.servers)
 
             if loop_once:
                 break

@@ -11,7 +11,7 @@ from time import time, sleep
 from queue import Queue
 
 logger = logging.getLogger(__name__)
-RECV_Q: Queue = Queue()
+# RECV_Q: Queue = Queue()
 
 
 class MqttClient(mqtt.Client):
@@ -46,12 +46,32 @@ class MqttClient(mqtt.Client):
 
         def on_message(client, userdata, message):
             logger.info("Received message on MQTT")
-            sleep(0.01) # TODO why is this here again?
-            RECV_Q.put(message)                         # thread-safe
+            self.message_handler(message)
 
         self.on_connect = on_connect
         self.on_disconnect = on_disconnect
         self.on_message = on_message
+
+    def message_handler(self, msg, servers: list):
+        """
+            Writes appropriate server registers for each message in mqtt receive queue
+        """
+        # command_topic = f"{self.base_topic}/{server.nickname}/{slugify(register_name)}/set"
+        server_ha_display_name: str = msg.topic.split('/')[1]
+        s = None
+        for s in self.servers: 
+            if s.name == server_ha_display_name:
+                server = s
+        if s is None: raise ValueError(f"Server {server_ha_display_name} not available. Cannot write.")
+        register_name: str = msg.topic.split('/')[2]
+        value: str = msg.payload.decode('utf-8')
+
+        server.write_registers(register_name, value)
+
+
+        value = server.read_registers(server.write_parameters_slug_to_name[register_name])
+        self.publish_to_ha(
+            register_name, value, server)
 
     def publish_discovery_topics(self, server) -> None:
         while not self.is_connected():
