@@ -126,6 +126,13 @@ class App:
         # every read_interval seconds, read the registers and publish to mqtt
         while True:
             for server in self.servers:
+                for register_name, details in server.write_parameters.items():
+                    sleep(READ_INTERVAL)
+                    value = server.read_registers(register_name)
+                    self.mqtt_client.publish_to_ha(
+                        register_name, value, server)
+                logger.info(
+                    f"Published all Write parameter values for {server.name=}")
                 for register_name, details in server.parameters.items():
                     sleep(READ_INTERVAL)
                     value = server.read_registers(register_name)
@@ -134,13 +141,6 @@ class App:
                 logger.info(
                     f"Published all Read parameter values for {server.name=}")
 
-                for register_name, details in server.write_parameters.items():
-                    sleep(READ_INTERVAL)
-                    value = server.read_registers(register_name)
-                    self.mqtt_client.publish_to_ha(
-                        register_name, value, server)
-                logger.info(
-                    f"Published all Write parameter values for {server.name=}")
                 
             if not RECV_Q.empty():
                 message_handler(RECV_Q, self.servers)

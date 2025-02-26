@@ -226,7 +226,7 @@ class Server(ABC):
         values = self._encoded(value, dtype)
 
         logger.info(
-            f"Writing param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {modbus_id=}")
+            f"Writing {values} to param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {modbus_id=}")
 
         result = self.connected_client.write(values, address, modbus_id, register_type)
 
