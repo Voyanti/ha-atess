@@ -103,9 +103,11 @@ class MqttClient(mqtt.Client):
         self.publish_availability(True, server)
 
         for register_name, details in server.write_parameters.items():
+            item_topic = f"{self.base_topic}/{nickname}/{slugify(register_name)}"
             discovery_payload = {
                 # required
-                "command_topic": f"{self.base_topic}/{nickname}/{slugify(register_name)}/set", 
+                "command_topic": item_topic + f"/set", 
+                "state_topic": item_topic + f"/state",
                 # optional
                 "name": register_name,
                 "unique_id": f"{nickname}_{slugify(register_name)}",
@@ -118,7 +120,7 @@ class MqttClient(mqtt.Client):
                 discovery_payload.update(min=details["min"], max=details["max"])
             if details.get("payload_off") is not None and details.get("payload_on") is not None:
                 discovery_payload.update(payload_off=details["payload_off"], payload_on=details["payload_on"])
-                
+
             discovery_topic = f"{self.ha_discovery_topic}/{details['ha_entity_type'].value}/{nickname}/{slugify(register_name)}/config"
             self.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
 
