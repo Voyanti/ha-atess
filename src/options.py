@@ -35,15 +35,15 @@ class ModbusRTUOptions(ClientOptions):
 
 
 @dataclass
-class Options:
+class AppOptions:
     """ Concatenated options for reading specific format of all options from config json """
     servers: list[ServerOptions]
     clients: list[Union[ModbusRTUOptions, ModbusTCPOptions]]
 
     pause_interval_seconds: int
 
-    sleep_over_midnight: bool
-    sleep_midnight_minutes: int
+    midnight_sleep_enabled: bool
+    midnight_sleep_wakeup_after: int
 
     mqtt_host: str
     mqtt_port: int
