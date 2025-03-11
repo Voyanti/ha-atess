@@ -64,3 +64,14 @@ class HADeviceClass(Enum):
     WATER = "water"
     WEIGHT = "weight"
     WIND_SPEED = "wind_speed"
+
+device_class_to_rounding: dict[HADeviceClass, int] = { 
+        HADeviceClass.REACTIVE_POWER: 0,
+        HADeviceClass.ENERGY: 1,
+        HADeviceClass.FREQUENCY: 1,
+        HADeviceClass.POWER_FACTOR: 1,
+        HADeviceClass.APPARENT_POWER: 0, 
+        HADeviceClass.CURRENT: 1,
+        HADeviceClass.VOLTAGE: 0,
+        HADeviceClass.POWER: 0
+    }

@@ -1,11 +1,14 @@
 from abc import abstractmethod, ABC
+from functools import lru_cache
 import logging
 from typing import Any, Optional, TypedDict
 
 from .helpers import slugify
-from .enums import DataType, HAEntityType, RegisterTypes, Parameter, HADeviceClass, WriteParameter
+from .enums import DataType, Parameter, WriteParameter, WriteSelectParameter
+from .homeassistant import device_class_to_rounding, HADeviceClass
+from .modbus_client import RegisterType
 from .modbus_client import ModbusClient
-from .options import DeviceOptions
+from .options import DeviceOptions, ServerOptions
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +27,11 @@ class ModbusDevice(ABC):
 
         self.serial: str = "unknown"
         self._model: str = "unknown"
+
+        self.holding_state: list[int] = []      # registers read over self.holding_extent   (min, max)
+        self.input_state: list[int] = []        # registers read over self.input_extent     (min, max)
+
+        logger.info(f"Server {self.name} set up.")
 
     @property
     @abstractmethod
@@ -45,11 +53,18 @@ class ModbusDevice(ABC):
     def write_parameters(self) -> dict[str, WriteParameter]:
         """ Return a dictionary of WriteParameter names and WriteParameter objects."""
 
-    # @property
-    # def write_parameters_slug_to_name(self) -> dict[str, str]:
-    #     """ Return a dictionary of mapping slugs to writeparameter names."""
-    #     write_parameters_slug_to_name: dict[str, str] = {slugify(name):name for name in self.write_parameters.copy()}
-    #     return write_parameters_slug_to_name
+    @property
+    @lru_cache
+    def all_parameters(self) -> dict[str, Parameter | WriteParameter | WriteSelectParameter]:
+        params: dict[str, Parameter | WriteParameter | WriteSelectParameter] =  self.parameters.copy()
+        params.update(self.write_parameters)
+        return params
+
+    @property
+    def write_parameters_slug_to_name(self) -> dict[str, str]:
+        """ Return a dictionary of mapping slugs to writeparameter names."""
+        write_parameters_slug_to_name: dict[str, str] = {slugify(name):name for name in self.write_parameters.copy()}
+        return write_parameters_slug_to_name
 
     @abstractmethod
     def read_model(self) -> str:
@@ -65,6 +80,69 @@ class ModbusDevice(ABC):
             registers for the specific model must be implemented.
             Removes invalid registers for the specific model of inverter.
             Requires self.model. Call self.read_model() first."""
+
+    def find_register_extent(self) -> None:
+        """ Find the minimum and maximum address of registers to be read for 
+            holding and input register types, for read and write parameters.
+
+            init internal state for each:
+                self.holding[min_addr,max_addr] np
+                self.input[min_addr, max_addr] np
+
+                self.holding_start_offset int min
+                self.input_start_offset int min
+        """
+        logger.info(f"Finding register extents for reading batches")
+        parameters: dict[str, Parameter | WriteParameter | WriteSelectParameter] = self.all_parameters
+
+        # sort params into holding and input
+        holding_params = [(k, v) for k, v in parameters.items() if v["register_type"] == RegisterType.HOLDING_REGISTER]
+        input_params = [(k, v) for k, v in parameters.items() if v["register_type"] == RegisterType.INPUT_REGISTER]
+
+        # sort by address ascending
+        holding_params = sorted(holding_params, key=lambda x: x[1]["addr"])
+        input_params = sorted(input_params, key=lambda x: x[1]["addr"])
+
+        # list addresses
+        holding_addrs = [i[1]["addr"] for i in holding_params]
+        input_addrs = [i[1]["addr"] for i in input_params]
+
+
+        # account for last item count: meaning the largest address needs to be incremented
+        if holding_params[-1][1]["count"] != 1:
+            holding_addrs.append(holding_params[-1][1]["count"] - 1 + holding_params[-1][1]["addr"])
+        if input_params[-1][1]["count"] != 1:
+            input_addrs.append(input_params[-1][1]["count"] - 1 + input_params[-1][1]["addr"])
+
+        logger.info(f"{holding_addrs=}")
+        logger.info(f"{input_addrs=}")
+
+        # save min (offset) for internal state
+        self.holding_addr_extent = (min(holding_addrs), max(holding_addrs))
+        self.input_addr_extent = (min(input_addrs), max(input_addrs))
+        logger.info(f"{self.holding_addr_extent=}")
+        logger.info(f"{self.input_addr_extent=}")
+
+
+    def create_batches(self, batch_size=125):
+        """
+        stores (uneven) batches for input and holding register addresses (self.holding_addr_extent, self.input_addr_extent)
+                self.holding_batches
+                self.input_batches
+        """
+        def batch(iterable, batch_size=1):
+            l = len(iterable)
+            for ndx in range(0, l, batch_size):
+                yield iterable[ndx:min(ndx + batch_size, l)]
+
+        self.holding_batches = tuple(batch(range(self.holding_addr_extent[0], self.holding_addr_extent[1]+1), batch_size))
+        self.input_batches = tuple(batch(range(self.input_addr_extent[0], self.input_addr_extent[1]+1), batch_size))
+
+        logger.debug("")
+        logger.info(f"Created batches for server {self.name}")
+        logger.debug(f"{self.holding_batches=}")
+        logger.debug(f"{self.input_batches}")
+        logger.debug("")
 
     @staticmethod
     @abstractmethod
@@ -130,6 +208,71 @@ class ModbusDevice(ABC):
             available = False
 
         return available
+    
+    def read_batches(self):
+        """
+        Read holding and input registers for the server in batches of size 125, and save to internal state
+        """
+        self.holding_state = []
+        self.input_state = []
+
+        for batch in self.holding_batches:
+            logger.info(f"Reading holding batch from {batch[0]} to {batch[-1]}, {len(batch)=}")
+            result = self.connected_client.read(
+                batch[0], len(batch), self.modbus_id, RegisterType.HOLDING_REGISTER)   # TODO check
+
+            if result.isError():
+                self.connected_client._handle_error_response(result)
+                raise Exception(f"Error reading batch {batch=}")
+            
+            self.holding_state.extend(result.registers)
+            
+        for batch in self.input_batches:
+            logger.info(f"Reading input batch from {batch[0]} to {batch[-1]}, {len(batch)=}")
+            result = self.connected_client.read(
+                batch[0], len(batch), self.modbus_id, RegisterType.INPUT_REGISTER)
+
+            if result.isError():
+                self.connected_client._handle_error_response(result)
+                raise Exception(f"Error reading batch {batch=}")
+            
+            self.input_state.extend(result.registers)
+
+    def read_from_state(self, parameter_name: str):
+        param = self.all_parameters.get(parameter_name)  # type: ignore
+        if param is None:
+            raise ValueError(f"Attempted to read {parameter_name=} for server {self.name}, but it is not defined")
+
+        address = param["addr"]
+        dtype = param["dtype"]
+        multiplier = param["multiplier"]
+        count = param["count"]
+        device_class = param.get("device_class")
+        modbus_id = self.modbus_id
+        register_type = param["register_type"]
+
+        logger.debug(
+            f"Reading param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {self.modbus_id=} from internal state")
+
+        if register_type == RegisterType.HOLDING_REGISTER:
+            # logger.debug(f"{address=}, {count=}, offset={self.holding_addr_extent[0]}")
+            # logger.debug(f"start {address-self.holding_addr_extent[0]}, exclusive_end = { address+count-self.holding_addr_extent[0]}")
+            result = self.holding_state[address-self.holding_addr_extent[0]: address+count-self.holding_addr_extent[0]] # address is 1-indexed
+        elif register_type == RegisterType.INPUT_REGISTER:
+            result = self.input_state[address-self.input_addr_extent[0]: address+count-self.input_addr_extent[0]] # address is 1-indexed
+        else: 
+            raise ValueError(f"Illegal register_type {register_type}. for register {parameter_name}")
+
+        logger.debug(f"Raw register begin value: {result[0]}")
+        val = self._decoded(result, dtype)
+        if multiplier != 1:
+            val *= multiplier
+        if device_class is not None and isinstance(val, int) or isinstance(val, float):
+            val = round(
+                val, device_class_to_rounding.get(device_class, 2)) # type: ignore
+        # logger.debug(f"Decoded Value = {val} {unit}")
+
+        return val
 
     def read_registers(self, parameter_name: str):
         """ 
@@ -141,16 +284,6 @@ class ModbusDevice(ABC):
             -----------
                 - parameter_name: str: slave parameter name string as defined in register map
         """
-        device_class_to_rounding: dict[HADeviceClass, int] = {    # TODO define in deviceClass type
-            HADeviceClass.REACTIVE_POWER: 0,
-            HADeviceClass.ENERGY: 1,
-            HADeviceClass.FREQUENCY: 1,
-            HADeviceClass.POWER_FACTOR: 1,
-            HADeviceClass.APPARENT_POWER: 0, 
-            HADeviceClass.CURRENT: 1,
-            HADeviceClass.VOLTAGE: 0,
-            HADeviceClass.POWER: 0
-        }
         param = self.parameters.get(parameter_name, self.write_parameters.get(parameter_name))  # type: ignore
         if param is None:
             logger.info(f"No parameter {parameter_name=} for Device {self.name} defined. Attempt to read.")
@@ -159,14 +292,11 @@ class ModbusDevice(ABC):
         address = param["addr"]
         dtype = param["dtype"]
         multiplier = param["multiplier"]
-        # count = param.get('count', dtype.size // 2) #TODO
-        count = param["count"]  # TODO
-        # unit = param["unit"]
+        count = param["count"]
         device_class = param.get("device_class")
         modbus_id = self.modbus_id
         register_type = param["register_type"]
 
-        # TODO count
         logger.debug(
             f"Reading param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {self.modbus_id=}")
 
@@ -238,6 +368,8 @@ class ModbusDevice(ABC):
             raise ConnectionError()
         self.set_model()
         self.setup_valid_registers_for_model()
+        self.find_register_extent()
+        self.create_batches()
 
     @classmethod
     def from_DeviceOptions(
@@ -258,12 +390,11 @@ class ModbusDevice(ABC):
         modbus_id: int = opts.modbus_id  # modbus slave_id
 
         try:
-            idx = [str(client) for client in clients].index(
-                opts.connected_client
-            )  # TODO ugly
+            clients_names = [str(client) for client in clients]
+            idx = clients_names.index(opts.connected_client)  # TODO ugly
         except ValueError:
             raise ValueError(
-                f"Client {opts.connected_client} from Device {name} config not defined in client list"
+                f"Client {opts.connected_client} from device {name} config not defined in client list"
             )
         connected_client = clients[idx]
 
