@@ -43,7 +43,7 @@ class TestLoaders(unittest.TestCase):
         Assumes load_options works"""
         try:
             OPTS = load_options(self.yaml_path)
-            servers = OPTS.servers
+            servers = OPTS.devices
         except Exception as e:
             print(
                 "Error while reading options as prerequisite for validate_servers_implemented"

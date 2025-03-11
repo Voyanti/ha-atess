@@ -6,10 +6,10 @@ from queue import Queue
 
 from .loader import load_validate_options
 from .options import Options
-from .client import Client
-from .implemented_servers import ServerTypes
-from .server import Server
-from .modbus_mqtt import MqttClient
+from .modbus_client import ModbusClient
+from .implemented_servers import DeviceTypes
+from .modbus_device import ModbusDevice
+from .mqtt_client import HAMqttClient
 from paho.mqtt.enums import MQTTErrorCode
 from paho.mqtt.client import MQTTMessage
 
@@ -27,7 +27,7 @@ READ_INTERVAL = 0.004
 
 
 def exit_handler(
-    servers: list[Server], modbus_clients: list[Client], mqtt_client: MqttClient
+    servers: list[ModbusDevice], modbus_clients: list[ModbusClient], mqtt_client: HAMqttClient
 ) -> None:
     logger.info("Exiting")
     # publish offline availability for each server
@@ -80,7 +80,10 @@ class App:
             server.connect()
 
         # Setup MQTT Client
-        self.mqtt_client = MqttClient(self.OPTIONS)
+        self.mqtt_client = HAMqttClient(self.OPTIONS.mqtt_user,
+                                        self.OPTIONS.mqtt_password,
+                                        self.OPTIONS.mqtt_base_topic,
+                                        self.OPTIONS.mwtt_ha_discovery_topic)
         self.mqtt_client.servers = self.servers
         succeed: MQTTErrorCode = self.mqtt_client.connect(
             host=self.OPTIONS.mqtt_host, port=self.OPTIONS.mqtt_port
@@ -166,14 +169,14 @@ class App:
             sleep(sleep_duration)
 
 
-def instantiate_clients(OPTIONS: Options) -> list[Client]:
-    return [Client(cl_options) for cl_options in OPTIONS.clients]
+def instantiate_clients(OPTIONS: Options) -> list[ModbusClient]:
+    return [ModbusClient(cl_options) for cl_options in OPTIONS.modbus_clients]
 
 
-def instantiate_servers(OPTIONS: Options, clients: list[Client]) -> list[Server]:
+def instantiate_servers(OPTIONS: Options, clients: list[ModbusClient]) -> list[ModbusDevice]:
     return [
-        ServerTypes[sr.server_type].value.from_ServerOptions(sr, clients)
-        for sr in OPTIONS.servers
+        DeviceTypes[sr.server_type].value.from_ServerOptions(sr, clients)
+        for sr in OPTIONS.devices
     ]
 
 
@@ -184,7 +187,7 @@ if __name__ == "__main__":
         app.connect()
         app.loop()
     else:                   # running locally
-        from .client import SpoofClient
+        from .modbus_client import SpoofClient
         app = App(instantiate_clients, instantiate_servers, sys.argv[1])
         app.OPTIONS.mqtt_host = "localhost"
         app.OPTIONS.mqtt_port = 1884

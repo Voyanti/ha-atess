@@ -1,5 +1,5 @@
+from enum import Enum
 from typing import Optional
-from .enums import RegisterTypes
 from .options import ModbusTCPOptions, ModbusRTUOptions
 from pymodbus.client import ModbusSerialClient, ModbusTcpClient
 from pymodbus.pdu import ExceptionResponse, ModbusPDU
@@ -13,52 +13,57 @@ logger = logging.getLogger(__name__)
 # log = logging.getLogger("pymodbus")
 # log.setLevel(logging.DEBUG)
 
+class RegisterType(Enum):
+    INPUT_REGISTER = 3  # Read Only
+    HOLDING_REGISTER = 4  # Read/ Write
 
-class Client:
+
+
+class ModbusClient:
     """
-        Modbus client representation: name, nickname (ha_display_name), and pymodbus client.
+        Modbus client representation: name and pymodbus client.
 
-        Wraps around pymodbus.client.ModbusSerialClient | pymodbus.client.ModbusTCPClient to
-        fan out dictionary information, and decode/ encode register values when reading/ writing/
+        Wraps around pymodbus.client.ModbusSerialClient | pymodbus.client.ModbusTCPClient.
     """
 
-    def __init__(self, cl_options: ModbusTCPOptions | ModbusRTUOptions):
+    def __init__(self, name: str, client: ModbusSerialClient | ModbusTcpClient):
+        """_summary_
+
+        Args:
+            name (str): _description_
+            client (ModbusSerialClient | ModbusTcpClient): _description_
+        """        
+        self.name = name
+        self.client = client
+
+    def read(self, address: int, count: int, slave_id: int, register_type: RegisterType) -> ModbusPDU:
         """
-            Initialised from modbus_mqtt.loader.ClientOptions object
+        Calls the appropriate read function, based on the register type (input / holding).
 
-            Parameters:
-            -----------
-                - cl_options: modbus_mqtt.loader.ClientOptions - options as read from config json
+        On ModbusIOException: wait 20s and retry
 
-            TODO move to classmethod, to separate home-assistant dependency out
-        """
-        self.name = cl_options.name
-        self.client: ModbusSerialClient | ModbusTcpClient
+        Args:
+            address (int): 1-indexed modbus register address
+            count (int): number of consecutive 16-bit modbus registers to read
+            slave_id (int): modbus slave_id
+            register_type (RegisterType): holding or input register
 
-        if isinstance(cl_options, ModbusTCPOptions):
-            self.client = ModbusTcpClient(
-                host=cl_options.host, port=cl_options.port)
-        elif isinstance(cl_options, ModbusRTUOptions):
-            self.client = ModbusSerialClient(port=cl_options.port, baudrate=cl_options.baudrate,
-                                             bytesize=cl_options.bytesize, parity='Y' if cl_options.parity else 'N',
-                                             stopbits=cl_options.stopbits)
+        Raises:
+            ValueError: for unsupported register_type
 
-    def read(self, address, count, slave_id, register_type):
-        """
-            Calls the appropriate read function, based on the register type (input / holding).
-
-            On ModbusIOException: wait 20s and retry
-        """
+        Returns:
+            ModbusPDU: _description_
+        """        
         logger.debug(f"Reading param from {address=}, {count=} on {slave_id=}, {register_type=}")
 
         need_result = True
         while need_result:
             try:
-                if register_type == RegisterTypes.HOLDING_REGISTER:
+                if register_type == RegisterType.HOLDING_REGISTER:
                     result = self.client.read_holding_registers(address=address-1,
                                                                 count=count,
                                                                 slave=slave_id)
-                elif register_type == RegisterTypes.INPUT_REGISTER:
+                elif register_type == RegisterType.INPUT_REGISTER:
                     result = self.client.read_input_registers(address=address-1,
                                                             count=count,
                                                             slave=slave_id)
@@ -69,14 +74,14 @@ class Client:
                 # no IOexception:
                 need_result = False
             except ModbusIOException as e:
-                need_result = True
+                # need_result = True
                 logger.info(str(e))
                 logger.info(f"Sleep 20s and retry")
                 sleep(20)
 
         return result
     
-    def write(self, values: list[int], address: int, slave_id: int, register_type):
+    def write(self, values: list[int], address: int, slave_id: int, register_type: RegisterType) -> ModbusPDU:
         """Writes a list of encoded ints to 16-bit registers, 
         starting at the 1-indexed address specified
 
@@ -92,14 +97,12 @@ class Client:
         Returns:
             ModbusPDU: modbus client response
         """        
-        if not register_type == RegisterTypes.HOLDING_REGISTER:
-            logger.info(f"unsupported write register type {register_type}")
+        if register_type != RegisterType.HOLDING_REGISTER:
             raise ValueError(f"unsupported register type {register_type}")
         
-        result = self.client.write_registers(address=address-1,
+        return self.client.write_registers(address=address-1,
                                             values=values,
                                             slave=slave_id)
-        return result
 
     def connect(self, num_retries=2, sleep_interval=3) -> None:
         logger.info(f"Connecting to client {self}")
@@ -122,12 +125,6 @@ class Client:
     def close(self):
         logger.info(f"Closing connection to {self}")
         self.client.close()
-
-    def __str__(self):
-        """
-            self.nickname is used as a unique id for finding the client to which each server is connected.
-        """
-        return f"{self.name}"
 
     def _handle_error_response(self, result):
         if isinstance(result, ExceptionResponse):
@@ -155,6 +152,17 @@ class Client:
             logger.error(
                 f"Non Standard Modbus Exception. Cannot Decode Response")
 
+def modbusClientFactory(modbus_client_options: ModbusTCPOptions | ModbusRTUOptions) -> ModbusClient:
+    client: ModbusSerialClient | ModbusTcpClient
+
+    if isinstance(modbus_client_options, ModbusTCPOptions):
+        client = ModbusTcpClient(
+            host=modbus_client_options.host, port=modbus_client_options.port)
+    elif isinstance(modbus_client_options, ModbusRTUOptions):
+        client = ModbusSerialClient(port=modbus_client_options.mount, baudrate=modbus_client_options.baudrate,
+                                            bytesize=modbus_client_options.bytesize, parity='Y' if modbus_client_options.parity else 'N',
+                                            stopbits=modbus_client_options.stopbits)
+    return ModbusClient(modbus_client_options.name, client)
 
 class SpoofClient:
     """
@@ -193,7 +201,7 @@ class SpoofClient:
         Returns:
             ModbusPDU: modbus client response
         """        
-        if not register_type == RegisterTypes.HOLDING_REGISTER:
+        if not register_type == RegisterType.HOLDING_REGISTER:
             logger.info(f"unsupported write register type {register_type}")
             raise ValueError(f"unsupported register type {register_type}")
         

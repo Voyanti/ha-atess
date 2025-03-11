@@ -2,5 +2,5 @@ from enum import Enum
 
 from .atess_inverter import AtessInverter
 
-class ServerTypes(Enum):
+class DeviceTypes(Enum):
     ATESS_INVERTER = AtessInverter

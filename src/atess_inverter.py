@@ -1,5 +1,5 @@
 from typing import final, Literal
-from .server import Server
+from .modbus_device import ModbusDevice
 import struct
 import logging
 from .enums import DataType
@@ -9,7 +9,7 @@ from pymodbus.client import ModbusSerialClient
 logger = logging.getLogger(__name__)
 
 @final
-class AtessInverter(Server):
+class AtessInverter(ModbusDevice):
     # RS485 address is 1-32
     # adresses seem to be 0-indexed so +1
     def __init__(self, name, serial, modbus_id, connected_client):
