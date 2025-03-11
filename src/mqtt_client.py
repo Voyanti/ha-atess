@@ -104,6 +104,8 @@ class HAMqttClient():
             }
             if details["unit"] != "":
                 discovery_payload.update(unit_of_measurement=details["unit"])
+            if "value_template" in details: #enum
+                discovery_payload.update(value_template=details["value_template"])
 
             state_class = details.get("state_class", False)
             if state_class:
