@@ -34,7 +34,7 @@ options:
   clients:
     - name: client1
       type: RTU
-      port: /dev/ttyACM0
+      mount: /dev/ttyACM0
       baudrate: 9600
       bytesize: 8
       parity: false
@@ -63,7 +63,8 @@ schema:
     - name: str
       type: list(TCP|RTU)
       host: str?
-      port: str?
+      port: int?
+      mount: str?
       baudrate: int?
       bytesize: int?
       parity: bool?

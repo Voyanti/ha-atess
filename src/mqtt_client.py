@@ -3,38 +3,27 @@ from paho.mqtt.enums import CallbackAPIVersion
 import json
 import logging
 
-from .helpers import slugify
+from .helpers import generate_uuid, slugify
 from .loader import Options
 
-from random import getrandbits
-from time import time, sleep
-from queue import Queue
+from time import sleep
 
 from .enums import HAEntityType
 
 logger = logging.getLogger(__name__)
-# RECV_Q: Queue = Queue()
 
 
-class MqttClient(mqtt.Client):
+class HAMqttClient():
     """
         paho MQTT abstraction for home assistant
     """
-    def __init__(self, options: Options) -> None:
-        def generate_uuid():
-            random_part = getrandbits(64)
-            # Get current timestamp in milliseconds
-            timestamp = int(time() * 1000)
-            node = getrandbits(48)  # Simulating a network node (MAC address)
-
-            uuid_str = f'{timestamp:08x}-{random_part >> 32:04x}-{random_part & 0xFFFF:04x}-{node >> 24:04x}-{node & 0xFFFFFF:06x}'
-            return uuid_str
+    def __init__(self, username: str, password: str, base_topic: str, homeassisant_discovery_topic: str) -> None:
+        self.base_topic = base_topic
+        self.ha_discovery_topic = homeassisant_discovery_topic
 
         uuid = generate_uuid()
-        super().__init__(CallbackAPIVersion.VERSION2, f"modbus-{uuid}")
-        self.username_pw_set(options.mqtt_user, options.mqtt_password)
-        self.base_topic = options.mqtt_base_topic
-        self.ha_discovery_topic = options.mwtt_ha_discovery_topic
+        self.client = mqtt.Client(CallbackAPIVersion.VERSION2, f"modbus-{uuid}")
+        self.client.username_pw_set(username, password)
 
         def on_connect(client, userdata, connect_flags, reason_code, properties):
             if reason_code == 0:
@@ -50,14 +39,11 @@ class MqttClient(mqtt.Client):
             logger.info("Received message on MQTT")
             self.message_handler(message)
 
-        self.on_connect = on_connect
-        self.on_disconnect = on_disconnect
-        self.on_message = on_message
+        self.client.on_connect = on_connect
+        self.client.on_disconnect = on_disconnect
+        self.client.on_message = on_message
 
     def message_handler(self, msg) -> None:
-        """
-            Writes appropriate server registers for each message in mqtt receive queue
-        """
         # command_topic = f"{self.base_topic}/{server.nickname}/{slugify(register_name)}/set"
         server_ha_display_name: str = msg.topic.split('/')[1]
         s = None

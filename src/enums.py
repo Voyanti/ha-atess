@@ -1,10 +1,9 @@
+from dataclasses import dataclass
 from enum import Enum
 from typing import Literal, Optional, Any, TypedDict
 
-
-class RegisterTypes(Enum):
-    INPUT_REGISTER = 3  # Read Only
-    HOLDING_REGISTER = 4  # Read/ Write
+from homeassistant import HADeviceClass
+from modbus_client import RegisterType
 
 
 class DataType(Enum):
@@ -38,6 +37,8 @@ class DataType(Enum):
         Returns None for variable-size types (UTF8).
         """
         sizes = {
+            DataType.I8L: 1,
+            DataType.I8H: 1,
             DataType.U16: 2,
             DataType.I16: 2,
             DataType.U32: 4,
@@ -83,69 +84,19 @@ class DataType(Enum):
         return ranges[self]
 
 
-# https://www.home-assistant.io/integrations/sensor#device-class
-class DeviceClass(Enum):
-    DATE = "date"
-    ENUM = "enum"
-    TIMESTAMP = "timestamp"
-    APPARENT_POWER = "apparent_power"
-    AQI = "aqi"
-    ATMOSPHERIC_PRESSURE = "atmospheric_pressure"
-    BATTERY = "battery"
-    CARBON_MONOXIDE = "carbon_monoxide"
-    CARBON_DIOXIDE = "carbon_dioxide"
-    CURRENT = "current"
-    DATA_RATE = "data_rate"
-    DATA_SIZE = "data_size"
-    DISTANCE = "distance"
-    DURATION = "duration"
-    ENERGY = "energy"
-    ENERGY_STORAGE = "energy_storage"
-    FREQUENCY = "frequency"
-    GAS = "gas"
-    HUMIDITY = "humidity"
-    ILLUMINANCE = "illuminance"
-    IRRADIANCE = "irradiance"
-    MOISTURE = "moisture"
-    MONETARY = "monetary"
-    NITROGEN_DIOXIDE = "nitrogen_dioxide"
-    NITROGEN_MONOXIDE = "nitrogen_monoxide"
-    NITROUS_OXIDE = "nitrous_oxide"
-    OZONE = "ozone"
-    PH = "ph"
-    PM1 = "pm1"
-    PM10 = "pm10"
-    PM25 = "pm25"
-    POWER_FACTOR = "power_factor"
-    POWER = "power"
-    PRECIPITATION = "precipitation"
-    PRECIPITATION_INTENSITY = "precipitation_intensity"
-    PRESSURE = "pressure"
-    REACTIVE_POWER = "reactive_power"
-    SIGNAL_STRENGTH = "signal_strength"
-    SOUND_PRESSURE = "sound_pressure"
-    SPEED = "speed"
-    SULPHUR_DIOXIDE = "sulphur_dioxide"
-    TEMPERATURE = "temperature"
-    VOLATILE_ORGANIC_COMPOUNDS = "volatile_organic_compounds"
-    VOLATILE_ORGANIC_COMPOUNDS_PARTS = "volatile_organic_compounds_parts"
-    VOLTAGE = "voltage"
-    VOLUME = "volume"
-    VOLUME_STORAGE = "volume_storage"
-    VOLUME_FLOW_RATE = "volume_flow_rate"
-    WATER = "water"
-    WEIGHT = "weight"
-    WIND_SPEED = "wind_speed"
 
-class HAEntityType(Enum):
-    NUMBER = 'number'
-    SWITCH = 'switch'
-    SELECT = 'select'
-
-    SENSOR = 'sensor'
-    BINARY_SENSOR = 'binary_sensor'
 
 # all parameters are required to have these fields
+@dataclass
+class ModbusParameter:
+    addr: int
+    count: int
+    dtype: DataType
+    register_type: RegisterType
+    multiplier: int = 1
+    unit: Optional[str] = None
+
+
 ParameterReq = TypedDict(
     "ParameterReq",
     {
@@ -154,8 +105,8 @@ ParameterReq = TypedDict(
         "dtype": DataType,
         "multiplier": float,
         "unit": str,
-        "device_class": DeviceClass,
-        "register_type": RegisterTypes,
+        "device_class": HADeviceClass,
+        "register_type": RegisterType,
     },
 )
 
@@ -172,7 +123,7 @@ WriteParameterReq = TypedDict(
         "count": int,
         "dtype": DataType,
         "multiplier": float,
-        "register_type": RegisterTypes,
+        "register_type": RegisterType,
         'ha_entity_type': HAEntityType,
     },
 )
@@ -186,7 +137,7 @@ class WriteSelectParameter(WriteSelectParameterReq, total=False):
     command_template: str
     
 class WriteParameter(WriteParameterReq, total=False):
-    device_class: DeviceClass # when not specified w=for a switch, a none type switch is used
+    device_class: HADeviceClass # when not specified w=for a switch, a none type switch is used
 
     # number
     unit: str

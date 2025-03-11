@@ -3,33 +3,27 @@ import logging
 from typing import Any, Optional, TypedDict
 
 from .helpers import slugify
-from .enums import DataType, HAEntityType, RegisterTypes, Parameter, DeviceClass, WriteParameter
-from .client import Client
-from .options import ServerOptions
+from .enums import DataType, HAEntityType, RegisterTypes, Parameter, HADeviceClass, WriteParameter
+from .modbus_client import ModbusClient
+from .options import DeviceOptions
 
 logger = logging.getLogger(__name__)
 
 
-class Server(ABC):
+class ModbusDevice(ABC):
     """
-    Base server class. Represents modbus server: its name, serial, model, modbus slave_id. e.g. SungrowInverter(Server).
+    Base Device class. Represents modbus Device: its name, serial, model, modbus slave_id. e.g. SungrowInverter(Device).
 
-        Includes functions to be abstracted by model/ manufacturer-specific implementations for
-        decoding, encoding data read/ write, reading model code, setting up model-specific registers and checking availability.
+    Includes functions to be abstracted by model/ manufacturer-specific implementations for
+    decoding, encoding data read/ write, reading model code, setting up model-specific registers and checking availability.
     """
 
-    def __init__(self, name, serial, modbus_id, connected_client) -> None:
+    def __init__(self, name, modbus_id) -> None:
         self.name: str = name
-        self.serial: str = serial
         self.modbus_id: int = modbus_id
-        self.connected_client: Client = connected_client
 
+        self.serial: str = "unknown"
         self._model: str = "unknown"
-
-        logger.info(f"Server {self.name} set up.")
-
-    def __str__(self):
-        return f"{self.name}"
 
     @property
     @abstractmethod
@@ -51,11 +45,11 @@ class Server(ABC):
     def write_parameters(self) -> dict[str, WriteParameter]:
         """ Return a dictionary of WriteParameter names and WriteParameter objects."""
 
-    @property
-    def write_parameters_slug_to_name(self) -> dict[str, str]:
-        """ Return a dictionary of mapping slugs to writeparameter names."""
-        write_parameters_slug_to_name: dict[str, str] = {slugify(name):name for name in self.write_parameters.copy()}
-        return write_parameters_slug_to_name
+    # @property
+    # def write_parameters_slug_to_name(self) -> dict[str, str]:
+    #     """ Return a dictionary of mapping slugs to writeparameter names."""
+    #     write_parameters_slug_to_name: dict[str, str] = {slugify(name):name for name in self.write_parameters.copy()}
+    #     return write_parameters_slug_to_name
 
     @abstractmethod
     def read_model(self) -> str:
@@ -67,7 +61,7 @@ class Server(ABC):
 
     @abstractmethod
     def setup_valid_registers_for_model(self):
-        """ Server-specific logic for removing unsupported or selecting supported
+        """ Device-specific logic for removing unsupported or selecting supported
             registers for the specific model must be implemented.
             Removes invalid registers for the specific model of inverter.
             Requires self.model. Call self.read_model() first."""
@@ -76,7 +70,7 @@ class Server(ABC):
     @abstractmethod
     def _decoded(registers: list, dtype: DataType):
         """
-        Server-specific decoding for registers read.
+        Device-specific decoding for registers read.
 
         Parameters:
         -----------
@@ -87,16 +81,16 @@ class Server(ABC):
     @staticmethod
     @abstractmethod
     def _encoded(value: int, dtype: DataType) -> list[int]:
-        "Server-specific encoding of content"
+        "Device-specific encoding of content"
 
     @property
     def model(self) -> str:
         """ Return a string model name for the implementation.
-            Ahould be read in using server.read_model(). 
-            server.set_model is called in server.connect(), which sets the model.
+            Ahould be read in using Device.read_model(). 
+            Device.set_model is called in Device.connect(), which sets the model.
             
             model is used in seupt_valid_registers_for_model
-            Provided to fascilitate server types where the model cannot be read."""
+            Provided to fascilitate Device types where the model cannot be read."""
         return self._model
     
     @model.setter
@@ -106,19 +100,19 @@ class Server(ABC):
     def set_model(self):
         """
             Reads model-holding register, decodes it and sets self.model: str to its value..
-            Specify decoding in Server.device_info = {modelcode:    {name:modelname, ...}  }
+            Specify decoding in Device.device_info = {modelcode:    {name:modelname, ...}  }
         """
-        logger.info(f"Reading model for server {self.name}")
+        logger.info(f"Reading model for Device {self.name}")
         self.model = self.read_model()
         logger.info(f"Model read as {self.model}")
 
         if self.model not in self.supported_models:
             raise ValueError(
-                f"Model not supported in implementation of Server, {self}")
+                f"Model not supported in implementation of Device, {self}")
 
     def is_available(self, register_name="Device type code"):
-        """ Contacts any server register and returns true if the server is available """
-        logger.info(f"Verifying availability of server {self.name}")
+        """ Contacts any Device register and returns true if the Device is available """
+        logger.info(f"Verifying availability of Device {self.name}")
 
         available = True
 
@@ -141,26 +135,26 @@ class Server(ABC):
         """ 
         Read a group of registers (parameter) using pymodbus
 
-            Requires implementation of the abstract method 'Server._decoded()'
+            Requires implementation of the abstract method 'Device._decoded()'
 
             Parameters:
             -----------
                 - parameter_name: str: slave parameter name string as defined in register map
         """
-        device_class_to_rounding: dict[DeviceClass, int] = {    # TODO define in deviceClass type
-            DeviceClass.REACTIVE_POWER: 0,
-            DeviceClass.ENERGY: 1,
-            DeviceClass.FREQUENCY: 1,
-            DeviceClass.POWER_FACTOR: 1,
-            DeviceClass.APPARENT_POWER: 0, 
-            DeviceClass.CURRENT: 1,
-            DeviceClass.VOLTAGE: 0,
-            DeviceClass.POWER: 0
+        device_class_to_rounding: dict[HADeviceClass, int] = {    # TODO define in deviceClass type
+            HADeviceClass.REACTIVE_POWER: 0,
+            HADeviceClass.ENERGY: 1,
+            HADeviceClass.FREQUENCY: 1,
+            HADeviceClass.POWER_FACTOR: 1,
+            HADeviceClass.APPARENT_POWER: 0, 
+            HADeviceClass.CURRENT: 1,
+            HADeviceClass.VOLTAGE: 0,
+            HADeviceClass.POWER: 0
         }
         param = self.parameters.get(parameter_name, self.write_parameters.get(parameter_name))  # type: ignore
         if param is None:
-            logger.info(f"No parameter {parameter_name=} for server {self.name} defined. Attempt to read.")
-            raise ValueError(f"No parameter {parameter_name=} for server {self.name} defined. Attempt to read.")
+            logger.info(f"No parameter {parameter_name=} for Device {self.name} defined. Attempt to read.")
+            raise ValueError(f"No parameter {parameter_name=} for Device {self.name} defined. Attempt to read.")
 
         address = param["addr"]
         dtype = param["dtype"]
@@ -198,9 +192,9 @@ class Server(ABC):
         """ 
         Write a group of registers (parameter) using pymodbus
 
-        Requires implementation of the abstract method 'Server._encoded()'
+        Requires implementation of the abstract method 'Device._encoded()'
 
-        Finds correct write register name using mapping from Server.write_registers_slug_to_name
+        Finds correct write register name using mapping from Device.write_registers_slug_to_name
         """
         parameter_name = self.write_parameters_slug_to_name[parameter_name_slug]
         param: WriteParameter = self.write_parameters[parameter_name]
@@ -240,23 +234,23 @@ class Server(ABC):
 
     def connect(self):
         if not self.is_available():
-            logger.error(f"Server {self.name} not available")
+            logger.error(f"Device {self.name} not available")
             raise ConnectionError()
         self.set_model()
         self.setup_valid_registers_for_model()
 
     @classmethod
-    def from_ServerOptions(
+    def from_DeviceOptions(
         cls,
-        opts: ServerOptions,
-        clients: list[Client]
+        opts: DeviceOptions,
+        clients: list[ModbusClient]
     ):
         """
-        Initialises modbus_mqtt.server.Server from modbus_mqtt.loader.ServerOptions object
+        Initialises modbus_mqtt.Device.Device from modbus_mqtt.loader.DeviceOptions object
 
         Parameters:
         -----------
-            - sr_options: modbus_mqtt.loader.ServerOptions - options as read from config json
+            - sr_options: modbus_mqtt.loader.DeviceOptions - options as read from config json
             - clients: list[modbus_mqtt.client.Client] - list of all TCP/Serial clients connected to machine
         """
         name = opts.name
@@ -269,8 +263,11 @@ class Server(ABC):
             )  # TODO ugly
         except ValueError:
             raise ValueError(
-                f"Client {opts.connected_client} from server {name} config not defined in client list"
+                f"Client {opts.connected_client} from Device {name} config not defined in client list"
             )
         connected_client = clients[idx]
 
-        return cls(name, serial, modbus_id, connected_client)
+        instance = cls(name, modbus_id)
+        instance.serial = serial
+
+        return instance

@@ -3,7 +3,7 @@ from typing import Union
 
 
 @dataclass
-class ServerOptions:
+class DeviceOptions:
     """ Modbus Server Options as read from config json"""
     name: str
     serialnum: str
@@ -13,21 +13,21 @@ class ServerOptions:
 
 
 @dataclass
-class ClientOptions:
+class ModbusClientOptions:
     """ Modbus Client Options as read from config json"""
     name: str
     type: str
 
 
 @dataclass
-class ModbusTCPOptions(ClientOptions):
+class ModbusTCPOptions(ModbusClientOptions):
     host: str
     port: int
 
 
 @dataclass
-class ModbusRTUOptions(ClientOptions):
-    port: str
+class ModbusRTUOptions(ModbusClientOptions):
+    mount: str
     baudrate: int
     bytesize: int
     parity: bool
@@ -37,8 +37,8 @@ class ModbusRTUOptions(ClientOptions):
 @dataclass
 class Options:
     """ Concatenated options for reading specific format of all options from config json """
-    servers: list[ServerOptions]
-    clients: list[Union[ModbusRTUOptions, ModbusTCPOptions]]
+    devices: list[DeviceOptions]
+    modbus_clients: list[Union[ModbusRTUOptions, ModbusTCPOptions]]
 
     pause_interval_seconds: float
 

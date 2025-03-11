@@ -5,7 +5,7 @@ import logging
 import yaml
 from cattrs import structure, unstructure, Converter
 from .options import *
-from .implemented_servers import ServerTypes
+from .implemented_servers import DeviceTypes
 
 logger = logging.getLogger(__name__)
 
@@ -36,18 +36,18 @@ def validate_names(names: list) -> None:
 def validate_server_implemented(servers: list):
     """Validate that the specified server type is specified in implemented servers enum."""
     for server in servers:
-        if server.server_type not in [t.name for t in ServerTypes]:
+        if server.server_type not in [t.name for t in DeviceTypes]:
             raise ValueError(
                 f"Server type {server.server_type} not defined in implemented_servers.ServerTypes"
             )
 
 
 def validate_options(opts: Options) -> None:
-    client_names = [c.name for c in opts.clients]
-    server_names = [s.name for s in opts.servers]
+    client_names = [c.name for c in opts.modbus_clients]
+    server_names = [s.name for s in opts.devices]
     validate_names(client_names)
     validate_names(server_names)
-    validate_server_implemented(opts.servers)
+    validate_server_implemented(opts.devices)
 
 
 def read_json(json_rel_path):
