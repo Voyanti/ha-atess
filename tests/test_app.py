@@ -20,6 +20,8 @@ class TestApp(unittest.TestCase):
         self.app.setup()
         for s in self.app.devices:
             s.connect = lambda: None
+            s.find_register_extent()
+            s.create_batches()
         self.app.connect()
 
     def test_setup(self):

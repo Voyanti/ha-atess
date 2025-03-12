@@ -18,7 +18,7 @@ options:
   devices:
     - name: AtessPCS
       serialnum: USD0B4502B
-      server_type: ATESS_INVERTER
+      device_type: ATESS_INVERTER
       connected_client: client1
       modbus_id: 1
     - name: AtessPBD1
@@ -28,7 +28,7 @@ options:
       modbus_id: 2
     - name: AtessPBD2
       serialnum: UMD0C2806D
-      server_type: ATESS_INVERTER
+      device_type: ATESS_INVERTER
       connected_client: client1
       modbus_id: 3
   modbus_clients:
@@ -54,7 +54,7 @@ schema:
   devices:
     - name: str
       serialnum: str
-      server_type: list(ATESS_INVERTER)
+      device_type: list(ATESS_INVERTER)
       connected_client: str
       modbus_id: int(0,255)
       # PT: int?

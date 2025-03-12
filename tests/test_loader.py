@@ -15,7 +15,7 @@ class TestLoaders(unittest.TestCase):
             validate_names(["asdf", "asdf", "as"])
 
         with self.assertRaisesRegex(
-            ValueError, "Client names must be alphanumeric"
+            ValueError, "Client and Device names must be alphanumeric"
         ) as cm:
             validate_names(["A*"])
 
@@ -24,10 +24,8 @@ class TestLoaders(unittest.TestCase):
 
     # Loader
     def test_loader(self):
-        """
-        TODO Maybe not reading the specified path.."""
         self.assertIsInstance(load_options(
-            json_rel_path=self.yaml_path), Options)
+            json_rel_path=self.yaml_path), Options) # TODO Maybe not reading the specified path..
 
     # Load and Validate
     def test_load_validate(self):
@@ -37,10 +35,11 @@ class TestLoaders(unittest.TestCase):
             json_rel_path=self.yaml_path), Options)
 
     # Implemented Server Validator
-    def test_validate_server_implemented(self):
-        """
+    """
         Tests that the server name set in config.yaml/.json is implemented and defined in implemented_servers.py
-        Assumes load_options works"""
+        Assumes load_options works
+    """
+    def test_validate_server_implemented(self):
         try:
             OPTS = load_options(self.yaml_path)
             servers = OPTS.devices
