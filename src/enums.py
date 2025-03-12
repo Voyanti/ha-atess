@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Literal, Optional, Any, TypedDict
 
-from homeassistant import HADeviceClass
-from modbus_client import RegisterType
+from src.homeassistant import HADeviceClass, HAEntityType
+from src.modbus_client import RegisterType
 
 
 class DataType(Enum):

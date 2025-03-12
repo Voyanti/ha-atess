@@ -4,12 +4,12 @@ import atexit
 import logging
 from typing import Callable
 
-from .loader import load_validate_options
-from .options import Options
-from .modbus_client import ModbusClient, modbusClientFactory
-from .implemented_servers import DeviceTypes
-from .modbus_device import ModbusDevice
-from .mqtt_client import HAMqttClient
+from src.loader import load_validate_options
+from src.options import Options
+from src.modbus_client import ModbusClient, modbusClientFactory
+from src.implemented_servers import DeviceTypes
+from src.modbus_device import ModbusDevice
+from src.mqtt_client import HAMqttClient
 
 
 import sys
@@ -49,7 +49,7 @@ def instantiate_devices(
     OPTIONS: Options, clients: list[ModbusClient]
 ) -> list[ModbusDevice]:
     return [
-        DeviceTypes[sr.server_type].value.from_ServerOptions(sr, clients)
+        DeviceTypes[sr.device_type].value.from_DeviceOptions(sr, clients)
         for sr in OPTIONS.devices
     ]
 

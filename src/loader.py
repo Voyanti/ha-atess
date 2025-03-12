@@ -3,8 +3,8 @@ import os
 import logging
 import yaml
 from cattrs import structure, unstructure, Converter
-from .options import *
-from .implemented_servers import DeviceTypes
+from src.options import *
+from src.implemented_servers import DeviceTypes
 
 logger = logging.getLogger(__name__)
 
@@ -23,9 +23,9 @@ def validate_names(names: list) -> None:
 def validate_server_implemented(devices: list):
     """Validate that the specified server type is specified in implemented device enum."""
     for device in devices:
-        if device.server_type not in [t.name for t in DeviceTypes]:
+        if device.device_type not in [t.name for t in DeviceTypes]:
             raise ValueError(
-                f"Server type {device.server_type} not defined in implemented_servers.ServerTypes"
+                f"Device type {device.device_type} not defined in implemented_servers.ServerTypes"
             )
 
 

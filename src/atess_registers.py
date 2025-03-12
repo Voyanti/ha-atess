@@ -1,5 +1,6 @@
-from .enums import DataType, HADeviceClass, HAEntityType, Parameter, RegisterTypes, WriteParameter, WriteSelectParameter
-
+from src.enums import DataType, HADeviceClass, Parameter, WriteParameter, WriteSelectParameter
+from src.homeassistant import HAEntityType
+from src.modbus_client import RegisterType
 not_PCS_parameters: dict[str, Parameter]  = {
     # All except PCS
     "PV1 Voltage": {
@@ -9,7 +10,7 @@ not_PCS_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV1 DC Current": {
         "addr": 3 + 1,
@@ -18,7 +19,7 @@ not_PCS_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV1 Power": {
         "addr": 51 + 1,
@@ -27,7 +28,7 @@ not_PCS_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "kW",
         "device_class": HADeviceClass.POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV Daily Power Generation": {
         "addr": 62 + 1,
@@ -36,7 +37,7 @@ not_PCS_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "kWh",
         "device_class": HADeviceClass.ENERGY,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
         "state_class": "total_increasing"
     },
     "Total PV Generation" : {
@@ -46,7 +47,7 @@ not_PCS_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "kWh",
         "device_class": HADeviceClass.ENERGY,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
         "state_class": "total_increasing"
     },
 }
@@ -61,16 +62,16 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": HADeviceClass.ENUM,
         "multiplier": 1,
         "unit": "",
-        "register_type": RegisterTypes.HOLDING_REGISTER,
+        "register_type": RegisterType.HOLDING_REGISTER,
     },  # TODO count 5? p30
     # "Software Version": {
     #     "addr": 280 + 1,
     #     "count": 20,
     #     "dtype": DataType.UTF8,
-    #     "device_class": DeviceClass.ENUM,
+    #     "device_class": HADeviceClass.ENUM,
     #     "multiplier": 1,
     #     "unit": "",
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     "Device Type Code": {
         "addr": 43 + 1,
@@ -79,7 +80,7 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": HADeviceClass.ENUM,
         "multiplier": 1,
         "unit": "",
-        "register_type": RegisterTypes.HOLDING_REGISTER,
+        "register_type": RegisterType.HOLDING_REGISTER,
     }, 
     # On/Off State
     "Device On/Off": {
@@ -89,7 +90,7 @@ atess_parameters: dict[str, Parameter] = {
         "multiplier": 1,
         "unit": "",
         "device_class": HADeviceClass.ENUM,
-        "register_type": RegisterTypes.HOLDING_REGISTER,
+        "register_type": RegisterType.HOLDING_REGISTER,
     },
     # Voltage and Current Measurements
     "PV Voltage": { # 0 on PCS
@@ -99,7 +100,7 @@ atess_parameters: dict[str, Parameter] = {
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.HOLDING_REGISTER,
+        "register_type": RegisterType.HOLDING_REGISTER,
     },
     "PV Current": { # constant on PCS500
         "addr": 83 + 1,
@@ -108,7 +109,7 @@ atess_parameters: dict[str, Parameter] = {
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.HOLDING_REGISTER,
+        "register_type": RegisterType.HOLDING_REGISTER,
     },
     "Battery Power": { # checked
         "addr": 17 + 1,
@@ -117,7 +118,7 @@ atess_parameters: dict[str, Parameter] = {
         "multiplier": 0.1,
         "unit": "kW",
         "device_class": HADeviceClass.POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Battery SOC": { # checked
         "addr": 47 + 1,
@@ -126,7 +127,7 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": HADeviceClass.BATTERY,
         "multiplier": 1,
         "unit": "%",
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
         "state_class": "measurement"
     },
     # Input registers
@@ -137,7 +138,7 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": HADeviceClass.ENUM,
         "multiplier": 1,
         "unit": "",
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Battery Voltage": { # checked
         "addr": 1 + 1,
@@ -146,7 +147,7 @@ atess_parameters: dict[str, Parameter] = {
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Battery Current": { # checked
         "addr": 2 + 1,
@@ -155,7 +156,7 @@ atess_parameters: dict[str, Parameter] = {
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     ###############################
     "Ambient temperature": {
@@ -165,7 +166,7 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": HADeviceClass.TEMPERATURE,
         "multiplier": 0.1,
         "unit": "°C",
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     # stored as two signed 8 bit ints inside a 16 bit register:
     "BMS Max. Temperature": {
@@ -175,7 +176,7 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": HADeviceClass.TEMPERATURE,
         "multiplier": 1,
         "unit": "°C",
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "BMS Min. Temperature": {
         "addr": 171 + 1,
@@ -184,7 +185,7 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": HADeviceClass.TEMPERATURE,
         "multiplier": 1,
         "unit": "°C",
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "BMS Max. Cell Voltage": { # checked
         "addr": 174 + 1,
@@ -193,7 +194,7 @@ atess_parameters: dict[str, Parameter] = {
         "multiplier": 1,
         "unit": "mV",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "BMS Min. Cell Voltage": { # checked
         "addr": 175 + 1,
@@ -202,7 +203,7 @@ atess_parameters: dict[str, Parameter] = {
         "multiplier": 1,
         "unit": "mV",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Total Battery Discharge Energy": { # checked
         "addr": 68 + 1,
@@ -211,7 +212,7 @@ atess_parameters: dict[str, Parameter] = {
         "multiplier": 0.1,
         "unit": "kWh",
         "device_class": HADeviceClass.ENERGY,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
         "state_class": "total_increasing",
     },
     "Total Battery Charge Energy": { # checked
@@ -221,7 +222,7 @@ atess_parameters: dict[str, Parameter] = {
         "multiplier": 0.1,
         "unit": "kWh",
         "device_class": HADeviceClass.ENERGY,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
         "state_class": "total_increasing",
     },
 }
@@ -235,7 +236,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": HADeviceClass.CURRENT,
         "multiplier": 0.1,
         "unit": "A",
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "System battery power": {
         "addr": 228 + 1,
@@ -244,7 +245,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": HADeviceClass.POWER,
         "multiplier": 0.1,
         "unit": "kW",
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Transformer temperature": {
         "addr": 35 + 1,
@@ -253,7 +254,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": HADeviceClass.TEMPERATURE,
         "multiplier": 0.1,
         "unit": "°C",
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Frequency Shift Enable": {
         "addr": 79 + 1,
@@ -262,7 +263,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": HADeviceClass.ENUM,
         "multiplier": 1,
         "unit": "",
-        "register_type": RegisterTypes.HOLDING_REGISTER,
+        "register_type": RegisterType.HOLDING_REGISTER,
     },  # 0: false, 1 = mode1, 2= mode2
     "Power factor symbol": {
         "addr": 22 + 1,
@@ -271,7 +272,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 1,
         "unit": "",
         "device_class": HADeviceClass.ENUM,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Power factor": {
         "addr": 23 + 1,
@@ -280,7 +281,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.001,
         "unit": "",
         "device_class": HADeviceClass.ENUM,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Charge Cutoff SOC": {
         "addr": 178 + 1,
@@ -289,7 +290,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": HADeviceClass.BATTERY,
         "multiplier": 1,
         "unit": "%",
-        "register_type": RegisterTypes.HOLDING_REGISTER,
+        "register_type": RegisterType.HOLDING_REGISTER,
         # "min": 0,
         # "max": 100,
     },
@@ -301,7 +302,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Voltage VW": {
         "addr": 5 + 1,
@@ -310,7 +311,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Voltage WU": {
         "addr": 6 + 1,
@@ -319,7 +320,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Bypass Current U": {
         "addr": 7 + 1,
@@ -328,7 +329,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Bypass Current V": {
         "addr": 8 + 1,
@@ -337,7 +338,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Bypass Current W": {
         "addr": 9 + 1,
@@ -346,7 +347,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Inductance Current A": {
         "addr": 10 + 1,
@@ -355,7 +356,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Inductance Current B": {
         "addr": 11 + 1,
@@ -364,7 +365,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Inductance Current C": {
         "addr": 12 + 1,
@@ -373,7 +374,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
 
     "Grid Bypass Voltage UV": {
@@ -383,7 +384,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Grid Bypass Voltage VW": {
         "addr": 14 + 1,
@@ -392,7 +393,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Grid Bypass Voltage WU": {
         "addr": 15 + 1,
@@ -401,7 +402,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
 
     "Bypass Frequency": {
@@ -411,7 +412,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.01,
         "unit" : "Hz",
         "device_class": HADeviceClass.FREQUENCY,
-        "register_type": RegisterTypes.INPUT_REGISTER
+        "register_type": RegisterType.INPUT_REGISTER
     },
 
 
@@ -422,7 +423,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.01,
         "unit": "Hz",
         "device_class": HADeviceClass.FREQUENCY,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Bypass Apparent Power": { # fout
         "addr": 18 + 1,
@@ -431,7 +432,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "",
         "device_class": HADeviceClass.APPARENT_POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Bypass Active Power": { # fout
         "addr": 19 + 1,
@@ -440,7 +441,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "kW",
         "device_class": HADeviceClass.POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
         "state_class": "measurement"
     },
     "Bypass Reactive Power": { # fout
@@ -450,7 +451,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "",
         "device_class": HADeviceClass.REACTIVE_POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Grid Frequency": {
         "addr": 21 + 1,
@@ -459,7 +460,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.01,
         "unit": "Hz",
         "device_class": HADeviceClass.FREQUENCY,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Grid State": {
         "addr": 28 + 1,
@@ -468,7 +469,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 1,
         "unit": "",
         "device_class": HADeviceClass.ENUM,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
         "remarks": "0: abnormal, 1: normal"
     },
     "Output Apparent Power": {
@@ -478,7 +479,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "",
         "device_class": HADeviceClass.APPARENT_POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Active Power": {
         "addr": 79 + 1,
@@ -487,7 +488,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "kW",
         "device_class": HADeviceClass.POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Reactive Power": {
         "addr": 80 + 1,
@@ -496,7 +497,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "",
         "device_class": HADeviceClass.REACTIVE_POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Daily Power Consumption": { # fout
         "addr": 82 + 1,
@@ -505,7 +506,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "kWh",
         "device_class": HADeviceClass.ENERGY,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Daily Power From Grid": { # checked
         "addr": 88 + 1,
@@ -514,7 +515,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "kWh",
         "device_class": HADeviceClass.ENERGY,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Daily Power To Grid": { # checked
         "addr": 94 + 1,
@@ -523,7 +524,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "kWh",
         "device_class": HADeviceClass.ENERGY,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Current U": { # checked TODO load vs output current
         "addr": 135 + 1,
@@ -532,7 +533,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Current V": { # checked
         "addr": 136 + 1,
@@ -541,7 +542,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Current W": { # checked
         "addr": 137 + 1,
@@ -550,7 +551,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     # HPS/PCS/HPSTL model registers
     "Load Apparent Power": {
@@ -560,7 +561,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "",
         "device_class": HADeviceClass.APPARENT_POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Load Active Power": {
         "addr": 49 + 1,
@@ -569,7 +570,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "kW",
         "device_class": HADeviceClass.POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Load Reactive Power": {
         "addr": 50 + 1,
@@ -578,7 +579,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "",
         "device_class": HADeviceClass.REACTIVE_POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Load Power Factor": {
         "addr": 52 + 1,
@@ -587,7 +588,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.001,
         "unit": "",
         "device_class": HADeviceClass.POWER_FACTOR,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Load Current U": { # load current u on inverter disp
         "addr": 53 + 1,
@@ -596,7 +597,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Load Current V": {# load current v on inverter disp
         "addr": 54 + 1,
@@ -605,7 +606,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Load Current W": {# load current w on inverter disp
         "addr": 55 + 1,
@@ -614,7 +615,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Voltage U": {
         "addr": 56 + 1,
@@ -623,7 +624,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Voltage V": {
         "addr": 57 + 1,
@@ -632,7 +633,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Voltage W": {
         "addr": 58 + 1,
@@ -641,7 +642,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Total Grid Import" : {
         "addr": 90 + 1,
@@ -650,7 +651,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "kWh",
         "device_class": HADeviceClass.ENERGY,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
         "state_class": "total"
     },
     "Total Grid Export" : {
@@ -660,7 +661,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "kWh",
         "device_class": HADeviceClass.ENERGY,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
         "state_class": "total"
     },
     "Total Load Energy": {
@@ -670,7 +671,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "multiplier": 0.1,
         "unit": "kWh",
         "device_class": HADeviceClass.ENERGY,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
         "state_class": "total"
     },
     "BMS Battery Status": {
@@ -679,8 +680,8 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "dtype": DataType.I8H,
         "multiplier": 1,
         "unit": "",
-        "device_class": DeviceClass.ENUM,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "device_class": HADeviceClass.ENUM,
+        "register_type": RegisterType.INPUT_REGISTER,
         "value_template": """
                             {% set states = {
                             '0': 'Hold',
@@ -699,8 +700,8 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "dtype": DataType.I8L,
         "multiplier": 1,
         "unit": "",
-        "device_class": DeviceClass.ENUM,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "device_class": HADeviceClass.ENUM,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Running State": {
         "addr": 180 + 1,
@@ -708,8 +709,8 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "dtype": DataType.U16,
         "multiplier": 1,
         "unit": "",
-        "device_class": DeviceClass.ENUM,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "device_class": HADeviceClass.ENUM,
+        "register_type": RegisterType.INPUT_REGISTER,
         "value_template": """
                         {% set states = {
                         '0': 'Waiting',
@@ -739,7 +740,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV2 DC Current": {
         "addr": 106 + 1,
@@ -748,7 +749,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV2 Power": {
         "addr": 107 + 1,
@@ -757,7 +758,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "kW",
         "device_class": HADeviceClass.POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV Total Power": {
         "addr": 108 + 1,
@@ -766,7 +767,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "kW",
         "device_class": HADeviceClass.POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Voltage": {
         "addr": 109 + 1,
@@ -775,7 +776,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Current": {
         "addr": 110 + 1,
@@ -784,7 +785,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "Output Power": {
         "addr": 113 + 1,
@@ -793,7 +794,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "kW",
         "device_class": HADeviceClass.POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV Module Temperature": { # 0 on PCS
         "addr": 114 + 1,
@@ -802,7 +803,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "°C",
         "device_class": HADeviceClass.TEMPERATURE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV3 Voltage": {
         "addr": 123 + 1,
@@ -811,7 +812,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV4 Voltage": {
         "addr": 124 + 1,
@@ -820,7 +821,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV5 Voltage": {
         "addr": 125 + 1,
@@ -829,7 +830,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "V",
         "device_class": HADeviceClass.VOLTAGE,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV3 DC Current": {
         "addr": 126 + 1,
@@ -838,7 +839,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV4 DC Current": {
         "addr": 127 + 1,
@@ -847,7 +848,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV5 DC Current": {
         "addr": 128 + 1,
@@ -856,7 +857,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "A",
         "device_class": HADeviceClass.CURRENT,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV3 Power": {
         "addr": 132 + 1,
@@ -865,7 +866,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "kW",
         "device_class": HADeviceClass.POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV4 Power": {
         "addr": 133 + 1,
@@ -874,7 +875,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "kW",
         "device_class": HADeviceClass.POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
     "PV5 Power": {
         "addr": 134 + 1,
@@ -883,7 +884,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "multiplier": 0.1,
         "unit": "kW",
         "device_class": HADeviceClass.POWER,
-        "register_type": RegisterTypes.INPUT_REGISTER,
+        "register_type": RegisterType.INPUT_REGISTER,
     },
 }
 
@@ -943,7 +944,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.SELECT,
         options=["Load First", "Battery First", "Economy Mode", "Peak Shaving", "Time Schedule", "Manual Dispatch", "Battery Protect", "Backup Power Management", "Constant Power Discharge", "Forced Charging", "Smart Meter Mode", "Bat-Smart Meter"],
         value_template = "{% set options = [\"Load First\", \"Battery First\", \"Economy Mode\", \"Peak Shaving\", \"Time Schedule\", \"Manual Dispatch\", \"Battery Protect\", \"Backup Power Management\", \"Constant Power Discharge\", \"Forced Charging\", \"Smart Meter Mode\", \"Bat-Smart Meter\"] %}{% if value|int >= 0 and value|int < options|length %}{{ options[value|int] }}{% else %}{{ value }}{% endif %}",
@@ -954,7 +955,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.SWITCH,
         payload_off = 0,
         payload_on = 1,
@@ -964,7 +965,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.SWITCH,
         payload_off = 0,
         payload_on = 1,
@@ -976,7 +977,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         min = 0,
         max = 100,
@@ -987,7 +988,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         min = 0,
         max = 100,
@@ -998,7 +999,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         min = 0,
         max = 100,
@@ -1009,7 +1010,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         min = 0,
         max = 1000,
@@ -1020,7 +1021,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         min = 0,
         max = 1000,
@@ -1031,7 +1032,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         min = 0,
         max = 10,
@@ -1043,7 +1044,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         min = 0,
         max = 100,
@@ -1054,7 +1055,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         min = 0,
         max = 100,
@@ -1065,7 +1066,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         min = 0,
         max = 100,
@@ -1076,7 +1077,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         min = 0,
         max = 150,
@@ -1088,7 +1089,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.SWITCH,
         payload_off = 0,
         payload_on = 1,
@@ -1098,7 +1099,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         min = 0,
         max = 150, # TODO
@@ -1109,7 +1110,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.SWITCH,
         payload_off = 0,
         payload_on = 1,
@@ -1119,7 +1120,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.SWITCH,
         payload_off = 0,
         payload_on = 1,
@@ -1129,7 +1130,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
     #     count = 1,
     #     dtype = DataType.U16,
     #     multiplier = 1,
-    #     register_type = RegisterTypes.HOLDING_REGISTER,
+    #     register_type = RegisterType.HOLDING_REGISTER,
     #     ha_entity_type = HAEntityType.NUMBER,
     #     unit="kW",
     #     min = 0,
@@ -1140,7 +1141,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         unit="%",
         min = 0,
@@ -1151,7 +1152,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
     #     count = 1,
     #     dtype = DataType.U16,
     #     multiplier = 1,
-    #     register_type = RegisterTypes.HOLDING_REGISTER,
+    #     register_type = RegisterType.HOLDING_REGISTER,
     #     ha_entity_type = HAEntityType.NUMBER,
     #     unit="kW",
     #     min = 0,
@@ -1162,7 +1163,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         unit="kW",
         min = 0,
@@ -1173,7 +1174,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
     #     count = 1,
     #     dtype = DataType.U16,
     #     multiplier = 1,
-    #     register_type = RegisterTypes.HOLDING_REGISTER,
+    #     register_type = RegisterType.HOLDING_REGISTER,
     #     ha_entity_type = HAEntityType.NUMBER,
     #     unit="kW",
     #     min = 0,
@@ -1184,7 +1185,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         count = 1,
         dtype = DataType.U16,
         multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
+        register_type = RegisterType.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.NUMBER,
         unit="A",
         min = 0,
@@ -1195,7 +1196,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
     #     count = 1,
     #     dtype = DataType.U16,
     #     multiplier = 1,
-    #     register_type = RegisterTypes.HOLDING_REGISTER,
+    #     register_type = RegisterType.HOLDING_REGISTER,
     #     ha_entity_type = HAEntityType.NUMBER,
     #     unit="A",
     #     min = 0,
@@ -1205,10 +1206,10 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
     #     "addr": 154 + 1,
     #     "count": 1,
     #     "dtype": DataType.U16,
-    #     "device_class": DeviceClass.CURRENT,
+    #     "device_class": HADeviceClass.CURRENT,
     #     "multiplier": 0.1,
     #     "unit": "A",
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     #     "min": 0,
     #     "max": 10000,
     # },
@@ -1223,8 +1224,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "V",
-    #     "device_class": DeviceClass.VOLTAGE,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.VOLTAGE,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # "Battery Voltage Calibration": {
     #     "addr": 81 + 1,
@@ -1232,8 +1233,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.I16,
     #     "multiplier": 0.1,
     #     "unit": "V",
-    #     "device_class": DeviceClass.VOLTAGE,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.VOLTAGE,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # "Battery Current Calibration": {
     #     "addr": 82 + 1,
@@ -1241,8 +1242,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.I16,
     #     "multiplier": 0.1,
     #     "unit": "A",
-    #     "device_class": DeviceClass.CURRENT,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.CURRENT,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # "PV Current Calibration": {
     #     "addr": 83 + 1,
@@ -1250,8 +1251,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "A",
-    #     "device_class": DeviceClass.CURRENT,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.CURRENT,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # Output Voltages
     # "Output Voltage U Calibration": {
@@ -1260,8 +1261,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "V",
-    #     "device_class": DeviceClass.VOLTAGE,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.VOLTAGE,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # "Output Voltage V Calibration": {
     #     "addr": 85 + 1,
@@ -1269,8 +1270,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "V",
-    #     "device_class": DeviceClass.VOLTAGE,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.VOLTAGE,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # "Output Voltage W Calibration": {
     #     "addr": 86 + 1,
@@ -1278,8 +1279,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "V",
-    #     "device_class": DeviceClass.VOLTAGE,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.VOLTAGE,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # Grid Currents
     # "Grid Current U Calibration": {
@@ -1288,8 +1289,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "A",
-    #     "device_class": DeviceClass.CURRENT,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.CURRENT,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # "Grid Current V Calibration": {
     #     "addr": 88 + 1,
@@ -1297,8 +1298,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "A",
-    #     "device_class": DeviceClass.CURRENT,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.CURRENT,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # "Grid Current W Calibration": {
     #     "addr": 89 + 1,
@@ -1306,8 +1307,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "A",
-    #     "device_class": DeviceClass.CURRENT,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.CURRENT,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # Grid Voltages
     # "Grid Voltage UV Calibration": {
@@ -1316,8 +1317,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "V",
-    #     "device_class": DeviceClass.VOLTAGE,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.VOLTAGE,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # "Grid Voltage VW Calibration": {
     #     "addr": 91 + 1,
@@ -1325,8 +1326,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "V",
-    #     "device_class": DeviceClass.VOLTAGE,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.VOLTAGE,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # "Grid Voltage WU Calibration": {
     #     "addr": 92 + 1,
@@ -1334,8 +1335,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "V",
-    #     "device_class": DeviceClass.VOLTAGE,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.VOLTAGE,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # Load Currents
     # "Load Current U Calibration": {
@@ -1344,8 +1345,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "A",
-    #     "device_class": DeviceClass.CURRENT,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.CURRENT,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # "Load Current V Calibration": {
     #     "addr": 94 + 1,
@@ -1353,8 +1354,8 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "A",
-    #     "device_class": DeviceClass.CURRENT,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.CURRENT,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
     # "Load Current W Calibration": {
     #     "addr": 95 + 1,
@@ -1362,15 +1363,15 @@ deprecated: dict[str, Parameter]= {
     #     "dtype": DataType.U16,
     #     "multiplier": 0.1,
     #     "unit": "A",
-    #     "device_class": DeviceClass.CURRENT,
-    #     "register_type": RegisterTypes.HOLDING_REGISTER,
+    #     "device_class": HADeviceClass.CURRENT,
+    #     "register_type": RegisterType.HOLDING_REGISTER,
     # },
 }
 
 if __name__ == "__main__":
     def create_batches(parameters: dict[str, Parameter | WriteParameter | WriteSelectParameter]):
-        holding_params = [(k, v) for k, v in parameters.items() if v["register_type"] == RegisterTypes.HOLDING_REGISTER]
-        input_params = [(k, v) for k, v in parameters.items() if v["register_type"] == RegisterTypes.INPUT_REGISTER]
+        holding_params = [(k, v) for k, v in parameters.items() if v["register_type"] == RegisterType.HOLDING_REGISTER]
+        input_params = [(k, v) for k, v in parameters.items() if v["register_type"] == RegisterType.INPUT_REGISTER]
 
         for params in (holding_params, input_params):
             params = sorted(params, key=lambda x: x[1]["addr"])

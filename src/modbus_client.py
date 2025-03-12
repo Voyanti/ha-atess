@@ -1,11 +1,11 @@
 from enum import Enum
 from typing import Optional
-from .options import ModbusTCPOptions, ModbusRTUOptions
+from src.options import ModbusTCPOptions, ModbusRTUOptions
 from pymodbus.client import ModbusSerialClient, ModbusTcpClient
 from pymodbus.pdu import ExceptionResponse, ModbusPDU
 from pymodbus.exceptions import ModbusIOException
 import logging
-from .options import ModbusTCPOptions, ModbusRTUOptions
+from src.options import ModbusTCPOptions, ModbusRTUOptions
 from time import sleep
 logger = logging.getLogger(__name__)
 

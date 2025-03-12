@@ -1,9 +1,9 @@
 from typing import final, Literal
-from .modbus_device import ModbusDevice
+from src.modbus_device import ModbusDevice
 import struct
 import logging
-from .enums import DataType
-from .atess_registers import atess_parameters, PBD_parameters, PCS_parameters, not_PCS_parameters, model_code_to_name, atess_write_parameters
+from src.enums import DataType
+from src.atess_registers import atess_parameters, PBD_parameters, PCS_parameters, not_PCS_parameters, model_code_to_name, atess_write_parameters
 from pymodbus.client import ModbusSerialClient
 
 logger = logging.getLogger(__name__)
@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 class AtessInverter(ModbusDevice):
     # RS485 address is 1-32
     # adresses seem to be 0-indexed so +1
-    def __init__(self, name, serial, modbus_id, connected_client):
-        super().__init__(name, serial, modbus_id, connected_client)
+    def __init__(self, name, modbus_id):
+        super().__init__(name, modbus_id)
 
         self._manufacturer = "Atess"
         self._supported_models = ('PCS150', 'PCS500', 'PBD250') 

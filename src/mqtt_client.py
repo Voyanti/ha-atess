@@ -3,12 +3,12 @@ from paho.mqtt.enums import CallbackAPIVersion, MQTTErrorCode
 import json
 import logging
 
-from .helpers import generate_uuid, slugify
-from .loader import Options
+from src.helpers import generate_uuid, slugify
+from src.loader import Options
 
 from time import sleep
 
-from .enums import HAEntityType
+from src.homeassistant import HAEntityType
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +82,7 @@ class HAMqttClient():
             register_slug, value, server)
 
     def publish_discovery_topics(self, server) -> None:
-        while not self.is_connected():
+        while not self.client.is_connected():
             logger.info(
                 f"Not connected to mqtt broker yet, sleep 100ms and retry. Before publishing discovery topics.")
             sleep(0.1)
@@ -129,7 +129,7 @@ class HAMqttClient():
                 discovery_payload['state_class'] = state_class
             discovery_topic = f"{self.ha_discovery_topic}/sensor/{nickname}/{slugify(register_name)}/config"
 
-            self.publish(discovery_topic, json.dumps(
+            self.client.publish(discovery_topic, json.dumps(
                 discovery_payload), retain=True)
 
         self.publish_availability(True, server)
@@ -161,10 +161,10 @@ class HAMqttClient():
                 discovery_payload.update(payload_off=details["payload_off"], payload_on=details["payload_on"])
 
             discovery_topic = f"{self.ha_discovery_topic}/{details['ha_entity_type'].value}/{nickname}/{slugify(register_name)}/config"
-            self.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
+            self.client.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
 
             # subscribe to write topics
-            self.subscribe(discovery_payload["command_topic"])
+            self.client.subscribe(discovery_payload["command_topic"])
 
     def publish_to_ha(self, register_name, value, server):
         nickname = server.name
@@ -174,5 +174,5 @@ class HAMqttClient():
     def publish_availability(self, avail, server):
         nickname = server.name
         availability_topic = f"{self.base_topic}_{nickname}/availability"
-        self.publish(availability_topic,
+        self.client.publish(availability_topic,
                      "online" if avail else "offline", retain=True)
