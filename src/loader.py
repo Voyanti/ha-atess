@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import json
 import os
 import logging
@@ -9,22 +8,10 @@ from .implemented_servers import DeviceTypes
 
 logger = logging.getLogger(__name__)
 
-"""
-    Validation:
-    schema already validates most types and required fields
-    x at least one server, client, mqtt configuration is required
-
-    requires validation:
-    x unique ha_display_name
-    - connected client exists done in server constructer at the moment
-    x case connection type TCP: specs(name, host, port)
-    x case connection type RTU: specs(name, baudrate: int, bytesize: int, parity: bool, stopbits: int
-"""
-
 
 def validate_names(names: list) -> None:
     """
-    Verify unique alphanumeric names for clients and servers of options. Used as unique identifiers.
+    Verify unique alphanumeric names for clients and devices of options. Used as unique identifiers.
     """
     if len(set(names)) != len(names):
         raise ValueError(f"Device/ Client names must be unique")
@@ -33,12 +20,12 @@ def validate_names(names: list) -> None:
         raise ValueError(f"Client and Device names must be alphanumeric")
 
 
-def validate_server_implemented(servers: list):
-    """Validate that the specified server type is specified in implemented servers enum."""
-    for server in servers:
-        if server.server_type not in [t.name for t in DeviceTypes]:
+def validate_server_implemented(devices: list):
+    """Validate that the specified server type is specified in implemented device enum."""
+    for device in devices:
+        if device.server_type not in [t.name for t in DeviceTypes]:
             raise ValueError(
-                f"Server type {server.server_type} not defined in implemented_servers.ServerTypes"
+                f"Server type {device.server_type} not defined in implemented_servers.ServerTypes"
             )
 
 
@@ -63,7 +50,7 @@ def read_yaml(json_rel_path):
 
 
 def load_options(json_rel_path="/data/options.json") -> Options:
-    """Load server, client configurations and connection specs as dicts from options json."""
+    """Load device & client configurations and connection specs as dicts from options json."""
     converter = Converter()
 
     logger.info(
@@ -78,8 +65,7 @@ def load_options(json_rel_path="/data/options.json") -> Options:
         elif json_rel_path[-4:] == "yaml":
             data = read_yaml(json_rel_path)
     else:
-        logger.info("ConfigLoader error")
-        logger.info(os.path.join(os.getcwd(), json_rel_path))
+        logger.info("Error loading configuration at{os.path.join(os.getcwd(), json_rel_path)}")
         raise FileNotFoundError(
             f"Config options json/yaml not found at {os.path.join(os.getcwd(), json_rel_path)}")
 

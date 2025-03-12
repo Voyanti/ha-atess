@@ -15,7 +15,7 @@ arch:
   - armv7
   - i386
 options:
-  servers:
+  devices:
     - name: AtessPCS
       serialnum: USD0B4502B
       server_type: ATESS_INVERTER
@@ -23,7 +23,7 @@ options:
       modbus_id: 1
     - name: AtessPBD1
       serialnum: UMD0C37086
-      server_type: ATESS_INVERTER
+      device_type: ATESS_INVERTER
       connected_client: client1
       modbus_id: 2
     - name: AtessPBD2
@@ -31,7 +31,7 @@ options:
       server_type: ATESS_INVERTER
       connected_client: client1
       modbus_id: 3
-  clients:
+  modbus_clients:
     - name: client1
       type: RTU
       mount: /dev/ttyACM0
@@ -51,7 +51,7 @@ options:
   mwtt_ha_discovery_topic: homeassistant
   mqtt_base_topic: modbus
 schema:
-  servers:
+  devices:
     - name: str
       serialnum: str
       server_type: list(ATESS_INVERTER)
@@ -59,7 +59,7 @@ schema:
       modbus_id: int(0,255)
       # PT: int?
       # CT: int?
-  clients:
+  modbus_clients:
     - name: str
       type: list(TCP|RTU)
       host: str?
