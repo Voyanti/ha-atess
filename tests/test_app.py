@@ -1,6 +1,6 @@
 import unittest
 import src.app as app
-from src.client import SpoofClient
+from modbus_client import SpoofClient
 import logging
 logging.disable(logging.CRITICAL)
 
@@ -12,13 +12,13 @@ class TestApp(unittest.TestCase):
             return [SpoofClient()]
 
         self.app = app.App(
-            client_instantiator_callback=instantiate_spoof_clients,
-            server_instantiator_callback=app.instantiate_servers,
+            modbus_client_setup=instantiate_spoof_clients,
+            modbus_device_setup=app.instantiate_devices,
             options_rel_path="config.yaml"
         )
 
         self.app.setup()
-        for s in self.app.servers:
+        for s in self.app.devices:
             s.connect = lambda: None
         self.app.connect()
 

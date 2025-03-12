@@ -7,7 +7,7 @@ class DeviceOptions:
     """ Modbus Server Options as read from config json"""
     name: str
     serialnum: str
-    server_type: str
+    device_type: str
     connected_client: str
     modbus_id: int
 
