@@ -82,7 +82,7 @@ class AtessInverter(ModbusDevice):
                 self._parameters.update(PBD_parameters)
                 logger.info("Added PBD-Specific Registers.")
 
-    def _decoded(cls, registers, dtype):
+    def decode_registers(cls, registers, dtype):
         def _decode_i8(registers, low_or_high=Literal["low", "high"]):
             """ Unsigned 32-bit big-endian to int """
             if low_or_high == "low":

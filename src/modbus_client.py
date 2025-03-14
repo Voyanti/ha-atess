@@ -1,23 +1,16 @@
-from enum import Enum
 from typing import Optional
+from src.modbus_types import RegisterType
 from src.options import ModbusTCPOptions, ModbusRTUOptions
 from pymodbus.client import ModbusSerialClient, ModbusTcpClient
 from pymodbus.pdu import ExceptionResponse, ModbusPDU
 from pymodbus.exceptions import ModbusIOException
 import logging
-from src.options import ModbusTCPOptions, ModbusRTUOptions
 from time import sleep
 logger = logging.getLogger(__name__)
 
 # Enable pymodbus logging
 # log = logging.getLogger("pymodbus")
 # log.setLevel(logging.DEBUG)
-
-class RegisterType(Enum):
-    INPUT_REGISTER = 3  # Read Only
-    HOLDING_REGISTER = 4  # Read/ Write
-
-
 
 class ModbusClient:
     """
@@ -41,6 +34,8 @@ class ModbusClient:
         Calls the appropriate read function, based on the register type (input / holding).
 
         On ModbusIOException: wait 20s and retry
+
+        checks for Error states and handles them using self._check_error_response(response)
 
         Args:
             address (int): 1-indexed modbus register address
@@ -79,6 +74,7 @@ class ModbusClient:
                 logger.info(f"Sleep 20s and retry")
                 sleep(20)
 
+        self._check_error_response(result)
         return result
     
     def write(self, values: list[int], address: int, slave_id: int, register_type: RegisterType) -> ModbusPDU:
@@ -126,7 +122,10 @@ class ModbusClient:
         logger.info(f"Closing connection to {self}")
         self.client.close()
 
-    def _handle_error_response(self, result):
+    def _check_error_response(self, result: ModbusPDU):
+        if not result.isError():
+            return          
+
         if isinstance(result, ExceptionResponse):
             exception_code = result.exception_code
 
@@ -151,6 +150,8 @@ class ModbusClient:
         else:
             logger.error(
                 f"Non Standard Modbus Exception. Cannot Decode Response")
+            
+        raise Exception(f"Error modbus device {result=}")
 
 def modbusClientFactory(modbus_client_options: ModbusTCPOptions | ModbusRTUOptions) -> ModbusClient:
     client: ModbusSerialClient | ModbusTcpClient
@@ -164,7 +165,7 @@ def modbusClientFactory(modbus_client_options: ModbusTCPOptions | ModbusRTUOptio
                                             stopbits=modbus_client_options.stopbits)
     return ModbusClient(modbus_client_options.name, client)
 
-class SpoofClient:
+class SpoofClient(ModbusClient): # TODO
     """
         Spoofed Modbus client representation: name, nickname (ha_display_name), and pymodbus client.
 

@@ -2,9 +2,16 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Literal, Optional, Any, TypedDict
 
-from src.homeassistant import HADeviceClass, HAEntityType
-from src.modbus_client import RegisterType
 
+Unit = Literal[
+    "V", "mV", "A", "VA", "kW", "W", "var", "kWh", "°C", "Hz", "kVA", "kVar"
+]
+
+class Parameter:
+    def __init__(self, name: str, value: Any, unit: Optional[Unit]) -> None:
+        self.name = name
+        self.value = value # None if uninitialised
+        self.unit = unit
 
 class DataType(Enum):
     """
@@ -88,67 +95,36 @@ class DataType(Enum):
 
 
 # all parameters are required to have these fields
-@dataclass
-class ModbusParameter:
-    addr: int
-    count: int
-    dtype: DataType
-    register_type: RegisterType
-    multiplier: int = 1
-    unit: Optional[str] = None
+# @dataclass
+# class ModbusParameter:
+#     addr: int
+#     count: int
+#     dtype: DataType
+#     register_type: RegisterType
+#     multiplier: int = 1
+#     unit: Optional[str] = None
 
 
-ParameterReq = TypedDict(
-    "ParameterReq",
-    {
-        "addr": int,
-        "count": int,
-        "dtype": DataType,
-        "multiplier": float,
-        "unit": str,
-        "device_class": HADeviceClass,
-        "register_type": RegisterType,
-    },
-)
+# ParameterReq = TypedDict(
+#     "ParameterReq",
+#     {
+#         "addr": int,
+#         "count": int,
+#         "dtype": DataType,
+#         "multiplier": float,
+#         "unit": str,
+#         "device_class": HADeviceClass,
+#         "register_type": RegisterType,
+#     },
+# )
 
-# inherit required parameters, add optional parameters
-class Parameter(ParameterReq, total=False):
-    remarks: str
-    state_class: Literal["measurement", "total", "total_increasing"]
-    value_template: str
+# # inherit required parameters, add optional parameters
+# class Parameter(ParameterReq, total=False):
+#     remarks: str
+#     state_class: Literal["measurement", "total", "total_increasing"]
+#     value_template: str
 
     # all oarameters are required to have these fields
-WriteParameterReq = TypedDict(
-    "WriteParameterReq",
-    {
-        "addr": int,
-        "count": int,
-        "dtype": DataType,
-        "multiplier": float,
-        "register_type": RegisterType,
-        'ha_entity_type': HAEntityType,
-    },
-)
-
-class WriteSelectParameterReq(WriteParameterReq, total=True):
-    # select
-    options: list[str] # required for select
-
-class WriteSelectParameter(WriteSelectParameterReq, total=False):
-    value_template: str
-    command_template: str
-    
-class WriteParameter(WriteParameterReq, total=False):
-    device_class: HADeviceClass # when not specified w=for a switch, a none type switch is used
-
-    # number
-    unit: str
-    min: float  
-    max: float
-
-    # switch
-    payload_off: int
-    payload_on: int
 
     
 

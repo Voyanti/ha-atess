@@ -17,20 +17,20 @@ arch:
 options:
   devices:
     - name: AtessPCS
-      serialnum: USD0B4502B
-      device_type: ATESS_INVERTER
-      connected_client: client1
       modbus_id: 1
+      device_type: ATESS_INVERTER
+      serialnum: USD0B4502B
+      connected_client: client1
     - name: AtessPBD1
-      serialnum: UMD0C37086
-      device_type: ATESS_INVERTER
-      connected_client: client1
       modbus_id: 2
-    - name: AtessPBD2
-      serialnum: UMD0C2806D
       device_type: ATESS_INVERTER
+      serialnum: UMD0C37086
       connected_client: client1
+    - name: AtessPBD2
       modbus_id: 3
+      device_type: ATESS_INVERTER
+      serialnum: UMD0C2806D
+      connected_client: client1
   modbus_clients:
     - name: client1
       type: RTU
