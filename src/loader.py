@@ -1,3 +1,10 @@
+"""
+    Parsing & Validation of user configuration 
+
+    'config.yaml' (testing/local) OR 
+    
+    'config.json' (on homeassistant)
+"""
 import json
 import os
 import logging
@@ -7,6 +14,7 @@ from src.options import *
 from src.implemented_servers import DeviceTypes
 
 logger = logging.getLogger(__name__)
+
 
 
 def validate_names(names: list) -> None:

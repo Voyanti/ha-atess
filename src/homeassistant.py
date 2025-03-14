@@ -1,8 +1,46 @@
-# https://www.home-assistant.io/integrations/sensor#device-class
 from enum import Enum
+from typing import Literal, Optional
 
-class SensorEntity:
-    pass
+from src.enums import Unit
+
+class HAEntity:
+    def __init__(self) -> None:
+        self.name: str
+        self.value: str | int | float
+
+        self.discovery_topic: str
+        self.discovery_payload: str
+
+        self.state_topic: str
+
+# Read only (state)
+class HAWriteEntity(HAEntity):
+    def __init__(self) -> None:
+        self.command_topic: str
+        super().__init__()
+
+class HASensor(HAEntity):
+    def __init__(self) -> None:
+        self.entity_type = 'sensor'
+        super().__init__()
+class HASwitch(HAEntity):
+    def __init__(self) -> None:
+        self.entity_type = 'switch'
+        super().__init__()
+
+# Read/Write (state/set)
+class HANumber(HAWriteEntity):
+    def __init__(self) -> None:
+        self.entity_type = 'number'
+        super().__init__()
+class HABinarySensor(HAWriteEntity):
+    def __init__(self) -> None:
+        self.entity_type = 'binary_sensor'
+        super().__init__()
+class HASelect(HAWriteEntity):
+    def __init__(self) -> None:
+        self.entity_type = 'select'
+        super().__init__()
 
 class HAEntityType(Enum):
     NUMBER = 'number'
@@ -12,6 +50,7 @@ class HAEntityType(Enum):
     SENSOR = 'sensor'
     BINARY_SENSOR = 'binary_sensor'
 
+# https://www.home-assistant.io/integrations/sensor#device-class
 class HADeviceClass(Enum):
     DATE = "date"
     ENUM = "enum"
@@ -75,3 +114,71 @@ device_class_to_rounding: dict[HADeviceClass, int] = {
         HADeviceClass.VOLTAGE: 0,
         HADeviceClass.POWER: 0
     }
+
+
+unit_to_device_class: dict[Unit, HADeviceClass] = {
+    # Volt/ Current
+    'V': HADeviceClass.VOLTAGE,
+    'mV': HADeviceClass.VOLTAGE,
+    'A': HADeviceClass.CURRENT,
+
+    # S
+    'VA': HADeviceClass.APPARENT_POWER,
+
+    # P
+    'kW': HADeviceClass.POWER,
+    'W': HADeviceClass.POWER,
+
+    # Q
+    'var': HADeviceClass.REACTIVE_POWER,
+
+    # Energy
+    'kWh': HADeviceClass.ENERGY,
+
+    # Temperature
+    "°C" : HADeviceClass.TEMPERATURE,
+
+    # Frequency
+    'Hz': HADeviceClass.FREQUENCY,
+
+    # not supported currently ( since HA Core 2025.3 )
+    'kVA': HADeviceClass.APPARENT_POWER,
+    'kVar': HADeviceClass.REACTIVE_POWER,
+}
+
+# depends: homeassistant, mqtt integration
+class HADevice:
+    def __init__(self) -> None:
+        self.entities: dict[str, HAEntity | HAWriteEntity]
+        # = {entity.name: entity for entity in entities}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# old
+        # self.binary_sensors: dict[str, HABinarySensor]
+        # self.numbers: dict[str, HABinarySensor]
+        # self.selects: dict[str, HABinarySensor]
+        # self.switches: dict[str, HABinarySensor]
+    
+    # @property
+    # def entities(self):
+    #     copy = self.sensors.copy()
+    #     copy.update(self.binary_sensors, self.numbers, self.selects, self.switches)
