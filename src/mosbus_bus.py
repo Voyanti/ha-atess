@@ -16,13 +16,20 @@ class ModbusGroup:
         return f"Bus: {self.client.name} with devices {[dev.name for dev in self.devices]} "
 
     def connect(self):
-        return self.client.connect()
+        self.client.connect()
+
+        for device in self.devices:
+            model_parameter = device.get_model_parameter()
+            if model_parameter is not None:
+                device.model = self.client.read(model_parameter.start_address, model_parameter.num_registers, device.modbus_id, model_parameter.register_type)
+            
+                device.setup_valid_registers_for_model()
 
     def disconnect(self):
         return self.client.close()
     
     def read_all_in_batches(self):
-        """Reads batches from all connected devices into their internal state
+        """Reads registers in batches from all connected devices into addon internal state
         """
         for device in self.devices:
             for state_group in device.batched_parameters.values():
@@ -33,10 +40,15 @@ class ModbusGroup:
 
     def update_all_values_from_state(self):
         for device in self.devices:
-            device.update_values_from_state()
+            device.update_all_values_from_state()
+
+    @property
+    def all_parameters(self):
+        for device in device:
+            
 
 
-def modbusGroupFactory(device_options: list[DeviceOptions], client_options: list[ModbusRTUOptions| ModbusTCPOptions]) -> list[ModbusGroup]:
+def busFactory(device_options: list[DeviceOptions], client_options: list[ModbusRTUOptions| ModbusTCPOptions]) -> list[ModbusGroup]:
     """Sets up a list of ModbusGroup (Busses) from options objects"""
     def match_client(client: ModbusRTUOptions| ModbusTCPOptions, device_options: DeviceOptions) -> bool:
         return device_options.connected_client == client.name

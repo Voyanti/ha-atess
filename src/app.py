@@ -4,7 +4,7 @@ import atexit
 import logging
 from typing import Callable
 
-from mosbus_bus import ModbusGroup, modbusGroupFactory
+from mosbus_bus import ModbusGroup, busFactory
 from src.loader import load_validate_options
 from src.options import Options
 from src.modbus_client import ModbusClient, modbusClientFactory
@@ -30,9 +30,9 @@ def exit_handler(
     busses: list[ModbusGroup],
     mqtt_client: HAMqttClient,
 ) -> None:
-    logger.info("*=====*")
+    logger.info("*======*")
     logger.info("| Exit |")
-    logger.info("*=====*")
+    logger.info("*======*")
     # # publish offline availability for each server
     # for server in servers:
     #     mqtt_client.publish_availability(False, server)
@@ -41,6 +41,7 @@ def exit_handler(
         bus.disconnect()
 
     mqtt_client.loop_stop()
+
 
 class AddOn:
     def __init__(self):
@@ -54,15 +55,11 @@ class AddOn:
             self.OPTIONS.mqtt_base_topic,
             self.OPTIONS.mwtt_ha_discovery_topic,
         )
-        self.mqtt_client.servers = self.devices  # TODO Remove
 
         # Setup busses
-        self.busses = modbusGroupFactory(self.OPTIONS.devices,
-                                         self.OPTIONS.modbus_clients)
-        
-        atexit.register(
-            exit_handler, self.busses, self.mqtt_client
-        )
+        self.busses = busFactory(self.OPTIONS.devices, self.OPTIONS.modbus_clients)
+
+        atexit.register(exit_handler, self.busses, self.mqtt_client)
 
     def connect(self):
         for bus in self.busses:
@@ -79,12 +76,12 @@ class AddOn:
 
         # Publish Discovery Topics
         for device in self.devices:
-            self.mqtt_client.publish_discovery_topics(device)           # TODO
+            self.mqtt_client.publish_discovery_topics(device)  # TODO
 
     def loop(self, loop_once=False):
         while True:
             for bus in self.busses:
-                bus.read_all_in_batches() # TODO pass down read interval
+                bus.read_all_in_batches()  # TODO pass down read interval
                 bus.update_all_values_from_state()
 
                 # publisch to HA
@@ -101,12 +98,12 @@ class AddOn:
         Sleeps if the current time is within 3 minutes before or 5 minutes after midnight.
         Uses efficient sleep intervals instead of busy waiting.
         """
-        while self.midnight_sleep_enabled:
+        while self.OPTIONS.sleep_over_midnight:
             current_time = datetime.now()
             is_before_midnight = current_time.hour == 23 and current_time.minute >= 57
             is_after_midnight = (
                 current_time.hour == 0
-                and current_time.minute < self.minutes_wakeup_after
+                and current_time.minute < self.OPTIONS.sleep_midnight_minutes
             )
 
             if not (is_before_midnight or is_after_midnight):
@@ -122,12 +119,16 @@ class AddOn:
             else:
                 # Calculate time until 5 minutes after midnight
                 next_check = current_time.replace(
-                    hour=0, minute=self.minutes_wakeup_after, second=0, microsecond=0
+                    hour=0,
+                    minute=self.OPTIONS.sleep_midnight_minutes,
+                    second=0,
+                    microsecond=0,
                 )
 
             # Sleep until next check, but no longer than 30 seconds at a time
             sleep_duration = min(30, (next_check - current_time).total_seconds())
             sleep(sleep_duration)
+
 
 if __name__ == "__main__":
     addon = AddOn()

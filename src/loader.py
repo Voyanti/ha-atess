@@ -57,7 +57,7 @@ def read_yaml(json_rel_path):
     return data
 
 
-def load_options(json_rel_path="/data/options.json") -> Options:
+def load_options(json_rel_path="/data/options.json", falback_rel_path="config.yaml") -> Options:
     """Load device & client configurations and connection specs as dicts from options json."""
     converter = Converter()
 
@@ -70,12 +70,12 @@ def load_options(json_rel_path="/data/options.json") -> Options:
     if os.path.exists(json_rel_path):
         if json_rel_path[-4:] == "json":
             data = read_json(json_rel_path)
-        elif json_rel_path[-4:] == "yaml":
-            data = read_yaml(json_rel_path)
+    elif os.path.exists(falback_rel_path):
+        data = read_yaml(falback_rel_path)
     else:
-        logger.info("Error loading configuration at{os.path.join(os.getcwd(), json_rel_path)}")
+        logger.error(f"Error loading configuration at {os.path.join(os.getcwd(), json_rel_path)}\nor {os.path.join(os.getcwd(), falback_rel_path)} ")
         raise FileNotFoundError(
-            f"Config options json/yaml not found at {os.path.join(os.getcwd(), json_rel_path)}")
+            f"Error loading configuration at {os.path.join(os.getcwd(), json_rel_path)}\nor {os.path.join(os.getcwd(), falback_rel_path)} ")
 
     opts = converter.structure(data, Options)
     return opts
