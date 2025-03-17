@@ -48,7 +48,7 @@ class ModbusDevice(ABC):
         self.modbus_id: int = modbus_id
 
         self.serial: str = "unknown"
-        self._model: str = "unknown"
+        self._model: str = ""
 
         # batched state
         self.batched_parameters: dict[RegisterType, BatchedModbusParameters]
@@ -94,9 +94,14 @@ class ModbusDevice(ABC):
         param = self.parameters.get(name)
 
         if param is None:
-            raise ValueError(f"No parameter {name} for Device {self.name} defined. Attempt to read.")
+            raise ValueError(f"No parameter {name} for Device {self.name} defined.")
         
         return param
+    
+    @property
+    @abstractmethod
+    def get_model_parameter(self) -> Optional[ModbusParameter]:
+        """ Return a reference to the register where the device model is stored"""
 
     # @property
     # def write_parameters_slug_to_name(self) -> dict[str, str]:
@@ -104,13 +109,6 @@ class ModbusDevice(ABC):
     #     write_parameters_slug_to_name: dict[str, str] = {slugify(name):name for name in self.write_parameters.copy()}
     #     return write_parameters_slug_to_name
 
-    @abstractmethod
-    def read_model(self) -> str:
-        """
-            Reads model name register if available and decodes it.
-
-            :returns: model_name
-        """
 
     @abstractmethod
     def setup_valid_registers_for_model(self):
@@ -118,6 +116,41 @@ class ModbusDevice(ABC):
             registers for the specific model must be implemented.
             Removes invalid registers for the specific model of inverter.
             Requires self.model. Call self.read_model() first."""
+
+    @staticmethod
+    @abstractmethod
+    def decode_registers(registers: list, dtype: DataType) -> Any:
+        """
+        Device-specific decoding for registers read.
+
+        Parameters:
+        -----------
+        registers: list: list of ints as read from 16-bit ModBus Registers
+        dtype: (DataType.U16, DataType.I16, DataType.U32, DataType.I32, ...)
+        """
+
+    @staticmethod
+    @abstractmethod
+    def encode_value(value: int, dtype: DataType) -> list[int]:
+        "Device-specific encoding of content"
+
+    @property
+    def model(self):
+        return self._model
+    
+    @model.setter
+    def model(self, value) -> None:
+        logger.info(f"Setting model for Device {self.name} to {value}")
+        self._model = value
+
+        if self.model not in self.supported_models:
+            raise ValueError(
+                f"Model not supported in implementation of Device, {self}")
+
+    @property
+    @abstractmethod
+    def availability_parameter(self) -> str:
+        """ Return tha name of a parameter to use as health check"""
 
     def _find_register_extent(self, register_type: RegisterType) -> ModbusRegisterExtent:
         """ Find the minimum and maximum address of registers to be read for 
@@ -148,86 +181,8 @@ class ModbusDevice(ABC):
 
         return extent
 
-    @staticmethod
-    @abstractmethod
-    def decode_registers(registers: list, dtype: DataType) -> Any:
-        """
-        Device-specific decoding for registers read.
 
-        Parameters:
-        -----------
-        registers: list: list of ints as read from 16-bit ModBus Registers
-        dtype: (DataType.U16, DataType.I16, DataType.U32, DataType.I32, ...)
-        """
-
-    @staticmethod
-    @abstractmethod
-    def encode_value(value: int, dtype: DataType) -> list[int]:
-        "Device-specific encoding of content"
-
-    @property
-    def model(self) -> str:
-        """ Return a string model name for the implementation.
-            Ahould be read in using Device.read_model(). 
-            Device.set_model is called in Device.connect(), which sets the model.
-            
-            model is used in seupt_valid_registers_for_model
-            Provided to fascilitate Device types where the model cannot be read."""
-        return self._model
-    
-    @model.setter
-    def model(self, value):
-        self._model = value
-
-    def set_model(self) -> None:
-        """
-            Reads model-holding register, decodes it and sets self.model: str to its value..
-            Specify decoding in Device.device_info = {modelcode:    {name:modelname, ...}  }
-        """
-        logger.info(f"Reading model for Device {self.name}")
-        self.model = self.read_model()
-        logger.info(f"Model read as {self.model}")
-
-        if self.model not in self.supported_models:
-            raise ValueError(
-                f"Model not supported in implementation of Device, {self}")
-
-    @property
-    @abstractmethod
-    def availability_parameter(self) -> str:
-        """ Return tha name of a parameter to use as health check"""
-        
-    
-    # def read_batches(self) -> None:
-    #     """
-    #     Read holding and input registers for the server in batches of size 125, and save to internal state
-    #     """
-    #     self.holding_state = []
-    #     self.input_state = []
-
-    #     for batch in self.holding_batches:
-    #         logger.info(f"Reading holding batch from {batch[0]} to {batch[-1]}, {len(batch)=}")
-    #         result = self.connected_client.read(
-    #             batch[0], len(batch), self.modbus_id, RegisterType.HOLDING_REGISTER)   # TODO check
-
-    #         if result.isError():
-    #             self.connected_client._handle_error_response(result)
-    #             raise Exception(f"Error reading batch {batch=}")
-            
-    #         self.holding_state.extend(result.registers)
-            
-    #     for batch in self.input_batches:
-    #         logger.info(f"Reading input batch from {batch[0]} to {batch[-1]}, {len(batch)=}")
-    #         result = self.connected_client.read(
-    #             batch[0], len(batch), self.modbus_id, RegisterType.INPUT_REGISTER)
-
-    #         if result.isError():
-    #             self.connected_client._handle_error_response(result)
-    #             raise Exception(f"Error reading batch {batch=}")
-            
-    #         self.input_state.extend(result.registers)
-
-    def update_all_value_from_state(self):
+    def update_all_values_from_state(self):
         modbus_id = self.modbus_id
             
         for parameter in self.parameters.values():
@@ -237,15 +192,16 @@ class ModbusDevice(ABC):
             
             relevant_state = self.batched_parameters[parameter.register_type]
             
-            offset = parameter.address - relevant_state.extent.min
+            index = parameter.address - relevant_state.extent.min
             # logger.debug(f"{address=}, {count=}, offset={self.holding_addr_extent[0]}")
             # logger.debug(f"start {address-self.holding_addr_extent[0]}, exclusive_end = { address+count-self.holding_addr_extent[0]}")
-            result = self.holding_state[offset: offset+parameter.num_registers] # address is 1-indexed
+            registers = self.holding_state[index: index+parameter.num_registers] # address is 1-indexed
 
-            logger.debug(f"Raw register begin value: {result[0]}")
-            val = self.decode_registers(result, parameter.dtype)
+            logger.debug(f"Raw register begin value: {registers[0]}")
+            val = self.decode_registers(registers, parameter.dtype)
             if parameter.multiplier != 1:
                 val *= parameter.multiplier
+            # TODO rounding
             # if device_class is not None and isinstance(val, int) or isinstance(val, float):
             #     val = round(
             #         val, device_class_to_rounding.get(device_class, 2)) # type: ignore
@@ -296,13 +252,3 @@ class ModbusDevice(ABC):
             logger.info(f"Wrote {value=} unit={param.get('unit')} as {values=} to {parameter_name}.")
         else:
             logger.info(f"Wrote {value=} as {values=} to {parameter_name}.")
-
-    def connect(self) -> None:
-        if not self.is_available():
-            logger.error(f"Device {self.name} not available")
-            raise ConnectionError()
-        self.set_model()
-        self.setup_valid_registers_for_model()
-        self.find_register_extent()
-        self.create_batches()
-

@@ -1,4 +1,5 @@
-from typing import final, Literal
+from typing import Optional, final, Literal
+from modbus_types import ModbusParameter
 from src.modbus_device import ModbusDevice
 import struct
 import logging
@@ -32,6 +33,10 @@ class AtessInverter(ModbusDevice):
     @property
     def parameters(self):
         return self._parameters
+    
+    @property
+    def get_model_parameter(self) -> Optional[ModbusParameter]:
+        return self._parameters.get("Device Type Code")
     
     @property
     def write_parameters(self):
