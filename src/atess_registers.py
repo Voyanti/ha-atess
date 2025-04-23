@@ -1210,7 +1210,7 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
     #     min = 0,
     #     max = 500
     # ), 
-    "Discharge current limit": WriteParameter( # ALL # "Upper limit powerfeed from grid"
+    "Discharge current limit": WriteParameter( # ALL
         addr = 155 + 1,
         count = 1,
         dtype = DataType.U16,
@@ -1232,6 +1232,52 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
     #     min = 0,
     #     max = 1000 # TODO "10000"
     # ), 
+}
+atess_PBD_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
+    "PV Start Voltage": WriteParameter( # ALL
+        addr = 60 + 1,
+        count = 1,
+        dtype = DataType.U16,
+        multiplier = 0.1,
+        register_type = RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type = HAEntityType.NUMBER,
+        unit="V",
+        min = 300,
+        max = 850
+    ), 
+    "Max MPPT Voltage": WriteParameter( # ALL
+        addr = 61 + 1,
+        count = 1,
+        dtype = DataType.U16,
+        multiplier = 0.1,
+        register_type = RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type = HAEntityType.NUMBER,
+        unit="V",
+        min = 300,
+        max = 1500
+    ), 
+    "Min MPPT Voltage": WriteParameter( # ALL
+        addr = 62 + 1,
+        count = 1,
+        dtype = DataType.U16,
+        multiplier = 0.1,
+        register_type = RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type = HAEntityType.NUMBER,
+        unit="V",
+        min = 300,
+        max = 1500
+    ), 
+    "PV Start Power": WriteParameter( # ALL
+        addr = 63 + 1,
+        count = 1,
+        dtype = DataType.U16,
+        multiplier = 0.1,
+        register_type = RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type = HAEntityType.NUMBER,
+        unit="kW",
+        min = 0,
+        max = 500
+    ), 
 }
 
 

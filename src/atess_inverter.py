@@ -3,7 +3,7 @@ from .server import Server
 import struct
 import logging
 from .enums import DataType
-from .atess_registers import atess_parameters, PBD_parameters, PCS_parameters, not_PCS_parameters, model_code_to_name, atess_write_parameters
+from .atess_registers import atess_parameters, PBD_parameters, PCS_parameters, not_PCS_parameters, model_code_to_name, atess_write_parameters, atess_PBD_write_parameters
 from pymodbus.client import ModbusSerialClient
 
 logger = logging.getLogger(__name__)
@@ -80,6 +80,7 @@ class AtessInverter(Server):
 
             if "PBD" in self.model:
                 self._parameters.update(PBD_parameters)
+                self._write_parameters.update(atess_PBD_write_parameters)
                 logger.info("Added PBD-Specific Registers.")
 
     def _decoded(cls, registers, dtype):
