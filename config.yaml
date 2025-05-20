@@ -1,5 +1,5 @@
 name: "Atess Inverter"
-version: "0.4.29"
+version: "0.4.30"
 image: ghcr.io/voyanti/ha-atess
 slug: "ha-atess"
 description: "Atess Inverter Prebuilt"
@@ -38,8 +38,8 @@ options:
       parity: false
       stopbits: 2
   pause_interval_seconds: 1
-  sleep_over_midnight: true
-  sleep_midnight_minutes: 10
+  midnight_sleep_enabled: true
+  midnight_sleep_wakeup_after: 10
   mqtt_host: "localhost"
   mqtt_port: 1884
   # mqtt_host: "core-mosquitto"
@@ -48,6 +48,7 @@ options:
   mqtt_password: "mqtt"
   mwtt_ha_discovery_topic: homeassistant
   mqtt_base_topic: modbus
+  mqtt_reconnect_attempts: 5
 schema:
   servers:
     - name: str
@@ -67,11 +68,12 @@ schema:
       parity: bool?
       stopbits: int?
   pause_interval_seconds: float
-  sleep_over_midnight: bool
-  sleep_midnight_minutes: int
+  midnight_sleep_enabled: bool
+  midnight_sleep_wakeup_after: int
   mqtt_host: str
   mqtt_port: port
   mqtt_user: str
   mqtt_password: password
   mwtt_ha_discovery_topic: str
   mqtt_base_topic: str
+  mqtt_reconnect_attempts: int

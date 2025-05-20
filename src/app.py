@@ -5,7 +5,7 @@ import logging
 from queue import Queue
 
 from .loader import load_validate_options
-from .options import Options
+from .options import AppOptions
 from .client import Client
 from .implemented_servers import ServerTypes
 from .server import Server
@@ -53,14 +53,14 @@ def test_different_batch_sizes(client0: Client):
 
 class App:
     def __init__(self, client_instantiator_callback, server_instantiator_callback, options_rel_path=None) -> None:
-        self.OPTIONS: Options
+        self.OPTIONS: AppOptions
         # Read configuration
         if options_rel_path:
             self.OPTIONS = load_validate_options(options_rel_path)
         else:
             self.OPTIONS = load_validate_options()
 
-        self.midnight_sleep_enabled, self.minutes_wakeup_after = self.OPTIONS.sleep_over_midnight, self.OPTIONS.sleep_midnight_minutes
+        self.midnight_sleep_enabled, self.minutes_wakeup_after = self.OPTIONS.midnight_sleep_enabled, self.OPTIONS.midnight_sleep_wakeup_after
         self.pause_interval = self.OPTIONS.pause_interval_seconds
         # midnight_sleep_enabled=True, minutes_wakeup_after=5
 
@@ -91,18 +91,34 @@ class App:
         # Setup MQTT Client
         self.mqtt_client = MqttClient(self.OPTIONS)
         self.mqtt_client.servers = self.servers
-        succeed: MQTTErrorCode = self.mqtt_client.connect(
-            host=self.OPTIONS.mqtt_host, port=self.OPTIONS.mqtt_port
-        )
-        if succeed.value != 0:
-            logger.info(
-                f"MQTT Connection error: {succeed.name}, code {succeed.value}")
+        logger.info(f"Connecting to MQTT broker")
+        self.mqtt_client.connect_timeout = 20
+
+        for i in range(2):
+            try: 
+                succeed: MQTTErrorCode = self.mqtt_client.connect(
+                    host=self.OPTIONS.mqtt_host, port=self.OPTIONS.mqtt_port
+                )
+                if succeed.value != 0:
+                    logger.info(
+                        f"MQTT Connection error: {succeed.name}, code {succeed.value}")
+                    
+            # except ConnectionRefusedError as con_err:
+            #     logger.error(f"Connection refused. Sleep 1 min and retry")
+            #     sleep(60)
+            except Exception as e:
+                logger.error(f"{e} \n\n Sleep 1 min and retry mqtt connection")
+                sleep(60)
+
 
         atexit.register(exit_handler, self.servers,
                         self.clients, self.mqtt_client)
 
         sleep(READ_INTERVAL)
         self.mqtt_client.loop_start()
+        sleep(READ_INTERVAL)
+
+        self.mqtt_client.ensure_connected(self.OPTIONS.mqtt_reconnect_attempts)
 
         # Publish Discovery Topics
         for server in self.servers:
@@ -117,6 +133,7 @@ class App:
         # every read_interval seconds, read the registers and publish to mqtt
         while True:
             for server in self.servers:
+                self.mqtt_client.ensure_connected(self.OPTIONS.mqtt_reconnect_attempts)
                 # update server state from modbus
                 server.read_batches()
 
@@ -176,11 +193,11 @@ class App:
             sleep(sleep_duration)
 
 
-def instantiate_clients(OPTIONS: Options) -> list[Client]:
+def instantiate_clients(OPTIONS: AppOptions) -> list[Client]:
     return [Client(cl_options) for cl_options in OPTIONS.clients]
 
 
-def instantiate_servers(OPTIONS: Options, clients: list[Client]) -> list[Server]:
+def instantiate_servers(OPTIONS: AppOptions, clients: list[Client]) -> list[Server]:
     return [
         ServerTypes[sr.server_type].value.from_ServerOptions(sr, clients)
         for sr in OPTIONS.servers

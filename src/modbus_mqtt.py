@@ -1,16 +1,17 @@
+import os
+import signal
+from typing import Callable
 import paho.mqtt.client as mqtt
 from paho.mqtt.enums import CallbackAPIVersion
 import json
 import logging
 
 from .helpers import slugify
-from .loader import Options
+from .options import AppOptions
 
 from random import getrandbits
 from time import time, sleep
 from queue import Queue
-
-from .enums import HAEntityType
 
 logger = logging.getLogger(__name__)
 # RECV_Q: Queue = Queue()
@@ -20,7 +21,7 @@ class MqttClient(mqtt.Client):
     """
         paho MQTT abstraction for home assistant
     """
-    def __init__(self, options: Options) -> None:
+    def __init__(self, options: AppOptions) -> None:
         def generate_uuid():
             random_part = getrandbits(64)
             # Get current timestamp in milliseconds
@@ -43,12 +44,18 @@ class MqttClient(mqtt.Client):
                 logger.info(
                     f"Not connected to MQTT broker.\nReturn code: {reason_code=}")
 
-        def on_disconnect(client, userdata, message):
-            logger.info("Disconnected from MQTT broker")
+        def on_disconnect(client,
+                        userdata,
+                        disconnect_flags,
+                        reason,
+                        properties):
+            logger.error(f"Disconnected from MQTT broker, {reason=}\n{disconnect_flags=}\n{properties=}")
+            logger.info(f"Stopping all threads")
+            os.kill(os.getpid(), signal.SIGINT)
 
-        def on_message(client, userdata, message):
+        def on_message(client, userdata, msg):
             logger.info("Received message on MQTT")
-            self.message_handler(message)
+            self.message_handler(msg.topic, msg.payload.decode('utf-8'))
 
         self.on_connect = on_connect
         self.on_disconnect = on_disconnect
@@ -79,10 +86,6 @@ class MqttClient(mqtt.Client):
             register_slug, value, server)
 
     def publish_discovery_topics(self, server) -> None:
-        while not self.is_connected():
-            logger.info(
-                f"Not connected to mqtt broker yet, sleep 100ms and retry. Before publishing discovery topics.")
-            sleep(0.1)
         # TODO check if more separation from server is necessary/ possible
         nickname = server.name
         if not server.model or not server.manufacturer or not server.serial or not nickname or not server.parameters:
@@ -124,6 +127,12 @@ class MqttClient(mqtt.Client):
             state_class = details.get("state_class", False)
             if state_class:
                 discovery_payload['state_class'] = state_class
+                
+            # from sungrow
+            if details.get("value_template") is not None:
+                discovery_payload.update(value_template=details["value_template"])
+            # from sungrow not used in atess yet
+                
             discovery_topic = f"{self.ha_discovery_topic}/sensor/{nickname}/{slugify(register_name)}/config"
 
             self.publish(discovery_topic, json.dumps(
@@ -166,10 +175,27 @@ class MqttClient(mqtt.Client):
     def publish_to_ha(self, register_name, value, server):
         nickname = server.name
         state_topic = f"{self.base_topic}/{nickname}/{slugify(register_name)}/state"
-        self.publish(state_topic, value)  # , retain=True)
+        msg_info = self.publish(state_topic, value, qos=1)  # , retain=True)
+            
 
     def publish_availability(self, avail, server):
         nickname = server.name
         availability_topic = f"{self.base_topic}_{nickname}/availability"
-        self.publish(availability_topic,
-                     "online" if avail else "offline", retain=True)
+        msg_info = self.publish(availability_topic,
+                     "online" if avail else "offline", qos=1, retain=True)
+        
+
+    def ensure_connected(self, max_attempts: int = 3) -> None:
+        """Block while not connected to the broker. Retry every second, for _max_attempts_, before stopping the process.
+        """ 
+        attempt_num = 1
+
+        while not self.is_connected():
+            if attempt_num > max_attempts:
+                logger.info(f"Not connected to mqtt broker after {max_attempts=}. Kill process")
+                os.kill(os.getpid(), signal.SIGINT)
+
+            logger.info(f"Not connected to mqtt broker, sleep 1s and retry. {attempt_num=}")
+
+            sleep(1)
+        logger.info(f"Connected to MQTT broker")
