@@ -756,6 +756,33 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
                         {{ states[value] if value in states else 'unknown' }}
                         """
     },
+    "BMS Level 1 Alarm": {
+        "addr": 177+1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "BMS Level 2 Alarm": {
+        "addr": 178+1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "BMS Level 3 Protection": {
+        "addr": 179+1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
 
 }
 # TODO bypass p 37 atess-modbus-rtu-protocol-v37.pdf
