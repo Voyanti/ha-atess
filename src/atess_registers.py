@@ -707,7 +707,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
     "BMS Battery Status": {
         "addr": 176 + 1,
         "count": 1,
-        "dtype": DataType.I8H,
+        "dtype": DataType.U8H,
         "multiplier": 1,
         "unit": "",
         "device_class": DeviceClass.ENUM,
@@ -727,7 +727,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
     "BMS System Status": {
         "addr": 176 + 1,
         "count": 1,
-        "dtype": DataType.I8L,
+        "dtype": DataType.U8L,
         "multiplier": 1,
         "unit": "",
         "device_class": DeviceClass.ENUM,
@@ -786,7 +786,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
     "BMS Max V Group Nr": {
         "addr": 168+1,
         "count": 1, 
-        "dtype": DataType.I8H,
+        "dtype": DataType.U8H,
         "multiplier": 1,
         "unit": "",
         "device_class": DeviceClass.ENUM,
@@ -795,7 +795,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
     "BMS Min V Group Nr": {
         "addr": 168+1,
         "count": 1, 
-        "dtype": DataType.I8L,
+        "dtype": DataType.U8L,
         "multiplier": 1,
         "unit": "",
         "device_class": DeviceClass.ENUM,
@@ -804,7 +804,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
     "BMS Min V Unit Nr": {
         "addr": 172+1,
         "count": 1, 
-        "dtype": DataType.I8H,
+        "dtype": DataType.U8H,
         "multiplier": 1,
         "unit": "",
         "device_class": DeviceClass.ENUM,
@@ -813,7 +813,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
     "BMS Min V Unit Box Nr": {
         "addr": 172+1,
         "count": 1, 
-        "dtype": DataType.I8L,
+        "dtype": DataType.U8L,
         "multiplier": 1,
         "unit": "",
         "device_class": DeviceClass.ENUM,
@@ -822,7 +822,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
     "BMS Max V Unit Nr": {
         "addr": 173+1,
         "count": 1, 
-        "dtype": DataType.I8H,
+        "dtype": DataType.U8H,
         "multiplier": 1,
         "unit": "",
         "device_class": DeviceClass.ENUM,
@@ -831,7 +831,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
     "BMS Max V Unit Box Nr": {
         "addr": 173+1,
         "count": 1, 
-        "dtype": DataType.I8L,
+        "dtype": DataType.U8L,
         "multiplier": 1,
         "unit": "",
         "device_class": DeviceClass.ENUM,

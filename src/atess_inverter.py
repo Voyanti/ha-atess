@@ -84,6 +84,17 @@ class AtessInverter(Server):
                 logger.info("Added PBD-Specific Registers.")
 
     def _decoded(cls, registers, dtype):
+        def _decode_u8(registers, low_or_high:Literal["low", "high"]):
+            """ 16-bit register to unsigned 8bit low or high word """
+            if low_or_high == "low":
+                extracted = registers[0] & 0x00FF
+            elif low_or_high == "high":
+                extracted = (registers[0] & 0xFF00) >> 8
+            else:
+                raise ValueError(f"Invalid 8-bit type")
+
+            return extracted
+        
         def _decode_i8(registers, low_or_high=Literal["low", "high"]):
             """ Unsigned 32-bit big-endian to int """
             if low_or_high == "low":
@@ -124,6 +135,8 @@ class AtessInverter(Server):
         elif dtype == DataType.I16: return _decode_i16(registers)
         elif dtype == DataType.I8L: return _decode_i8(registers, "low")
         elif dtype == DataType.I8H: return _decode_i8(registers, "high")
+        elif dtype == DataType.U8L: return _decode_u8(registers, "low")
+        elif dtype == DataType.U8H: return _decode_u8(registers, "high")
         elif dtype == DataType.U32: return _decode_u32(registers)
         elif dtype == DataType.UTF8: return _decode_utf8(registers)
         else: raise NotImplementedError(f"Data type {dtype} decoding not implemented")
