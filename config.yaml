@@ -1,5 +1,5 @@
 name: "Atess Inverter"
-version: "0.4.35"
+version: "0.4.36"
 image: ghcr.io/voyanti/ha-atess
 slug: "ha-atess"
 description: "Atess Inverter Prebuilt"
