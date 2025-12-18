@@ -837,6 +837,24 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.ENUM,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
+    "BMS Total Voltage": {
+        "addr": 164+1,
+        "count": 1, 
+        "dtype": DataType.I16,
+        "multiplier": 0.1,
+        "unit": "V",
+        "device_class": DeviceClass.VOLTAGE,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "BMS Total Current": {
+        "addr": 165+1,
+        "count": 1, 
+        "dtype": DataType.I16,
+        "multiplier": 0.1,
+        "unit": "A",
+        "device_class": DeviceClass.CURRENT,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    }
 
 }
 # TODO bypass p 37 atess-modbus-rtu-protocol-v37.pdf
