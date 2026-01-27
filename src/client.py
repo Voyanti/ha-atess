@@ -101,7 +101,7 @@ class Client:
         
         result = self.client.write_registers(address=address-1,
                                             values=values,
-                                            slave=slave_id)
+                                            device_id=slave_id)
         return result
 
     def connect(self, num_retries=2, sleep_interval=3) -> None:
