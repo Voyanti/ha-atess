@@ -13,6 +13,9 @@ logger = logging.getLogger(__name__)
 # log = logging.getLogger("pymodbus")
 # log.setLevel(logging.DEBUG)
 
+from pymodbus.logging import pymodbus_apply_logging_config
+
+# pymodbus_apply_logging_config()
 
 class Client:
     """
@@ -57,11 +60,11 @@ class Client:
                 if register_type == RegisterTypes.HOLDING_REGISTER:
                     result = self.client.read_holding_registers(address=address-1,
                                                                 count=count,
-                                                                slave=slave_id)
+                                                                device_id=slave_id)
                 elif register_type == RegisterTypes.INPUT_REGISTER:
                     result = self.client.read_input_registers(address=address-1,
                                                             count=count,
-                                                            slave=slave_id)
+                                                            device_id=slave_id)
                 else:
                     logger.info(f"unsupported register type {register_type}")
                     raise ValueError(f"unsupported register type {register_type}")

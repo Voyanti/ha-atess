@@ -169,7 +169,6 @@ class MqttClient(mqtt.Client):
                 discovery_payload.update(min=details["min"], max=details["max"])
             if details.get("payload_off") is not None and details.get("payload_on") is not None:
                 discovery_payload.update(payload_off=details["payload_off"], payload_on=details["payload_on"])
-
             discovery_topic = f"{self.ha_discovery_topic}/{details['ha_entity_type'].value}/{nickname}/{slugify(register_name)}/config"
             self.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
 
