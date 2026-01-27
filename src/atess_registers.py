@@ -224,6 +224,15 @@ atess_parameters: dict[str, Parameter] = {
         "register_type": RegisterTypes.INPUT_REGISTER,
         "state_class": "total_increasing",
     },
+    "Float Charging Voltage": {
+        "addr": 156 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 0.001,
+        "unit": "V",
+        "device_class": DeviceClass.VOLTAGE,
+        "register_type": RegisterTypes.HOLDING_REGISTER,
+    }
 }
 
 
