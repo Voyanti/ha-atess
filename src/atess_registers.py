@@ -232,6 +232,15 @@ atess_parameters: dict[str, Parameter] = {
         "unit": "mV",
         "device_class": DeviceClass.VOLTAGE,
         "register_type": RegisterTypes.HOLDING_REGISTER,
+    },
+    "Float Charging Current": {
+        "addr": 163 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 0.01,
+        "unit": "V",
+        "device_class": DeviceClass.VOLTAGE,
+        "register_type": RegisterTypes.HOLDING_REGISTER,
     }
 }
 
