@@ -241,6 +241,15 @@ atess_parameters: dict[str, Parameter] = {
         "unit": "V",
         "device_class": DeviceClass.VOLTAGE,
         "register_type": RegisterTypes.HOLDING_REGISTER,
+    },
+    "Single PV to Off-grid": {
+        "addr": 161 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "mV",
+        "device_class": DeviceClass.VOLTAGE,
+        "register_type": RegisterTypes.HOLDING_REGISTER,
     }
 }
 
