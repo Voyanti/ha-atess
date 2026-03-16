@@ -157,6 +157,26 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": DeviceClass.CURRENT,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
+    
+    "BMS Max Charge Current": Parameter( # ALL
+        addr = 100 + 1,
+        count = 1,
+        dtype = DataType.U16,
+        multiplier = 0.1,
+        device_class=DeviceClass.CURRENT,
+        register_type = RegisterTypes.INPUT_REGISTER,
+        unit = "A",
+    ), 
+    "BMS Max Discharge Current": Parameter( # ALL
+        addr = 101 + 1,
+        count = 1,
+        dtype = DataType.U16,
+        multiplier = 0.1,
+        register_type = RegisterTypes.INPUT_REGISTER,
+        device_class=DeviceClass.CURRENT,
+        unit = "A",
+    ), 
+    
     ###############################
     "Ambient temperature": {
         "addr": 36 + 1,
@@ -783,6 +803,90 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
                         {{ states[value] if value in states else 'unknown' }}
                         """
     },
+    # PCS Input Registers 181-190 (Atess Modbus RTU v3.22)
+    # TODO: also applicable to HPS inverters
+    "Fault Alarm 1": {
+        "addr": 181 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "Fault Alarm 2": {
+        "addr": 182 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "Fault Alarm 3": {
+        "addr": 183 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "Fault Alarm 4": {
+        "addr": 184 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "Fault Alarm 5": {
+        "addr": 185 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "Fault Alarm 6": {
+        "addr": 186 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "Fault Alarm 7": {
+        "addr": 187 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "Fault Alarm 8": {
+        "addr": 188 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    # Register 189 is reserved
+    "Running State Bitwise": {
+        "addr": 190 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
     "BMS Level 1 Alarm": {
         "addr": 177+1,
         "count": 1,
@@ -1042,6 +1146,107 @@ PBD_parameters: dict[str, Parameter]  = {
         "device_class": DeviceClass.POWER,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
+    # PBD Input Registers 206-215 (Atess Modbus RTU v3.22)
+    "PBD Running State": {
+        "addr": 206 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+        "value_template": """
+                        {% set states = {
+                        '0': 'Hold',
+                        '1': 'Check',
+                        '2': 'Run',
+                        '3': 'Error',
+                        '4': 'Permanent Error',
+                        '6': 'Single PV mode'
+                        } %}
+                        {{ states[value] if value in states else 'unknown' }}
+                        """
+    },
+    "PBD Fault Alarm 1": {
+        "addr": 207 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "PBD Fault Alarm 2": {
+        "addr": 208 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "PBD Fault Alarm 3": {
+        "addr": 209 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "PBD Fault Alarm 4": {
+        "addr": 210 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "PBD Fault Alarm 5": {
+        "addr": 211 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "PBD Fault Alarm 6": {
+        "addr": 212 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    "PBD Running State Bitwise": {
+        "addr": 213 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
+    # Register 214 is reserved
+    "PBD Operation Mode": {
+        "addr": 215 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+        "value_template": """
+                        {% set modes = {
+                        '0': 'Normal',
+                        '1': 'EMS Mode'
+                        } %}
+                        {{ modes[value] if value in modes else 'unknown' }}
+                        """
+    },
 }
 
 # Atess Modbus RTU v3.22 p127 fig 4.1.2 
@@ -1160,28 +1365,6 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         min = 0,
         max = 100,
         unit = "%",
-    ), 
-    "BMS Max Charge Current": WriteParameter( # ALL
-        addr = 100 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
-        min = 0,
-        max = 1000,
-        unit = "A",
-    ), 
-    "BMS Max Discharge Current": WriteParameter( # ALL
-        addr = 101 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
-        min = 0,
-        max = 1000,
-        unit = "A",
     ), 
     "Battery Charging Saturation": WriteParameter( # ALL
         addr = 150 + 1,
@@ -1629,9 +1812,16 @@ if __name__ == "__main__":
     # print(f"\nNumber of consecutive groups in list1: {len(groups_list1)}")
     # print(f"Number of consecutive groups in list2: {len(groups_list2)}")
 
-    params: dict[str, Parameter | WriteParameter | WriteSelectParameter] = atess_parameters.copy()
-    # params.update(PCS_parameters)
-    params.update(PBD_parameters)
-    params.update(not_PCS_parameters)
-    # params.update(atess_write_parameters)
-    create_batches(params)
+    # params: dict[str, Parameter | WriteParameter | WriteSelectParameter] = atess_parameters.copy()
+    # # params.update(PCS_parameters)
+    # params.update(PBD_parameters)
+    # params.update(not_PCS_parameters)
+    # # params.update(atess_write_parameters)
+    # create_batches(params)
+
+    all = not_PCS_parameters | atess_parameters | PCS_parameters | PBD_parameters | atess_write_parameters | atess_PBD_write_parameters
+    import pandas as pd
+    df = pd.DataFrame.from_dict({k: {"addr": v["addr"]-1} for k, v in all.items()}, orient="index")
+
+    df.to_csv("data/registers")
+
