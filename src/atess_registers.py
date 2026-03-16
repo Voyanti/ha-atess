@@ -1519,6 +1519,17 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
     #     min = 0,
     #     max = 500
     # ), 
+    "Charge current limit": WriteParameter( # ALL
+        addr = 154 + 1,
+        count = 1,
+        dtype = DataType.U16,
+        multiplier = 0.1,
+        register_type = RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type = HAEntityType.NUMBER,
+        unit="A",
+        min = 0,
+        max = 1000 # TODO "10000"
+    ), 
     "Discharge current limit": WriteParameter( # ALL
         addr = 155 + 1,
         count = 1,
