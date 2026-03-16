@@ -114,6 +114,7 @@ All addresses are 0-indexed. Group indicates which device types the register app
 | PV Voltage | 80 | U16 | 1 | 0.1 | V | | | All |
 | PV Current | 83 | U16 | 1 | 0.1 | A | | | All |
 | Battery Charging Saturation | 150 | U16 | 1 | 1 | | 0 | 10 | Writable (All) |
+| Charge Current Limit | 154 | U16 | 1 | 0.1 | A | 0 | 10000 | Writable (All) |
 | Discharge current limit | 155 | U16 | 1 | 0.1 | A | 0 | 1000 | Writable (All) |
 | Float Charging Voltage | 156 | U16 | 1 | 1 | mV | | | All |
 | Single PV to Off-grid | 161 | U16 | 1 | 1 | mV | | | All |
