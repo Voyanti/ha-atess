@@ -103,6 +103,7 @@ All addresses are 0-indexed. Group indicates which device types the register app
 | Grid Power Compensation | 44 | U16 | 1 | 0.1 | kW | 0 | 100 | Writable (All) |
 | Discharge Cutoff SOC | 47 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) |
 | Output Power Limit | 58 | U16 | 1 | 1 | % | 0 | 120 | Writable (All) |
+| CP Nominal Power | 118 | U16 | 1 | 1 | kW | 0 | 1000 | Writable (All) |
 | PV Start Voltage | 60 | U16 | 1 | 0.1 | V | 300 | 850 | Writable (PBD) |
 | Max MPPT Voltage | 61 | U16 | 1 | 0.1 | V | 300 | 1500 | Writable (PBD) |
 | Min MPPT Voltage | 62 | U16 | 1 | 0.1 | V | 300 | 1500 | Writable (PBD) |
