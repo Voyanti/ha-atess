@@ -293,6 +293,15 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "unit": "kW",
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
+    "CP Power Limit": {
+        "addr": 229 + 1,
+        "count": 1,
+        "dtype": DataType.I16,
+        "device_class": DeviceClass.POWER,
+        "multiplier": 0.1,
+        "unit": "kW",
+        "register_type": RegisterTypes.INPUT_REGISTER,
+    },
     "Transformer temperature": {
         "addr": 35 + 1,
         "count": 1,
@@ -878,6 +887,38 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
     # Register 189 is reserved
+    "Operation Mode": {
+        "addr": 192 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.INPUT_REGISTER,
+        "value_template": """
+                        {% set modes = {
+                        '0': 'Peak',
+                        '1': 'Flat',
+                        '2': 'Valley',
+                        '3': 'DG',
+                        '4': 'Battery First',
+                        '5': 'Load First',
+                        '6': 'Peak Shaving',
+                        '7': 'Time Schedule',
+                        '8': 'EMS Mode',
+                        '9': 'DC Source Mode',
+                        '10': 'Manual Dispatching',
+                        '11': 'Battery Protection',
+                        '12': 'Backup Power Management',
+                        '13': 'PCS Dispatching',
+                        '14': 'Forced Charging',
+                        '15': 'Smart Meter Mode',
+                        '16': 'Bat-Smart Meter',
+                        '17': 'Grid Access Control'
+                        } %}
+                        {{ modes[value] if value in modes else 'unknown' }}
+                        """
+    },
     "Running State Bitwise": {
         "addr": 190 + 1,
         "count": 1,

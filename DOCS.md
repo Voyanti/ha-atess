@@ -234,6 +234,7 @@ All addresses are 0-indexed. Group indicates which device types the register app
 | Fault Alarm 7 | 187 | U16 | 1 | 1 | | PCS |
 | Fault Alarm 8 | 188 | U16 | 1 | 1 | | PCS |
 | Running State Bitwise | 190 | U16 | 1 | 1 | | PCS |
+| Operation Mode | 192 | U16 | 1 | 1 | | All |
 | PBD Running State | 206 | U16 | 1 | 1 | | PBD |
 | PBD Fault Alarm 1 | 207 | U16 | 1 | 1 | | PBD |
 | PBD Fault Alarm 2 | 208 | U16 | 1 | 1 | | PBD |
@@ -244,4 +245,5 @@ All addresses are 0-indexed. Group indicates which device types the register app
 | PBD Running State Bitwise | 213 | U16 | 1 | 1 | | PBD |
 | PBD Operation Mode | 215 | U16 | 1 | 1 | | PBD |
 | System battery power | 228 | I16 | 1 | 0.1 | kW | PCS |
+| CP Power Limit | 229 | I16 | 1 | 0.1 | kW | PCS |
 | Hardware Version | 270 | UTF8 | 10 | 1 | | All |
