@@ -1307,9 +1307,9 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         multiplier = 1,
         register_type = RegisterTypes.HOLDING_REGISTER,
         ha_entity_type = HAEntityType.SELECT,
-        options=["Load First", "Battery First", "Economy Mode", "Peak Shaving", "Time Schedule", "Manual Dispatch", "Battery Protect", "Backup Power Management", "Constant Power Discharge", "Forced Charging", "Smart Meter Mode", "Bat-Smart Meter"],
-        value_template = "{% set options = [\"Load First\", \"Battery First\", \"Economy Mode\", \"Peak Shaving\", \"Time Schedule\", \"Manual Dispatch\", \"Battery Protect\", \"Backup Power Management\", \"Constant Power Discharge\", \"Forced Charging\", \"Smart Meter Mode\", \"Bat-Smart Meter\"] %}{% if value|int >= 0 and value|int < options|length %}{{ options[value|int] }}{% else %}{{ value }}{% endif %}",
-        command_template = "{% set options = [\"Load First\", \"Battery First\", \"Economy Mode\", \"Peak Shaving\", \"Time Schedule\", \"Manual Dispatch\", \"Battery Protect\", \"Backup Power Management\", \"Constant Power Discharge\", \"Forced Charging\", \"Smart Meter Mode\", \"Bat-Smart Meter\"] %}{% if value in options %}{{ options.index(value) }}{% else %}{{ value }}{% endif %}"
+        options=["Load First", "Battery First", "Economy Mode", "Peak Shaving", "Time Schedule", "Manual Dispatch", "Battery Protect", "Backup Power Management", "Constant Power Discharge", "Forced Charging", "Smart Meter Mode", "Bat-Smart Meter", "Grid Access Control"],
+        value_template = "{% set options = [\"Load First\", \"Battery First\", \"Economy Mode\", \"Peak Shaving\", \"Time Schedule\", \"Manual Dispatch\", \"Battery Protect\", \"Backup Power Management\", \"Constant Power Discharge\", \"Forced Charging\", \"Smart Meter Mode\", \"Bat-Smart Meter\", \"Grid Access Control\"] %}{% if value|int >= 0 and value|int < options|length %}{{ options[value|int] }}{% else %}{{ value }}{% endif %}",
+        command_template = "{% set options = [\"Load First\", \"Battery First\", \"Economy Mode\", \"Peak Shaving\", \"Time Schedule\", \"Manual Dispatch\", \"Battery Protect\", \"Backup Power Management\", \"Constant Power Discharge\", \"Forced Charging\", \"Smart Meter Mode\", \"Bat-Smart Meter\", \"Grid Access Control\"] %}{% if value in options %}{{ options.index(value) }}{% else %}{{ value }}{% endif %}"
     ),
     "Bypass Cabinet Enable": WriteParameter( # PCS
         addr = 13 + 1,
@@ -1423,6 +1423,17 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
         unit = "kW",
     ), 
 
+    "CP Nominal Power": WriteParameter( # ALL
+        addr = 118 + 1,
+        count = 1,
+        dtype = DataType.U16,
+        multiplier = 1,
+        register_type = RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type = HAEntityType.NUMBER,
+        min = 0,
+        max = 1000,
+        unit = "kW",
+    ),
     "Grid And PV Charge Together": WriteParameter( # ALL
         addr = 8 + 1,
         count = 1,
