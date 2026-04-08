@@ -26,6 +26,7 @@ class Server(ABC):
         self.connected_client: Client = connected_client
 
         self._model: str = "unknown"
+        self._fault_alarm_bits = {}             # subclass populates if fault decoding is supported
 
         self.holding_state: list[int] = []      # registers read over self.holding_extent   (min, max)
         self.input_state: list[int] = []        # registers read over self.input_extent     (min, max)

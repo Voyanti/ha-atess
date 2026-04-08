@@ -175,6 +175,39 @@ class MqttClient(mqtt.Client):
             # subscribe to write topics
             self.subscribe(discovery_payload["command_topic"])
 
+    def publish_fault_discovery(self, server, fault_entity_name="PCS Active Faults") -> None:
+        """Publish MQTT discovery topic for the combined fault alarm entity."""
+        nickname = server.name
+        availability_topic = f"{self.base_topic}_{nickname}/availability"
+        state_topic = f"{self.base_topic}/{nickname}/{slugify(fault_entity_name)}/state"
+
+        device = {
+            "manufacturer": server.manufacturer,
+            "model": server.model,
+            "identifiers": [f"{nickname}"],
+            "name": f"{nickname}"
+        }
+
+        discovery_payload = {
+            "name": fault_entity_name,
+            "unique_id": f"{nickname}_{slugify(fault_entity_name)}",
+            "state_topic": state_topic,
+            "availability_topic": availability_topic,
+            "device": device,
+            "value_template": "{{ value_json | join(', ') if value_json else 'No Faults' }}",
+            "json_attributes_topic": state_topic,
+            "json_attributes_template": '{{ {"active_faults": value_json, "count": value_json | length} | tojson }}',
+        }
+
+        discovery_topic = f"{self.ha_discovery_topic}/sensor/{nickname}/{slugify(fault_entity_name)}/config"
+        self.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
+
+    def publish_faults(self, faults: list[str], server, fault_entity_name="PCS Active Faults") -> None:
+        """Publish decoded fault alarm data as JSON array."""
+        nickname = server.name
+        state_topic = f"{self.base_topic}/{nickname}/{slugify(fault_entity_name)}/state"
+        self.publish(state_topic, json.dumps(faults), qos=1)
+
     def publish_to_ha(self, register_name, value, server):
         nickname = server.name
         state_topic = f"{self.base_topic}/{nickname}/{slugify(register_name)}/state"

@@ -814,6 +814,8 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
     },
     # PCS Input Registers 181-190 (Atess Modbus RTU v3.22)
     # TODO: also applicable to HPS inverters
+    # PCS Fault Alarm registers 181-188 are decoded separately via PCS_FAULT_ALARM_BITS
+    # and published as a single "PCS Active Faults" entity (see decode_pcs_faults)
     "Fault Alarm 1": {
         "addr": 181 + 1,
         "count": 1,
@@ -1290,7 +1292,173 @@ PBD_parameters: dict[str, Parameter]  = {
     },
 }
 
-# Atess Modbus RTU v3.22 p127 fig 4.1.2 
+# Fault Alarm Bit Information (Atess Modbus RTU v3.22, Figures 4.3.2 - 4.3.9)
+# PCS Input Registers 181-188, byte-swapped before decoding
+# Each dict maps bit position (D0-D15) to fault name
+PCS_FAULT_ALARM_BITS: dict[int, dict[int, str]] = {
+    1: {  # Figure 4.3.2 - Fault alarm bit information 1 (register 181)
+        0: "PV_Inverse_Failure",
+        1: "IGBT_Failure",
+        2: "EEPROM_Write_Failure",
+        3: "EEPROM_Read_Failure",
+        4: "AC_MainContactor_Failure",
+        5: "AC_SlaveContactor_Failure",
+        6: "GFDI_Failure",
+        7: "GFCI_Failure",
+        8: "RISO_Failure",
+    },
+    2: {  # Figure 4.3.3 - Fault alarm bit information 2 (register 182)
+        0: "PV_VoltHigh_Fault",
+        1: "CANb_Communication_Fault",
+        2: "PV_CurrHigh_Fault",
+        3: "BMS_Communication_Fault",
+        4: "PV_Insulation_Fault",
+        5: "BMS_Fault",
+        6: "DC_OCP_Fault",
+        7: "Fire_Fault",
+        8: "INT_PV_OverVolt_Fault",
+        9: "PBD250_Communication_Fault",
+        10: "INT_PV_OverCurr_Fault",
+        11: "EMS_Communication_Fault",
+        12: "IGBT_Converter_Fault",
+        13: "IGBT_Buck_Fault",
+        14: "Converter_L_OCP_Fault",
+        15: "Buck_L_OCP_Fault",
+    },
+    3: {  # Figure 4.3.4 - Fault alarm bit information 3 (register 183)
+        0: "AC_NoUtility_Fault",
+        1: "AC_GridPhaseSeque_Fault",
+        2: "AC_PLL_Fault",
+        3: "AC_Volt_Unbalance_Fault",
+        4: "AC_Curr_Unbalance_Fault",
+        8: "AC_WU_OverVolt_Fault",
+        9: "AC_WU_UnderVolt_Fault",
+        10: "AC_VW_OverVolt_Fault",
+        11: "AC_VW_UnderVolt_Fault",
+        12: "AC_UV_OverVolt_Fault",
+        13: "AC_UV_UnderVolt_Fault",
+        14: "AC_OverFreq_Fault",
+        15: "AC_UnderFreq_Fault",
+    },
+    4: {  # Figure 4.3.5 - Fault alarm bit information 4 (register 184)
+        0: "AC_GridCurr_DcHigh_Fault",
+        1: "Converter_LCurr_DcHigh_Fault",
+        2: "Buck_LCurr_DcHigh_Fault",
+        3: "GridCurr_High_Fault",
+        4: "Converter_LCurr_High_Fault",
+        5: "Buck_LCurr_High_Fault",
+        6: "AC_Overload_Fault",
+        7: "AC_Lightload_Fault",
+        8: "AC_BackFeed_Fault",
+        9: "LVRT_Fault",
+        10: "Converter_Module_OverTemp_Fault",
+        11: "Buck_Module_OverTemp_Fault",
+        12: "Converter_L_OverTemp_Fault",
+        13: "Buck_L_OverTemp_Fault",
+        14: "Transformer_OverTemp_Fault",
+        15: "LowTemp_Fault",
+    },
+    5: {  # Figure 4.3.6 - Fault alarm bit information 5 (register 185)
+        0: "EPO_Stop",
+        1: "KeyEmergencyStop",
+        2: "LcdEmergencyStop",
+        3: "CP_Communication_Fault",
+        4: "AC_MainContactor_Fault",
+        5: "DC_MainContactor_Fault",
+        6: "PBD350_Communication_Fault",
+        7: "AC_SlaveContactor_Fault",
+        8: "GFDI_Ground_Fault",
+        9: "GFDI_HallSense_Fault",
+        10: "GFDI_AirSwitch_Fault",
+        11: "PV_Thunder_Fault",
+        12: "AC_Thunder_Fault",
+        13: "BAT_Thunder_Fault",
+        14: "Converter_L_Rly_Fault",
+        15: "Buck_L_Rly_Fault",
+    },
+    6: {  # Figure 4.3.7 - Fault alarm bit information 6 (register 186)
+        0: "DC_GFDI_Fault",
+        1: "AC_GFDI_Fault",
+        2: "PV_RISO_Fault",
+        3: "BAT_RISO_Fault",
+        4: "DC_GFCI_Fault",
+        5: "AC_GFCI_Fault",
+        6: "DC_Fuse_Fault",
+        7: "AC_Fuse_Fault",
+        8: "DC_SoftStart_Fault",
+        9: "INV_SoftStart_Fault",
+        10: "INT_ConverterL_OverCurr_Fault",
+        11: "INT_BuckL_OverCurr_Fault",
+        12: "Batt_OverVolt_Fault",
+        13: "Batt_UnderVolt_Fault",
+        14: "Batt_OverCurr_Fault",
+        15: "Batt_OverCharge_Fault",
+    },
+    7: {  # Figure 4.3.8 - Fault alarm bit information 7 (register 187)
+        0: "Fault_Feedback_Warning",
+        1: "Fan_Buck_Fault_Warning",
+        2: "Fan_Inv_Fault_Warning",
+        3: "Parallel_Uneven_Flow_Warning",
+        4: "Temp_Derating_Warning",
+        5: "Batt_UnderVolt_Warning",
+        6: "DCFuseOp_Alarm_Warning",
+        7: "ACFuseOp_Alarm_Warning",
+        8: "AC_WU_OverVolt_Rmt_Warning",
+        9: "AC_WU_UnderVolt_Rmt_Warning",
+        10: "AC_VW_OverVolt_Rmt_Warning",
+        11: "AC_VW_UnderVolt_Rmt_Warning",
+        12: "AC_UV_OverVolt_Rmt_Warning",
+        13: "AC_UV_UnderVolt_Rmt_Warning",
+        14: "AC_OverFreq_Rmt_Warning",
+        15: "AC_UnderFreq_Rmt_Warning",
+    },
+    8: {  # Figure 4.3.9 - Fault alarm bit information 8 (register 188)
+        0: "Batt_UnderVolt_Protect_Warning",
+        1: "TimeSet_Warning",
+        2: "Bypass_Contactor_Warning",
+        3: "Bypass_Inter_Comm_Warning",
+        4: "Bypass_Volt_different_Warning",
+        5: "PBD_Communication_Warning",
+        6: "Meter_Communication_Warning",
+        8: "PBD250_Fault",
+        9: "PBD350_Fault",
+        10: "CP_Fault",
+        11: "CANb_Communication_Fault",
+        14: "Parallel_PLL_Signal_Fault",
+        15: "Parallel_Sync_Signal_Fault",
+    },
+}
+
+# Addresses for PCS fault alarm registers (0-indexed modbus addresses, +1 for 1-indexed)
+PCS_FAULT_ALARM_ADDRS = [(181 + 1 + i) for i in range(8)]  # registers 182-189 (1-indexed)
+
+
+def decode_fault_alarms(state: list[int], base_addr: int, fault_bits: dict[int, dict[int, str]]) -> list[str]:
+    """Decode fault alarm registers into a list of active fault strings.
+
+    Swaps high and low bytes of each 16-bit register before decoding.
+
+    Returns list of strings like "G1D0_PV_Inverse_Failure" for each active fault bit.
+    """
+    active_faults: list[str] = []
+    for group_num, bit_map in fault_bits.items():
+        # group_num is 1-indexed (Fault Alarm 1 = register 181, etc.)
+        addr = 181 + group_num  # 1-indexed address
+        idx = addr - base_addr
+        if idx < 0 or idx >= len(state):
+            continue
+        raw = state[idx]
+        # Swap high and low bytes
+        swapped = ((raw & 0xFF) << 8) | ((raw >> 8) & 0xFF)
+        for bit_num in range(16):
+            if swapped & (1 << bit_num):
+                fault_name = bit_map.get(bit_num)
+                if fault_name:
+                    active_faults.append(f"G{group_num}D{bit_num}_{fault_name}")
+    return active_faults
+
+
+# Atess Modbus RTU v3.22 p127 fig 4.1.2
 # register 43: Device Type Code -> str
 model_code_to_name: dict[int, str] = {
     22001: "HPS30",

@@ -123,6 +123,8 @@ class App:
         # Publish Discovery Topics
         for server in self.servers:
             self.mqtt_client.publish_discovery_topics(server)
+            if server._fault_alarm_bits:
+                self.mqtt_client.publish_fault_discovery(server)
 
     def loop(self, loop_once=False) -> None:
         if not self.servers or not self.clients:
@@ -152,6 +154,12 @@ class App:
                     self.mqtt_client.publish_to_ha(
                         register_name, value, server)
                 logger.info(f"Published all Read parameter values for {server.name}")
+
+                # Decode and publish fault alarms
+                if server._fault_alarm_bits:
+                    faults = server.decode_faults()
+                    self.mqtt_client.publish_faults(faults, server)
+                    logger.info(f"Published decoded faults for {server.name}: {len(faults)} active")
             logger.info("")
 
             if loop_once:
