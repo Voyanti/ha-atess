@@ -3,7 +3,7 @@ from .server import Server
 import struct
 import logging
 from .enums import DataType
-from .atess_registers import atess_parameters, PBD_parameters, PCS_parameters, not_PCS_parameters, model_code_to_name, atess_write_parameters, atess_PBD_write_parameters
+from .atess_registers import atess_parameters, PBD_parameters, PCS_parameters, not_PCS_parameters, model_code_to_name, atess_write_parameters, atess_PBD_write_parameters, PCS_FAULT_ALARM_BITS, decode_fault_alarms
 from pymodbus.client import ModbusSerialClient
 
 logger = logging.getLogger(__name__)
@@ -20,6 +20,7 @@ class AtessInverter(Server):
         self._serialnum = "unknown"
         self._parameters = dict.copy(atess_parameters)
         self._write_parameters = {}
+        self._fault_alarm_bits: dict[int, dict[int, str]] = {}
 
     @property
     def manufacturer(self):
@@ -63,6 +64,7 @@ class AtessInverter(Server):
         model_code = self.read_registers("Device Type Code")
 
         model_name = model_code_to_name.get(model_code)
+        logging.info(f"model name: {model_name}")
         if not model_name: 
             raise ValueError(f"Device Type Code read {model_code=} not in mappiong to string")
 
@@ -73,6 +75,7 @@ class AtessInverter(Server):
         if "PCS" in self.model:
             self._parameters.update(PCS_parameters)
             self._write_parameters.update(atess_write_parameters)
+            self._fault_alarm_bits = PCS_FAULT_ALARM_BITS
             logger.info("Added PCS-Specific Registers.")
         else:
             self._parameters.update(not_PCS_parameters)
@@ -82,6 +85,17 @@ class AtessInverter(Server):
                 self._parameters.update(PBD_parameters)
                 self._write_parameters.update(atess_PBD_write_parameters)
                 logger.info("Added PBD-Specific Registers.")
+
+    def decode_faults(self) -> list[str]:
+        """Decode fault alarm registers into list of active fault strings.
+
+        Reads from self.input_state (populated by read_batches).
+        Returns list like ["G1D0_PV_Inverse_Failure", "G2D3_BMS_Communication_Fault"].
+        Returns empty list if no fault bit map is configured for this model.
+        """
+        if not self._fault_alarm_bits or not self.input_state:
+            return []
+        return decode_fault_alarms(self.input_state, self.input_addr_extent[0], self._fault_alarm_bits)
 
     def _decoded(cls, registers, dtype):
         def _decode_u8(registers, low_or_high:Literal["low", "high"]):
