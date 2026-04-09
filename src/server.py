@@ -4,7 +4,16 @@ import logging
 from typing import Any, Optional, TypedDict
 
 from .helpers import slugify
-from .enums import DataType, HAEntityType, RegisterTypes, Parameter, DeviceClass, WriteParameter, WriteSelectParameter, device_class_to_rounding
+from .enums import (
+    DataType,
+    HAEntityType,
+    RegisterTypes,
+    Parameter,
+    DeviceClass,
+    WriteParameter,
+    WriteSelectParameter,
+    device_class_to_rounding,
+)
 from .client import Client
 from .options import ServerOptions
 
@@ -26,10 +35,14 @@ class Server(ABC):
         self.connected_client: Client = connected_client
 
         self._model: str = "unknown"
-        self._fault_alarm_bits = {}             # subclass populates if fault decoding is supported
+        self._fault_alarm_bits = {}  # subclass populates if fault decoding is supported
 
-        self.holding_state: list[int] = []      # registers read over self.holding_extent   (min, max)
-        self.input_state: list[int] = []        # registers read over self.input_extent     (min, max)
+        self.holding_state: list[
+            int
+        ] = []  # registers read over self.holding_extent   (min, max)
+        self.input_state: list[
+            int
+        ] = []  # registers read over self.input_extent     (min, max)
 
         logger.info(f"Server {self.name} set up.")
 
@@ -39,68 +52,84 @@ class Server(ABC):
     @property
     @abstractmethod
     def supported_models(self) -> tuple[str, ...]:
-        """ Return a tuple of string names of all supported models for the implementation."""
+        """Return a tuple of string names of all supported models for the implementation."""
 
     @property
     @abstractmethod
     def manufacturer(self) -> str:
-        """ Return a string manufacturer name for the implementation."""
+        """Return a string manufacturer name for the implementation."""
 
     @property
     @abstractmethod
     def parameters(self) -> dict[str, Parameter]:
-        """ Return a dictionary of parameter names and parameter objects."""
+        """Return a dictionary of parameter names and parameter objects."""
 
     @property
     @abstractmethod
     def write_parameters(self) -> dict[str, WriteParameter]:
-        """ Return a dictionary of WriteParameter names and WriteParameter objects."""
+        """Return a dictionary of WriteParameter names and WriteParameter objects."""
 
     @property
     @lru_cache
-    def all_parameters(self) -> dict[str, Parameter | WriteParameter | WriteSelectParameter]:
-        params: dict[str, Parameter | WriteParameter | WriteSelectParameter] =  self.parameters.copy()
+    def all_parameters(
+        self,
+    ) -> dict[str, Parameter | WriteParameter | WriteSelectParameter]:
+        params: dict[str, Parameter | WriteParameter | WriteSelectParameter] = (
+            self.parameters.copy()
+        )
         params.update(self.write_parameters)
         return params
 
     @property
     def write_parameters_slug_to_name(self) -> dict[str, str]:
-        """ Return a dictionary of mapping slugs to writeparameter names."""
-        write_parameters_slug_to_name: dict[str, str] = {slugify(name):name for name in self.write_parameters.copy()}
+        """Return a dictionary of mapping slugs to writeparameter names."""
+        write_parameters_slug_to_name: dict[str, str] = {
+            slugify(name): name for name in self.write_parameters.copy()
+        }
         return write_parameters_slug_to_name
 
     @abstractmethod
     def read_model(self) -> str:
         """
-            Reads model name register if available and decodes it.
+        Reads model name register if available and decodes it.
 
-            :returns: model_name
+        :returns: model_name
         """
 
     @abstractmethod
     def setup_valid_registers_for_model(self):
-        """ Server-specific logic for removing unsupported or selecting supported
-            registers for the specific model must be implemented.
-            Removes invalid registers for the specific model of inverter.
-            Requires self.model. Call self.read_model() first."""
+        """Server-specific logic for removing unsupported or selecting supported
+        registers for the specific model must be implemented.
+        Removes invalid registers for the specific model of inverter.
+        Requires self.model. Call self.read_model() first."""
 
     def find_register_extent(self) -> None:
-        """ Find the minimum and maximum address of registers to be read for 
-            holding and input register types, for read and write parameters.
+        """Find the minimum and maximum address of registers to be read for
+        holding and input register types, for read and write parameters.
 
-            init internal state for each:
-                self.holding[min_addr,max_addr] np
-                self.input[min_addr, max_addr] np
+        init internal state for each:
+            self.holding[min_addr,max_addr] np
+            self.input[min_addr, max_addr] np
 
-                self.holding_start_offset int min
-                self.input_start_offset int min
+            self.holding_start_offset int min
+            self.input_start_offset int min
         """
         logger.info(f"Finding register extents for reading batches")
-        parameters: dict[str, Parameter | WriteParameter | WriteSelectParameter] = self.all_parameters
+        parameters: dict[str, Parameter | WriteParameter | WriteSelectParameter] = (
+            self.all_parameters
+        )
 
         # sort params into holding and input
-        holding_params = [(k, v) for k, v in parameters.items() if v["register_type"] == RegisterTypes.HOLDING_REGISTER]
-        input_params = [(k, v) for k, v in parameters.items() if v["register_type"] == RegisterTypes.INPUT_REGISTER]
+        holding_params = [
+            (k, v)
+            for k, v in parameters.items()
+            if v["register_type"] == RegisterTypes.HOLDING_REGISTER
+        ]
+        input_params = [
+            (k, v)
+            for k, v in parameters.items()
+            if v["register_type"] == RegisterTypes.INPUT_REGISTER
+        ]
 
         # sort by address ascending
         holding_params = sorted(holding_params, key=lambda x: x[1]["addr"])
@@ -110,12 +139,15 @@ class Server(ABC):
         holding_addrs = [i[1]["addr"] for i in holding_params]
         input_addrs = [i[1]["addr"] for i in input_params]
 
-
         # account for last item count: meaning the largest address needs to be incremented
         if holding_params[-1][1]["count"] != 1:
-            holding_addrs.append(holding_params[-1][1]["count"] - 1 + holding_params[-1][1]["addr"])
+            holding_addrs.append(
+                holding_params[-1][1]["count"] - 1 + holding_params[-1][1]["addr"]
+            )
         if input_params[-1][1]["count"] != 1:
-            input_addrs.append(input_params[-1][1]["count"] - 1 + input_params[-1][1]["addr"])
+            input_addrs.append(
+                input_params[-1][1]["count"] - 1 + input_params[-1][1]["addr"]
+            )
 
         logger.info(f"{holding_addrs=}")
         logger.info(f"{input_addrs=}")
@@ -126,20 +158,30 @@ class Server(ABC):
         logger.info(f"{self.holding_addr_extent=}")
         logger.info(f"{self.input_addr_extent=}")
 
-
     def create_batches(self, batch_size=125):
         """
         stores (uneven) batches for input and holding register addresses (self.holding_addr_extent, self.input_addr_extent)
                 self.holding_batches
                 self.input_batches
         """
+
         def batch(iterable, batch_size=1):
             l = len(iterable)
             for ndx in range(0, l, batch_size):
-                yield iterable[ndx:min(ndx + batch_size, l)]
+                yield iterable[ndx : min(ndx + batch_size, l)]
 
-        self.holding_batches = tuple(batch(range(self.holding_addr_extent[0], self.holding_addr_extent[1]+1), batch_size))
-        self.input_batches = tuple(batch(range(self.input_addr_extent[0], self.input_addr_extent[1]+1), batch_size))
+        self.holding_batches = tuple(
+            batch(
+                range(self.holding_addr_extent[0], self.holding_addr_extent[1] + 1),
+                batch_size,
+            )
+        )
+        self.input_batches = tuple(
+            batch(
+                range(self.input_addr_extent[0], self.input_addr_extent[1] + 1),
+                batch_size,
+            )
+        )
 
         logger.debug("")
         logger.info(f"Created batches for server {self.name}")
@@ -166,46 +208,46 @@ class Server(ABC):
 
     @property
     def model(self) -> str:
-        """ Return a string model name for the implementation.
-            Ahould be read in using server.read_model(). 
-            server.set_model is called in server.connect(), which sets the model.
-            
-            model is used in seupt_valid_registers_for_model
-            Provided to fascilitate server types where the model cannot be read."""
+        """Return a string model name for the implementation.
+        Ahould be read in using server.read_model().
+        server.set_model is called in server.connect(), which sets the model.
+
+        model is used in seupt_valid_registers_for_model
+        Provided to fascilitate server types where the model cannot be read."""
         return self._model
-    
+
     @model.setter
     def model(self, value):
         self._model = value
 
     def set_model(self):
         """
-            Reads model-holding register, decodes it and sets self.model: str to its value..
-            Specify decoding in Server.device_info = {modelcode:    {name:modelname, ...}  }
+        Reads model-holding register, decodes it and sets self.model: str to its value..
+        Specify decoding in Server.device_info = {modelcode:    {name:modelname, ...}  }
         """
         logger.info(f"Reading model for server {self.name}")
         self.model = self.read_model()
         logger.info(f"Model read as {self.model}")
 
         if self.model not in self.supported_models:
-            raise ValueError(
-                f"Model not supported in implementation of Server, {self}")
+            raise ValueError(f"Model not supported in implementation of Server, {self}")
 
     def is_available(self, register_name="Device type code"):
-        """ Contacts any server register and returns true if the server is available """
+        """Contacts any server register and returns true if the server is available"""
         logger.info(f"Verifying availability of server {self.name}")
 
         available = True
 
         address = self.parameters[register_name]["addr"]
         dtype = self.parameters[register_name]["dtype"]
-        count = self.parameters[register_name]['count']
-        register_type = self.parameters[register_name]['register_type']
+        count = self.parameters[register_name]["count"]
+        register_type = self.parameters[register_name]["register_type"]
         slave_id = self.modbus_id
 
         try:
             response = self.connected_client.read(
-                address, count, slave_id, register_type)
+                address, count, slave_id, register_type
+            )
         except Exception as e:
             logger.error(f"{e}")
             return False
@@ -215,7 +257,7 @@ class Server(ABC):
             available = False
 
         return available
-    
+
     def read_batches(self):
         """
         Read holding and input registers for the server in batches of size 125, and save to internal state
@@ -224,31 +266,39 @@ class Server(ABC):
         self.input_state = []
 
         for batch in self.holding_batches:
-            logger.info(f"Reading holding batch from {batch[0]} to {batch[-1]}, {len(batch)=}")
+            logger.info(
+                f"Reading holding batch from {batch[0]} to {batch[-1]}, {len(batch)=}"
+            )
             result = self.connected_client.read(
-                batch[0], len(batch), self.modbus_id, RegisterTypes.HOLDING_REGISTER)   # TODO check
+                batch[0], len(batch), self.modbus_id, RegisterTypes.HOLDING_REGISTER
+            )  # TODO check
 
             if result.isError():
                 self.connected_client._handle_error_response(result)
                 raise Exception(f"Error reading batch {batch=}")
-            
+
             self.holding_state.extend(result.registers)
-            
+
         for batch in self.input_batches:
-            logger.info(f"Reading input batch from {batch[0]} to {batch[-1]}, {len(batch)=}")
+            logger.info(
+                f"Reading input batch from {batch[0]} to {batch[-1]}, {len(batch)=}"
+            )
             result = self.connected_client.read(
-                batch[0], len(batch), self.modbus_id, RegisterTypes.INPUT_REGISTER)
+                batch[0], len(batch), self.modbus_id, RegisterTypes.INPUT_REGISTER
+            )
 
             if result.isError():
                 self.connected_client._handle_error_response(result)
                 raise Exception(f"Error reading batch {batch=}")
-            
+
             self.input_state.extend(result.registers)
 
     def read_from_state(self, parameter_name: str):
         param = self.all_parameters.get(parameter_name)  # type: ignore
         if param is None:
-            raise ValueError(f"Attempted to read {parameter_name=} for server {self.name}, but it is not defined")
+            raise ValueError(
+                f"Attempted to read {parameter_name=} for server {self.name}, but it is not defined"
+            )
 
         address = param["addr"]
         dtype = param["dtype"]
@@ -259,30 +309,40 @@ class Server(ABC):
         register_type = param["register_type"]
 
         logger.debug(
-            f"Reading param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {self.modbus_id=} from internal state")
+            f"Reading param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {self.modbus_id=} from internal state"
+        )
 
         if register_type == RegisterTypes.HOLDING_REGISTER:
             # logger.debug(f"{address=}, {count=}, offset={self.holding_addr_extent[0]}")
             # logger.debug(f"start {address-self.holding_addr_extent[0]}, exclusive_end = { address+count-self.holding_addr_extent[0]}")
-            result = self.holding_state[address-self.holding_addr_extent[0]: address+count-self.holding_addr_extent[0]] # address is 1-indexed
+            result = self.holding_state[
+                address - self.holding_addr_extent[0] : address
+                + count
+                - self.holding_addr_extent[0]
+            ]  # address is 1-indexed
         elif register_type == RegisterTypes.INPUT_REGISTER:
-            result = self.input_state[address-self.input_addr_extent[0]: address+count-self.input_addr_extent[0]] # address is 1-indexed
-        else: 
-            raise ValueError(f"Illegal register_type {register_type}. for register {parameter_name}")
+            result = self.input_state[
+                address - self.input_addr_extent[0] : address
+                + count
+                - self.input_addr_extent[0]
+            ]  # address is 1-indexed
+        else:
+            raise ValueError(
+                f"Illegal register_type {register_type}. for register {parameter_name}"
+            )
 
         logger.debug(f"Raw register begin value: {result[0]}")
         val = self._decoded(result, dtype)
         if multiplier != 1:
             val *= multiplier
         if device_class is not None and isinstance(val, int) or isinstance(val, float):
-            val = round(
-                val, device_class_to_rounding.get(device_class, 2)) # type: ignore
+            val = round(val, device_class_to_rounding.get(device_class, 2))  # type: ignore
         # logger.debug(f"Decoded Value = {val} {unit}")
 
         return val
 
     def read_registers(self, parameter_name: str):
-        """ 
+        """
         Read a group of registers (parameter) using pymodbus
 
             Requires implementation of the abstract method 'Server._decoded()'
@@ -291,10 +351,16 @@ class Server(ABC):
             -----------
                 - parameter_name: str: slave parameter name string as defined in register map
         """
-        param = self.parameters.get(parameter_name, self.write_parameters.get(parameter_name))  # type: ignore
+        param = self.parameters.get(
+            parameter_name, self.write_parameters.get(parameter_name)
+        )  # type: ignore
         if param is None:
-            logger.info(f"No parameter {parameter_name=} for server {self.name} defined. Attempt to read.")
-            raise ValueError(f"No parameter {parameter_name=} for server {self.name} defined. Attempt to read.")
+            logger.info(
+                f"No parameter {parameter_name=} for server {self.name} defined. Attempt to read."
+            )
+            raise ValueError(
+                f"No parameter {parameter_name=} for server {self.name} defined. Attempt to read."
+            )
 
         address = param["addr"]
         dtype = param["dtype"]
@@ -305,10 +371,10 @@ class Server(ABC):
         register_type = param["register_type"]
 
         logger.debug(
-            f"Reading param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {self.modbus_id=}")
+            f"Reading param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {self.modbus_id=}"
+        )
 
-        result = self.connected_client.read(
-            address, count, modbus_id, register_type)
+        result = self.connected_client.read(address, count, modbus_id, register_type)
 
         if result.isError():
             self.connected_client._handle_error_response(result)
@@ -319,14 +385,18 @@ class Server(ABC):
         if multiplier != 1:
             val *= multiplier
         if device_class is not None and isinstance(val, int) or isinstance(val, float):
-            val = round(
-                val, device_class_to_rounding.get(device_class, 2)) # type: ignore
+            val = round(val, device_class_to_rounding.get(device_class, 2))  # type: ignore
         # logger.debug(f"Decoded Value = {val} {unit}")
 
         return val
-    
-    def write_registers(self, parameter_name_slug: str, value: Any, modbus_id_override: Optional[int]=None) -> None:
-        """ 
+
+    def write_registers(
+        self,
+        parameter_name_slug: str,
+        value: Any,
+        modbus_id_override: Optional[int] = None,
+    ) -> None:
+        """
         Write a group of registers (parameter) using pymodbus
 
         Requires implementation of the abstract method 'Server._encoded()'
@@ -340,14 +410,16 @@ class Server(ABC):
         dtype = param["dtype"]
         multiplier = param["multiplier"]
         count = param["count"]  # TODO
-        if modbus_id_override is not None: 
+        if modbus_id_override is not None:
             modbus_id = modbus_id_override
         else:
             modbus_id = self.modbus_id
         register_type = param["register_type"]
 
         if param["ha_entity_type"] == HAEntityType.SWITCH:
-            value = int(value, base=0) # interpret string as integer literal. supports auto detecting base
+            value = int(
+                value, base=0
+            )  # interpret string as integer literal. supports auto detecting base
         elif dtype != DataType.UTF8:
             value = float(value)
             if multiplier != 1:
@@ -356,7 +428,8 @@ class Server(ABC):
         values = self._encoded(value, dtype)
 
         logger.info(
-            f"Writing {values} to param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {modbus_id=}")
+            f"Writing {values} to param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {modbus_id=}"
+        )
 
         result = self.connected_client.write(values, address, modbus_id, register_type)
 
@@ -365,7 +438,9 @@ class Server(ABC):
             raise Exception(f"Error writing register {parameter_name}")
 
         if param.get("unit") is not None:
-            logger.info(f"Wrote {value=} unit={param.get('unit')} as {values=} to {parameter_name}.")
+            logger.info(
+                f"Wrote {value=} unit={param.get('unit')} as {values=} to {parameter_name}."
+            )
         else:
             logger.info(f"Wrote {value=} as {values=} to {parameter_name}.")
 
@@ -374,7 +449,9 @@ class Server(ABC):
         try:
             self.connected_client.connect()
         except ConnectionError:
-            logger.error(f"Could not connect to the modbus client while attempting server connection")
+            logger.error(
+                f"Could not connect to the modbus client while attempting server connection"
+            )
             raise
 
         if not self.is_available():
@@ -386,11 +463,7 @@ class Server(ABC):
         self.create_batches()
 
     @classmethod
-    def from_ServerOptions(
-        cls,
-        opts: ServerOptions,
-        clients: list[Client]
-    ):
+    def from_ServerOptions(cls, opts: ServerOptions, clients: list[Client]):
         """
         Initialises modbus_mqtt.server.Server from modbus_mqtt.loader.ServerOptions object
 

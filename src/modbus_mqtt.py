@@ -175,7 +175,7 @@ class MqttClient(mqtt.Client):
             # subscribe to write topics
             self.subscribe(discovery_payload["command_topic"])
 
-    def publish_fault_discovery(self, server, fault_entity_name="PCS Active Faults") -> None:
+    def publish_fault_discovery(self, server, fault_entity_name="Fault Alarms") -> None:
         """Publish MQTT discovery topic for the combined fault alarm entity."""
         nickname = server.name
         availability_topic = f"{self.base_topic}_{nickname}/availability"
@@ -202,7 +202,7 @@ class MqttClient(mqtt.Client):
         discovery_topic = f"{self.ha_discovery_topic}/sensor/{nickname}/{slugify(fault_entity_name)}/config"
         self.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
 
-    def publish_faults(self, faults: list[str], server, fault_entity_name="PCS Active Faults") -> None:
+    def publish_faults(self, faults: list[str], server, fault_entity_name="Fault Alarms") -> None:
         """Publish decoded fault alarm data as JSON array."""
         nickname = server.name
         state_topic = f"{self.base_topic}/{nickname}/{slugify(fault_entity_name)}/state"
