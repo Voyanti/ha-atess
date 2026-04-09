@@ -1,5 +1,9 @@
 from .enums import DataType, DeviceClass, HAEntityType, Parameter, RegisterTypes, WriteParameter, WriteSelectParameter
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 not_PCS_parameters: dict[str, Parameter]  = {
     # All except PCS
     "PV1 Voltage": {
@@ -1429,11 +1433,125 @@ PCS_FAULT_ALARM_BITS: dict[int, dict[int, str]] = {
     },
 }
 
+
+PBD_FAULT_ALARM_BITS: dict[int, dict[int, str]] = {
+    1: {  # Figure 6.3.2 - Fault alarm bit information 1
+        0: "PV_Inverse_Failure",
+        1: "IGBT_Failure",
+        2: "EEPROM_Write_Failure",
+        3: "EEPROM_Read_Failure",
+        4: "MainContactor_Failure",
+        5: "SlaveContactor_Failure",
+        6: "RISO_Failure",
+        # 7: "Reseverd_Failure",
+        8: "PV1_VoltHigh_Fault",
+        9: "PV2_VoltHigh_Fault",
+        10: "PV1_CurrHigh_Fault",
+        11: "PV2_CurrHigh_Fault",
+        12: "BAT_OverVolt_Fault",
+        13: "BAT_UnderVolt_Fault",
+        14: "BAT_OverCurr_Fault",
+        15: "BAT_OverCharge_Fault",
+    },
+    2: {  # Figure 6.3.3 - Fault alarm bit information 2
+        0: "OUT_OverVolt_Fault",
+        1: "OUT_OverCurr_Fault",
+        2: "PV_L1_BuckOverCurr_Fault",
+        3: "PV_L2_BuckOverCurr_Fault",
+        4: "OUT_L1_BuckOverCurr_Fault",
+        5: "OUT_L2_BuckOverCurr_Fault",
+        6: "BMS_Communication_Fault",
+        7: "BMS_Fault",
+        8: "PV_L1_BuckOverCurr_Fault_INT",
+        9: "PV_L2_BuckOverCurr_Fault_INT",
+        10: "OUT_L1_BuckOverCurr_Fault_INT",
+        11: "OUT_L2_BuckOverCurr_Fault_INT",
+        12: "PV1_OverVolt_Fault_INT",
+        13: "PV2_OverVolt_Fault_INT",
+        14: "BAT_OverVolt_Fault_INT",
+        15: "OUT_OverVolt_Fault_INT",
+    },
+    3: {  # Figure 6.3.4 - Fault alarm bit information 3
+        # NOTE: Document has a typo — row 1 says D1 (skipping D0) and rows 2-3
+        # both say D2. With 16 rows for 16 bits, the intended mapping is D0–D15.
+        0: "BUS_OverVolt_Fault_INT",
+        1: "PV1_OverCurr_Fault_INT",
+        2: "PV2_OverCurr_Fault_INT",
+        3: "BAT_OverCurr_Fault_INT",
+        4: "OUT_OverCurr_Fault_INT",
+        5: "PV_L3_OverCurr_Fault_INT",
+        6: "PV_L4_OverCurr_Fault_INT",
+        7: "PV_L5_OverCurr_Fault_INT",
+        8: "OUT1_OCP_Fault",
+        9: "OUT2_OCP_Fault",
+        10: "PV1_L1_OCP_Fault",
+        11: "PV2_L2_OCP_Fault",
+        12: "DC1_Thunder_Fault",
+        13: "DC2_Thunder_Fault",
+        14: "BAT_SoftStart_Fault",
+        15: "OUT_SoftStart_Fault",
+    },
+    4: {  # Figure 6.3.5 - Fault alarm bit information 4
+        0: "PV_Module_OverTemp_Fault",
+        1: "OUT_Module_OverTemp_Fault",
+        2: "PV_Inductor_OverTemp_Fault",
+        3: "OUT_Inductor2_OverTemp_Fault",
+        4: "LowTemp_Fault",
+        5: "BUS_Insulation_Fault",
+        6: "PV_IGBT_Fault",
+        7: "OUT_IGBT_Fault",
+        8: "EPO_Stop",
+        9: "KeyEmergencyStop",
+        10: "LcdEmergencyStop",
+        11: "BAT_MainContactor1_Fault",
+        12: "OUT_MainContactor2_Fault",
+        13: "BAT_SlaveContactor_Fault",
+        14: "OUT_SlaveContactor_Fault",
+        # 15: "Reseverd_Failure",
+    },
+    5: {  # Figure 6.3.6 - Fault alarm bit information 5
+        0: "Fault_Feedback_Warning",
+        1: "Fan_1_Fault_Warning",
+        2: "Fan_2_Fault_Warning",
+        3: "Fan_3_Fault_Warning",
+        4: "Temp_Derating_Warning",
+        5: "BAT_UnderVolt_Warning",
+        6: "PCS_Communication_Warning",
+        # 7: "Reseverd_Failure",
+        8: "PV3_VoltHigh_Fault",
+        9: "PV4_VoltHigh_Fault",
+        10: "PV5_VoltHigh_Fault",
+        11: "PV3_CurrHigh_Fault",
+        12: "PV4_CurrHigh_Fault",
+        13: "PV5_CurrHigh_Fault",
+        14: "PV_L3_OverCurr_Fault",
+        15: "PV_L4_OverCurr_Fault",
+    },
+    6: {  # Figure 6.3.7 - Fault alarm bit information 6
+        0: "PV_L5_OverCurr_Fault",
+        1: "PV3_OverVolt_Fault_INT",
+        2: "PV4_OverVolt_Fault_INT",
+        3: "PV5_OverVolt_Fault_INT",
+        4: "PV3_OverCurr_Fault_INT",
+        5: "PV4_OverCurr_Fault_INT",
+        6: "PV5_OverCurr_Fault_INT",
+        7: "PVVolt_higher_Output",
+        8: "DC3_Thunder_Fault",
+        9: "DC4_Thunder_Fault",
+        10: "DC5_Thunder_Fault",
+        11: "PV1_L3_OCP_Fault",
+        12: "PV2_L4_OCP_Fault",
+        13: "PV2_L5_OCP_Fault",
+        # 14: "Reseverd_Failure",
+        # 15: "Reseverd_Failure",
+    },
+}
+
 # Addresses for PCS fault alarm registers (0-indexed modbus addresses, +1 for 1-indexed)
 PCS_FAULT_ALARM_ADDRS = [(181 + 1 + i) for i in range(8)]  # registers 182-189 (1-indexed)
 
 
-def decode_fault_alarms(state: list[int], base_addr: int, fault_bits: dict[int, dict[int, str]]) -> list[str]:
+def decode_fault_alarms(state: list[int], base_addr: int, fault_bits: dict[int, dict[int, str]], fault_reg_base: int = 181) -> list[str]:
     """Decode fault alarm registers into a list of active fault strings.
 
     Swaps high and low bytes of each 16-bit register before decoding.
@@ -1442,10 +1560,11 @@ def decode_fault_alarms(state: list[int], base_addr: int, fault_bits: dict[int, 
     """
     active_faults: list[str] = []
     for group_num, bit_map in fault_bits.items():
-        # group_num is 1-indexed (Fault Alarm 1 = register 181, etc.)
-        addr = 181 + group_num  # 1-indexed address
+        # group_num is 1-indexed (Fault Alarm 1 = fault_reg_base + 1, etc.)
+        addr = fault_reg_base + group_num  # 1-indexed address
         idx = addr - base_addr
         if idx < 0 or idx >= len(state):
+            logger.warning("Illegal address calculated during fault decoding: %s", idx)
             continue
         raw = state[idx]
         # Swap high and low bytes
