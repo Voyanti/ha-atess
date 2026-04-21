@@ -157,9 +157,9 @@ class App:
 
                 # Decode and publish fault alarms
                 if server._fault_alarm_bits:
-                    faults = server.decode_faults()
-                    self.mqtt_client.publish_faults(faults, server)
-                    logger.info(f"Published decoded faults for {server.name}: {len(faults)} active")
+                    active, inactive = server.decode_faults()
+                    self.mqtt_client.publish_faults(active, inactive, server)
+                    logger.info(f"Published decoded faults for {server.name}: {len(active)} active, {len(inactive)} inactive")
             logger.info("")
 
             if loop_once:

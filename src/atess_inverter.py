@@ -90,15 +90,14 @@ class AtessInverter(Server):
                 self._fault_reg_base = 207
                 logger.info("Added PBD-Specific Registers.")
 
-    def decode_faults(self) -> list[str]:
-        """Decode fault alarm registers into list of active fault strings.
+    def decode_faults(self) -> tuple[list[str], list[str]]:
+        """Decode fault alarm registers into (active, inactive) fault-key lists.
 
         Reads from self.input_state (populated by read_batches).
-        Returns list like ["G1D0_PV_Inverse_Failure", "G2D3_BMS_Communication_Fault"].
-        Returns empty list if no fault bit map is configured for this model.
+        Returns ([], []) if no fault bit map is configured for this model.
         """
         if not self._fault_alarm_bits or not self.input_state:
-            return []
+            return [], []
         return decode_fault_alarms(self.input_state, self.input_addr_extent[0], self._fault_alarm_bits, self._fault_reg_base)
 
     def _decoded(cls, registers, dtype):
