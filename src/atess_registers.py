@@ -1,6 +1,7 @@
 from .enums import DataType, DeviceClass, HAEntityType, Parameter, RegisterTypes, WriteParameter, WriteSelectParameter
 
 import logging
+from .fault_key_validator import coerce_fault_name_key
 logger = logging.getLogger(__name__)
 
 
@@ -1551,30 +1552,41 @@ PBD_FAULT_ALARM_BITS: dict[int, dict[int, str]] = {
 PCS_FAULT_ALARM_ADDRS = [(181 + 1 + i) for i in range(8)]  # registers 182-189 (1-indexed)
 
 
-def decode_fault_alarms(state: list[int], base_addr: int, fault_bits: dict[int, dict[int, str]], fault_reg_base: int = 181) -> list[str]:
-    """Decode fault alarm registers into a list of active fault strings.
+def decode_fault_alarms(state: list[int], base_addr: int, fault_bits: dict[int, dict[int, str]], fault_reg_base: int = 181) -> tuple[list[str], list[str]]:
+    """Decode fault alarm registers into (active, inactive) fault-key lists.
 
     Swaps high and low bytes of each 16-bit register before decoding.
 
-    Returns list of strings like "G1D0_PV_Inverse_Failure" for each active fault bit.
+    Fault keys are coerced to the canonical fault-name-key schema (no GxDy prefix).
+    If a register cannot be read, its bits are treated as inactive so the attribute
+    array remains complete.
     """
     active_faults: list[str] = []
+    inactive_faults: list[str] = []
     for group_num, bit_map in fault_bits.items():
         # group_num is 1-indexed (Fault Alarm 1 = fault_reg_base + 1, etc.)
         addr = fault_reg_base + group_num  # 1-indexed address
         idx = addr - base_addr
-        if idx < 0 or idx >= len(state):
+        readable = 0 <= idx < len(state)
+        if not readable:
             logger.warning("Illegal address calculated during fault decoding: %s", idx)
+            for fault_name in bit_map.values():
+                if fault_name:
+                    inactive_faults.append(coerce_fault_name_key(fault_name))
             continue
         raw = state[idx]
         # Swap high and low bytes
         swapped = ((raw & 0xFF) << 8) | ((raw >> 8) & 0xFF)
         for bit_num in range(16):
+            fault_name = bit_map.get(bit_num)
+            if not fault_name:
+                continue
+            key = coerce_fault_name_key(fault_name)
             if swapped & (1 << bit_num):
-                fault_name = bit_map.get(bit_num)
-                if fault_name:
-                    active_faults.append(f"G{group_num}D{bit_num}_{fault_name}")
-    return active_faults
+                active_faults.append(key)
+            else:
+                inactive_faults.append(key)
+    return active_faults, inactive_faults
 
 
 # Atess Modbus RTU v3.22 p127 fig 4.1.2
