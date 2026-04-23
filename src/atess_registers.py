@@ -1,16 +1,63 @@
-from .enums import DataType, DeviceClass, HAEntityType, Parameter, RegisterTypes, WriteParameter, WriteSelectParameter
+from dataclasses import dataclass
+from typing import Literal, Set, overload
+
+from .enums import (
+    DataType,
+    DeviceClass,
+    HAEntityType,
+    Parameter,
+    RegisterTypes,
+    WriteParameter,
+    WriteSelectParameter,
+)
 
 import logging
 from .fault_key_validator import coerce_fault_name_key
+
 logger = logging.getLogger(__name__)
 
+ATESS_DEVICE_GROUP = Literal["PCS", "PBD", "HPS"]
 
-not_PCS_parameters: dict[str, Parameter]  = {
+
+@dataclass
+class ParamWrapped:
+    param_name: str
+    param: Parameter | WriteParameter | WriteSelectParameter
+    included_groups: Set[ATESS_DEVICE_GROUP] | None  # None = applicable to all groups
+    is_write_param: bool
+
+
+@dataclass
+class ParamRegistry:
+    registry: list[ParamWrapped]
+
+    @overload
+    def build_map(
+        self, group: ATESS_DEVICE_GROUP, is_write_map: Literal[False] = False
+    ) -> dict[str, Parameter]: ...
+    @overload
+    def build_map(
+        self, group: ATESS_DEVICE_GROUP, is_write_map: Literal[True]
+    ) -> dict[str, WriteParameter | WriteSelectParameter]: ...
+
+    def build_map(self, group: ATESS_DEVICE_GROUP, is_write_map: bool = False):
+        m: dict[str, Parameter | WriteParameter | WriteSelectParameter] = {}
+        for r in self.registry:
+            device_in_group = r.included_groups is None or group in r.included_groups
+            should_include = (is_write_map == r.is_write_param) and device_in_group
+
+            if should_include:
+                m = m | {r.param_name: r.param}
+
+        return m
+
+
+not_PCS_parameters: dict[str, Parameter] = {
     # All except PCS
     "PV1 Voltage": {
         "addr": 0 + 1,
         "count": 1,
-        "dtype": DataType.I16, 
+        "dtype": DataType.I16,
         "multiplier": 0.1,
         "unit": "V",
         "device_class": DeviceClass.VOLTAGE,
@@ -28,7 +75,7 @@ not_PCS_parameters: dict[str, Parameter]  = {
     "PV1 Power": {
         "addr": 51 + 1,
         "count": 1,
-        "dtype": DataType.I16,   # Unsigned according to protocol, but observation says otherwise
+        "dtype": DataType.I16,  # Unsigned according to protocol, but observation says otherwise
         "multiplier": 0.1,
         "unit": "kW",
         "device_class": DeviceClass.POWER,
@@ -42,9 +89,9 @@ not_PCS_parameters: dict[str, Parameter]  = {
         "unit": "kWh",
         "device_class": DeviceClass.ENERGY,
         "register_type": RegisterTypes.INPUT_REGISTER,
-        "state_class": "total_increasing"
+        "state_class": "total_increasing",
     },
-    "Total PV Generation" : {
+    "Total PV Generation": {
         "addr": 64 + 1,
         "count": 2,
         "dtype": DataType.U32,
@@ -52,7 +99,7 @@ not_PCS_parameters: dict[str, Parameter]  = {
         "unit": "kWh",
         "device_class": DeviceClass.ENERGY,
         "register_type": RegisterTypes.INPUT_REGISTER,
-        "state_class": "total_increasing"
+        "state_class": "total_increasing",
     },
 }
 atess_parameters: dict[str, Parameter] = {
@@ -85,7 +132,7 @@ atess_parameters: dict[str, Parameter] = {
         "multiplier": 1,
         "unit": "",
         "register_type": RegisterTypes.HOLDING_REGISTER,
-    }, 
+    },
     # On/Off State
     "Device On/Off": {
         "addr": 0 + 1,
@@ -97,7 +144,7 @@ atess_parameters: dict[str, Parameter] = {
         "register_type": RegisterTypes.HOLDING_REGISTER,
     },
     # Voltage and Current Measurements
-    "PV Voltage": { # 0 on PCS
+    "PV Voltage": {  # 0 on PCS
         "addr": 80 + 1,
         "count": 1,
         "dtype": DataType.U16,
@@ -106,7 +153,7 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": DeviceClass.VOLTAGE,
         "register_type": RegisterTypes.HOLDING_REGISTER,
     },
-    "PV Current": { # constant on PCS500
+    "PV Current": {  # constant on PCS500
         "addr": 83 + 1,
         "count": 1,
         "dtype": DataType.U16,
@@ -115,7 +162,7 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": DeviceClass.CURRENT,
         "register_type": RegisterTypes.HOLDING_REGISTER,
     },
-    "Battery Power": { # checked
+    "Battery Power": {  # checked
         "addr": 17 + 1,
         "count": 1,
         "dtype": DataType.I16,
@@ -124,7 +171,7 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": DeviceClass.POWER,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Battery SOC": { # checked
+    "Battery SOC": {  # checked
         "addr": 47 + 1,
         "count": 1,
         "dtype": DataType.U16,
@@ -132,7 +179,7 @@ atess_parameters: dict[str, Parameter] = {
         "multiplier": 1,
         "unit": "%",
         "register_type": RegisterTypes.INPUT_REGISTER,
-        "state_class": "measurement"
+        "state_class": "measurement",
     },
     # Input registers
     "Hardware Version": {
@@ -144,7 +191,7 @@ atess_parameters: dict[str, Parameter] = {
         "unit": "",
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Battery Voltage": { # checked
+    "Battery Voltage": {  # checked
         "addr": 1 + 1,
         "count": 1,
         "dtype": DataType.I16,
@@ -153,7 +200,7 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": DeviceClass.VOLTAGE,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Battery Current": { # checked
+    "Battery Current": {  # checked
         "addr": 2 + 1,
         "count": 1,
         "dtype": DataType.I16,
@@ -162,26 +209,24 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": DeviceClass.CURRENT,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    
-    "BMS Max Charge Current": Parameter( # ALL
-        addr = 100 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 0.1,
+    "BMS Max Charge Current": Parameter(  # ALL
+        addr=100 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=0.1,
         device_class=DeviceClass.CURRENT,
-        register_type = RegisterTypes.INPUT_REGISTER,
-        unit = "A",
-    ), 
-    "BMS Max Discharge Current": Parameter( # ALL
-        addr = 101 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 0.1,
-        register_type = RegisterTypes.INPUT_REGISTER,
+        register_type=RegisterTypes.INPUT_REGISTER,
+        unit="A",
+    ),
+    "BMS Max Discharge Current": Parameter(  # ALL
+        addr=101 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=0.1,
+        register_type=RegisterTypes.INPUT_REGISTER,
         device_class=DeviceClass.CURRENT,
-        unit = "A",
-    ), 
-    
+        unit="A",
+    ),
     ###############################
     "Ambient temperature": {
         "addr": 36 + 1,
@@ -211,7 +256,7 @@ atess_parameters: dict[str, Parameter] = {
         "unit": "°C",
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "BMS Max. Cell Voltage": { # checked
+    "BMS Max. Cell Voltage": {  # checked
         "addr": 174 + 1,
         "count": 1,
         "dtype": DataType.U16,
@@ -220,7 +265,7 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": DeviceClass.VOLTAGE,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "BMS Min. Cell Voltage": { # checked
+    "BMS Min. Cell Voltage": {  # checked
         "addr": 175 + 1,
         "count": 1,
         "dtype": DataType.U16,
@@ -229,7 +274,7 @@ atess_parameters: dict[str, Parameter] = {
         "device_class": DeviceClass.VOLTAGE,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Total Battery Discharge Energy": { # checked
+    "Total Battery Discharge Energy": {  # checked
         "addr": 68 + 1,
         "count": 2,
         "dtype": DataType.U32,
@@ -239,7 +284,7 @@ atess_parameters: dict[str, Parameter] = {
         "register_type": RegisterTypes.INPUT_REGISTER,
         "state_class": "total_increasing",
     },
-    "Total Battery Charge Energy": { # checked
+    "Total Battery Charge Energy": {  # checked
         "addr": 72 + 1,
         "count": 2,
         "dtype": DataType.U32,
@@ -275,11 +320,11 @@ atess_parameters: dict[str, Parameter] = {
         "unit": "mV",
         "device_class": DeviceClass.VOLTAGE,
         "register_type": RegisterTypes.HOLDING_REGISTER,
-    }
+    },
 }
 
 
-PCS_parameters: dict[str, Parameter]  = {  # battery inverters
+PCS_parameters: dict[str, Parameter] = {  # battery inverters
     "System battery current": {
         "addr": 162 + 1,
         "count": 1,
@@ -316,7 +361,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "unit": "°C",
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    # "Battery Discharge Cutoff": { # 
+    # "Battery Discharge Cutoff": { #
     #     "addr": 47 + 1,
     #     "count": 1,
     #     "dtype": DataType.U16,
@@ -467,7 +512,6 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.CURRENT,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-
     "Grid Bypass Voltage UV": {
         "addr": 13 + 1,
         "count": 1,
@@ -495,18 +539,15 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.VOLTAGE,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-
     "Bypass Frequency": {
         "addr": 81 + 1,
         "count": 1,
         "dtype": DataType.U16,
         "multiplier": 0.01,
-        "unit" : "Hz",
+        "unit": "Hz",
         "device_class": DeviceClass.FREQUENCY,
-        "register_type": RegisterTypes.INPUT_REGISTER
+        "register_type": RegisterTypes.INPUT_REGISTER,
     },
-
-
     "Output Frequency": {
         "addr": 16 + 1,
         "count": 1,
@@ -516,7 +557,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.FREQUENCY,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Bypass Apparent Power": { # fout
+    "Bypass Apparent Power": {  # fout
         "addr": 18 + 1,
         "count": 1,
         "dtype": DataType.U16,
@@ -525,7 +566,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.APPARENT_POWER,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Bypass Active Power": { # fout
+    "Bypass Active Power": {  # fout
         "addr": 19 + 1,
         "count": 1,
         "dtype": DataType.I16,
@@ -533,9 +574,9 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "unit": "kW",
         "device_class": DeviceClass.POWER,
         "register_type": RegisterTypes.INPUT_REGISTER,
-        "state_class": "measurement"
+        "state_class": "measurement",
     },
-    "Bypass Reactive Power": { # fout
+    "Bypass Reactive Power": {  # fout
         "addr": 20 + 1,
         "count": 1,
         "dtype": DataType.I16,
@@ -561,7 +602,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "unit": "",
         "device_class": DeviceClass.ENUM,
         "register_type": RegisterTypes.INPUT_REGISTER,
-        "remarks": "0: abnormal, 1: normal"
+        "remarks": "0: abnormal, 1: normal",
     },
     "Output Apparent Power": {
         "addr": 78 + 1,
@@ -590,7 +631,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.REACTIVE_POWER,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Daily Power Consumption": { # fout
+    "Daily Power Consumption": {  # fout
         "addr": 82 + 1,
         "count": 1,
         "dtype": DataType.U16,
@@ -599,7 +640,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.ENERGY,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Daily Power From Grid": { # checked
+    "Daily Power From Grid": {  # checked
         "addr": 88 + 1,
         "count": 1,
         "dtype": DataType.U16,
@@ -608,7 +649,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.ENERGY,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Daily Power To Grid": { # checked
+    "Daily Power To Grid": {  # checked
         "addr": 94 + 1,
         "count": 1,
         "dtype": DataType.U16,
@@ -617,7 +658,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.ENERGY,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Output Current U": { # checked TODO load vs output current
+    "Output Current U": {  # checked TODO load vs output current
         "addr": 135 + 1,
         "count": 1,
         "dtype": DataType.I16,
@@ -626,7 +667,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.CURRENT,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Output Current V": { # checked
+    "Output Current V": {  # checked
         "addr": 136 + 1,
         "count": 1,
         "dtype": DataType.I16,
@@ -635,7 +676,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.CURRENT,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Output Current W": { # checked
+    "Output Current W": {  # checked
         "addr": 137 + 1,
         "count": 1,
         "dtype": DataType.I16,
@@ -681,7 +722,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.POWER_FACTOR,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Load Current U": { # load current u on inverter disp
+    "Load Current U": {  # load current u on inverter disp
         "addr": 53 + 1,
         "count": 1,
         "dtype": DataType.I16,
@@ -690,7 +731,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.CURRENT,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Load Current V": {# load current v on inverter disp
+    "Load Current V": {  # load current v on inverter disp
         "addr": 54 + 1,
         "count": 1,
         "dtype": DataType.I16,
@@ -699,7 +740,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.CURRENT,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Load Current W": {# load current w on inverter disp
+    "Load Current W": {  # load current w on inverter disp
         "addr": 55 + 1,
         "count": 1,
         "dtype": DataType.I16,
@@ -735,7 +776,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "device_class": DeviceClass.VOLTAGE,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "Total Grid Import" : {
+    "Total Grid Import": {
         "addr": 90 + 1,
         "count": 2,
         "dtype": DataType.U32,
@@ -743,9 +784,9 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "unit": "kWh",
         "device_class": DeviceClass.ENERGY,
         "register_type": RegisterTypes.INPUT_REGISTER,
-        "state_class": "total"
+        "state_class": "total",
     },
-    "Total Grid Export" : {
+    "Total Grid Export": {
         "addr": 96 + 1,
         "count": 2,
         "dtype": DataType.U32,
@@ -753,7 +794,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "unit": "kWh",
         "device_class": DeviceClass.ENERGY,
         "register_type": RegisterTypes.INPUT_REGISTER,
-        "state_class": "total"
+        "state_class": "total",
     },
     "Total Load Energy": {
         "addr": 84 + 1,
@@ -763,7 +804,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "unit": "kWh",
         "device_class": DeviceClass.ENERGY,
         "register_type": RegisterTypes.INPUT_REGISTER,
-        "state_class": "total"
+        "state_class": "total",
     },
     "BMS Battery Status": {
         "addr": 176 + 1,
@@ -783,7 +824,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
                             '5': 'Discharging'
                             } %}
                             {{ states[value] if value in states else 'unknown' }}
-                            """
+                            """,
     },
     "BMS System Status": {
         "addr": 176 + 1,
@@ -815,7 +856,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
                         '8': 'Switch-to-on-grid'
                         } %}
                         {{ states[value] if value in states else 'unknown' }}
-                        """
+                        """,
     },
     # PCS Input Registers 181-190 (Atess Modbus RTU v3.22)
     # TODO: also applicable to HPS inverters
@@ -924,7 +965,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
                         '17': 'Grid Access Control'
                         } %}
                         {{ modes[value] if value in modes else 'unknown' }}
-                        """
+                        """,
     },
     "Running State Bitwise": {
         "addr": 190 + 1,
@@ -936,7 +977,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
     "BMS Level 1 Alarm": {
-        "addr": 177+1,
+        "addr": 177 + 1,
         "count": 1,
         "dtype": DataType.U16,
         "multiplier": 1,
@@ -945,7 +986,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
     "BMS Level 2 Alarm": {
-        "addr": 178+1,
+        "addr": 178 + 1,
         "count": 1,
         "dtype": DataType.U16,
         "multiplier": 1,
@@ -954,7 +995,7 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
     "BMS Level 3 Protection": {
-        "addr": 179+1,
+        "addr": 179 + 1,
         "count": 1,
         "dtype": DataType.U16,
         "multiplier": 1,
@@ -963,8 +1004,8 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
     "BMS Max V Group Nr": {
-        "addr": 168+1,
-        "count": 1, 
+        "addr": 168 + 1,
+        "count": 1,
         "dtype": DataType.U8H,
         "multiplier": 1,
         "unit": "",
@@ -972,8 +1013,8 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
     "BMS Min V Group Nr": {
-        "addr": 168+1,
-        "count": 1, 
+        "addr": 168 + 1,
+        "count": 1,
         "dtype": DataType.U8L,
         "multiplier": 1,
         "unit": "",
@@ -981,8 +1022,8 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
     "BMS Min V Unit Nr": {
-        "addr": 172+1,
-        "count": 1, 
+        "addr": 172 + 1,
+        "count": 1,
         "dtype": DataType.U8H,
         "multiplier": 1,
         "unit": "",
@@ -990,8 +1031,8 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
     "BMS Min V Unit Box Nr": {
-        "addr": 172+1,
-        "count": 1, 
+        "addr": 172 + 1,
+        "count": 1,
         "dtype": DataType.U8L,
         "multiplier": 1,
         "unit": "",
@@ -999,8 +1040,8 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
     "BMS Max V Unit Nr": {
-        "addr": 173+1,
-        "count": 1, 
+        "addr": 173 + 1,
+        "count": 1,
         "dtype": DataType.U8H,
         "multiplier": 1,
         "unit": "",
@@ -1008,8 +1049,8 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
     "BMS Max V Unit Box Nr": {
-        "addr": 173+1,
-        "count": 1, 
+        "addr": 173 + 1,
+        "count": 1,
         "dtype": DataType.U8L,
         "multiplier": 1,
         "unit": "",
@@ -1017,8 +1058,8 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
     "BMS Total Voltage": {
-        "addr": 164+1,
-        "count": 1, 
+        "addr": 164 + 1,
+        "count": 1,
         "dtype": DataType.I16,
         "multiplier": 0.1,
         "unit": "V",
@@ -1026,20 +1067,18 @@ PCS_parameters: dict[str, Parameter]  = {  # battery inverters
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
     "BMS Total Current": {
-        "addr": 165+1,
-        "count": 1, 
+        "addr": 165 + 1,
+        "count": 1,
         "dtype": DataType.I16,
         "multiplier": 0.1,
         "unit": "A",
         "device_class": DeviceClass.CURRENT,
         "register_type": RegisterTypes.INPUT_REGISTER,
-    }
-
+    },
 }
 # TODO bypass p 37 atess-modbus-rtu-protocol-v37.pdf
 
-PBD_parameters: dict[str, Parameter]  = {
-    
+PBD_parameters: dict[str, Parameter] = {
     # PBD
     "PV2 Voltage": {
         "addr": 105 + 1,
@@ -1104,7 +1143,7 @@ PBD_parameters: dict[str, Parameter]  = {
         "device_class": DeviceClass.POWER,
         "register_type": RegisterTypes.INPUT_REGISTER,
     },
-    "PV Module Temperature": { # 0 on PCS
+    "PV Module Temperature": {  # 0 on PCS
         "addr": 114 + 1,
         "count": 1,
         "dtype": DataType.U16,
@@ -1213,7 +1252,7 @@ PBD_parameters: dict[str, Parameter]  = {
                         '6': 'Single PV mode'
                         } %}
                         {{ states[value] if value in states else 'unknown' }}
-                        """
+                        """,
     },
     "PBD Fault Alarm 1": {
         "addr": 207 + 1,
@@ -1293,7 +1332,7 @@ PBD_parameters: dict[str, Parameter]  = {
                         '1': 'EMS Mode'
                         } %}
                         {{ modes[value] if value in modes else 'unknown' }}
-                        """
+                        """,
     },
 }
 
@@ -1549,10 +1588,17 @@ PBD_FAULT_ALARM_BITS: dict[int, dict[int, str]] = {
 }
 
 # Addresses for PCS fault alarm registers (0-indexed modbus addresses, +1 for 1-indexed)
-PCS_FAULT_ALARM_ADDRS = [(181 + 1 + i) for i in range(8)]  # registers 182-189 (1-indexed)
+PCS_FAULT_ALARM_ADDRS = [
+    (181 + 1 + i) for i in range(8)
+]  # registers 182-189 (1-indexed)
 
 
-def decode_fault_alarms(state: list[int], base_addr: int, fault_bits: dict[int, dict[int, str]], fault_reg_base: int = 181) -> tuple[list[str], list[str]]:
+def decode_fault_alarms(
+    state: list[int],
+    base_addr: int,
+    fault_bits: dict[int, dict[int, str]],
+    fault_reg_base: int = 181,
+) -> tuple[list[str], list[str]]:
     """Decode fault alarm registers into (active, inactive) fault-key lists.
 
     Swaps high and low bytes of each 16-bit register before decoding.
@@ -1640,180 +1686,190 @@ model_code_to_name: dict[int, str] = {
 }
 
 atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
-    "Mode selection": WriteSelectParameter( # ALL
-        addr = 26 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.SELECT,
-        options=["Load First", "Battery First", "Economy Mode", "Peak Shaving", "Time Schedule", "Manual Dispatch", "Battery Protect", "Backup Power Management", "Constant Power Discharge", "Forced Charging", "Smart Meter Mode", "Bat-Smart Meter", "Grid Access Control"],
-        value_template = "{% set options = [\"Load First\", \"Battery First\", \"Economy Mode\", \"Peak Shaving\", \"Time Schedule\", \"Manual Dispatch\", \"Battery Protect\", \"Backup Power Management\", \"Constant Power Discharge\", \"Forced Charging\", \"Smart Meter Mode\", \"Bat-Smart Meter\", \"Grid Access Control\"] %}{% if value|int >= 0 and value|int < options|length %}{{ options[value|int] }}{% else %}{{ value }}{% endif %}",
-        command_template = "{% set options = [\"Load First\", \"Battery First\", \"Economy Mode\", \"Peak Shaving\", \"Time Schedule\", \"Manual Dispatch\", \"Battery Protect\", \"Backup Power Management\", \"Constant Power Discharge\", \"Forced Charging\", \"Smart Meter Mode\", \"Bat-Smart Meter\", \"Grid Access Control\"] %}{% if value in options %}{{ options.index(value) }}{% else %}{{ value }}{% endif %}"
+    "Mode selection": WriteSelectParameter(  # ALL
+        addr=26 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.SELECT,
+        options=[
+            "Load First",
+            "Battery First",
+            "Economy Mode",
+            "Peak Shaving",
+            "Time Schedule",
+            "Manual Dispatch",
+            "Battery Protect",
+            "Backup Power Management",
+            "Constant Power Discharge",
+            "Forced Charging",
+            "Smart Meter Mode",
+            "Bat-Smart Meter",
+            "Grid Access Control",
+        ],
+        value_template='{% set options = ["Load First", "Battery First", "Economy Mode", "Peak Shaving", "Time Schedule", "Manual Dispatch", "Battery Protect", "Backup Power Management", "Constant Power Discharge", "Forced Charging", "Smart Meter Mode", "Bat-Smart Meter", "Grid Access Control"] %}{% if value|int >= 0 and value|int < options|length %}{{ options[value|int] }}{% else %}{{ value }}{% endif %}',
+        command_template='{% set options = ["Load First", "Battery First", "Economy Mode", "Peak Shaving", "Time Schedule", "Manual Dispatch", "Battery Protect", "Backup Power Management", "Constant Power Discharge", "Forced Charging", "Smart Meter Mode", "Bat-Smart Meter", "Grid Access Control"] %}{% if value in options %}{{ options.index(value) }}{% else %}{{ value }}{% endif %}',
     ),
-    "Bypass Cabinet Enable": WriteParameter( # PCS
-        addr = 13 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.SWITCH,
-        payload_off = 0,
-        payload_on = 1,
+    "Bypass Cabinet Enable": WriteParameter(  # PCS
+        addr=13 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.SWITCH,
+        payload_off=0,
+        payload_on=1,
     ),
-    "BMS Communication Enable": WriteParameter( # PCS
-        addr = 14 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.SWITCH,
-        payload_off = 0,
-        payload_on = 1,
+    "BMS Communication Enable": WriteParameter(  # PCS
+        addr=14 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.SWITCH,
+        payload_off=0,
+        payload_on=1,
     ),
-
     # Battery. NOTE Actually all types have this holding register
-    "Generator Start SOC": WriteParameter( # ALL "SOC Up Limit" # When off-grid AND in diesel Generator (DG) mode
-        addr = 66 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
-        min = 0,
-        max = 100,
-        unit = "%",
-    ), 
-    "Grid Power Compensation": WriteParameter( # ALL
-        addr = 44 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
-        min = 0,
-        max = 100,
-        unit = "kW",
-    ), 
-    "Generator Stop SOC": WriteParameter( # ALL
-        addr = 67 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
-        min = 0,
-        max = 100,
-        unit = "%",
-    ), 
-    "Battery Charging Saturation": WriteParameter( # ALL
-        addr = 150 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
-        min = 0,
-        max = 10,
-    ), 
-
-
-    "Charge Cutoff SOC": WriteParameter( # ALL
-        addr = 178 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
-        min = 0,
-        max = 100,
-        unit = "%",
-    ), 
-    "Discharge Cutoff SOC": WriteParameter( # ALL
-        addr = 47 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
-        min = 0,
-        max = 100,
-        unit = "%",
-    ), 
-    "Grid Charge Cutoff SOC": WriteParameter( # ALL
-        addr = 340 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
-        min = 0,
-        max = 100,
-        unit = "%",
-    ), 
-    "Battery Power Export to Grid Set": WriteParameter( # ALL
-        addr = 174 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
-        min = 0,
-        max = 150,
-        unit = "kW",
-    ), 
-
-    "CP Nominal Power": WriteParameter( # ALL
-        addr = 118 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
-        min = 0,
-        max = 1000,
-        unit = "kW",
+    "Generator Start SOC": WriteParameter(  # ALL "SOC Up Limit" # When off-grid AND in diesel Generator (DG) mode
+        addr=66 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
+        min=0,
+        max=100,
+        unit="%",
     ),
-    "Grid And PV Charge Together": WriteParameter( # ALL
-        addr = 8 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.SWITCH,
-        payload_off = 0,
-        payload_on = 1,
-    ), 
-    "Max Grid Charge Power": WriteParameter( # ALL
-        addr = 225 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
-        min = 0,
-        max = 150, # TODO
-        unit = "kW",
-    ), 
-    "Forced Charge Enable": WriteParameter( # ALL
-        addr = 229 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.SWITCH,
-        payload_off = 0,
-        payload_on = 1,
+    "Grid Power Compensation": WriteParameter(  # ALL
+        addr=44 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=0.1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
+        min=0,
+        max=100,
+        unit="kW",
     ),
-    "Anti Reflux Enable": WriteParameter( # HPS, PCS, HPSTL
-        addr = 16 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.SWITCH,
-        payload_off = 0,
-        payload_on = 1,
+    "Generator Stop SOC": WriteParameter(  # ALL
+        addr=67 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
+        min=0,
+        max=100,
+        unit="%",
+    ),
+    "Battery Charging Saturation": WriteParameter(  # ALL
+        addr=150 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
+        min=0,
+        max=10,
+    ),
+    "Charge Cutoff SOC": WriteParameter(  # ALL
+        addr=178 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
+        min=0,
+        max=100,
+        unit="%",
+    ),
+    "Discharge Cutoff SOC": WriteParameter(  # ALL
+        addr=47 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
+        min=0,
+        max=100,
+        unit="%",
+    ),
+    "Grid Charge Cutoff SOC": WriteParameter(  # ALL
+        addr=340 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
+        min=0,
+        max=100,
+        unit="%",
+    ),
+    "Battery Power Export to Grid Set": WriteParameter(  # ALL
+        addr=174 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
+        min=0,
+        max=150,
+        unit="kW",
+    ),
+    "CP Nominal Power": WriteParameter(  # ALL
+        addr=118 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
+        min=0,
+        max=1000,
+        unit="kW",
+    ),
+    "Grid And PV Charge Together": WriteParameter(  # ALL
+        addr=8 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.SWITCH,
+        payload_off=0,
+        payload_on=1,
+    ),
+    "Max Grid Charge Power": WriteParameter(  # ALL
+        addr=225 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=0.1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
+        min=0,
+        max=150,  # TODO
+        unit="kW",
+    ),
+    "Forced Charge Enable": WriteParameter(  # ALL
+        addr=229 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.SWITCH,
+        payload_off=0,
+        payload_on=1,
+    ),
+    "Anti Reflux Enable": WriteParameter(  # HPS, PCS, HPSTL
+        addr=16 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.SWITCH,
+        payload_off=0,
+        payload_on=1,
     ),
     # "PV Power Limit": WriteParameter( # ALL # "PV power setting"
     #     addr = 33 + 1,
@@ -1825,18 +1881,18 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
     #     unit="kW",
     #     min = 0,
     #     max = 500
-    # ), 
-    "Output Power Limit": WriteParameter( # ALL # "Output Power Upper Limit"
-        addr = 58 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
+    # ),
+    "Output Power Limit": WriteParameter(  # ALL # "Output Power Upper Limit"
+        addr=58 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
         unit="%",
-        min = 0,
-        max = 120
-    ), 
+        min=0,
+        max=120,
+    ),
     # "Load Power Limit": WriteParameter( # ALL # "Output Power Upper Limit"
     #     addr = 107 + 1,
     #     count = 1,
@@ -1847,18 +1903,18 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
     #     unit="kW",
     #     min = 0,
     #     max = 500
-    # ), 
-    "Grid Power UP Limit": WriteParameter( # ALL # "Grid Power UP Limit"
-        addr = 65 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
+    # ),
+    "Grid Power UP Limit": WriteParameter(  # ALL # "Grid Power UP Limit"
+        addr=65 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
         unit="kW",
-        min = 0,
-        max = 500
-    ), 
+        min=0,
+        max=500,
+    ),
     # "Max Grid Import Power": WriteParameter( # ALL # "Upper limit powerfeed from grid"
     #     addr = 169 + 1,
     #     count = 1,
@@ -1869,29 +1925,29 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
     #     unit="kW",
     #     min = 0,
     #     max = 500
-    # ), 
-    "Charge current limit": WriteParameter( # ALL
-        addr = 154 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
+    # ),
+    "Charge current limit": WriteParameter(  # ALL
+        addr=154 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=0.1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
         unit="A",
-        min = 0,
-        max = 1000 # TODO "10000"
-    ), 
-    "Discharge current limit": WriteParameter( # ALL
-        addr = 155 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
+        min=0,
+        max=1000,  # TODO "10000"
+    ),
+    "Discharge current limit": WriteParameter(  # ALL
+        addr=155 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=0.1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
         unit="A",
-        min = 0,
-        max = 1000 # TODO "10000"
-    ), 
+        min=0,
+        max=1000,  # TODO "10000"
+    ),
     # "Battery Discharge Current HPS": WriteParameter( # HPS # "Upper limit powerfeed from grid"
     #     addr = 172 + 1,
     #     count = 1,
@@ -1902,57 +1958,75 @@ atess_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
     #     unit="A",
     #     min = 0,
     #     max = 1000 # TODO "10000"
-    # ), 
+    # ),
 }
 atess_PBD_write_parameters: dict[str, WriteParameter | WriteSelectParameter] = {
-    "PV Start Voltage": WriteParameter( # ALL
-        addr = 60 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
+    "PV Start Voltage": WriteParameter(  # ALL
+        addr=60 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=0.1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
         unit="V",
-        min = 300,
-        max = 850
-    ), 
-    "Max MPPT Voltage": WriteParameter( # ALL
-        addr = 61 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
+        min=300,
+        max=850,
+    ),
+    "Max MPPT Voltage": WriteParameter(  # ALL
+        addr=61 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=0.1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
         unit="V",
-        min = 300,
-        max = 1500
-    ), 
-    "Min MPPT Voltage": WriteParameter( # ALL
-        addr = 62 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
+        min=300,
+        max=1500,
+    ),
+    "Min MPPT Voltage": WriteParameter(  # ALL
+        addr=62 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=0.1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
         unit="V",
-        min = 300,
-        max = 1500
-    ), 
-    "PV Start Power": WriteParameter( # ALL
-        addr = 63 + 1,
-        count = 1,
-        dtype = DataType.U16,
-        multiplier = 0.1,
-        register_type = RegisterTypes.HOLDING_REGISTER,
-        ha_entity_type = HAEntityType.NUMBER,
+        min=300,
+        max=1500,
+    ),
+    "PV Start Power": WriteParameter(  # ALL
+        addr=63 + 1,
+        count=1,
+        dtype=DataType.U16,
+        multiplier=0.1,
+        register_type=RegisterTypes.HOLDING_REGISTER,
+        ha_entity_type=HAEntityType.NUMBER,
         unit="kW",
-        min = 0,
-        max = 500
-    ), 
+        min=0,
+        max=500,
+    ),
 }
 
 
-deprecated: dict[str, Parameter]= {
+atess_param_registry = ParamRegistry(
+    registry=[
+        *[ParamWrapped(n, p, None, False) for n, p in atess_parameters.items()],
+        *[
+            ParamWrapped(n, p, {"PBD", "HPS"}, False)
+            for n, p in not_PCS_parameters.items()
+        ],
+        *[ParamWrapped(n, p, {"PCS"}, False) for n, p in PCS_parameters.items()],
+        *[ParamWrapped(n, p, {"PBD"}, False) for n, p in PBD_parameters.items()],
+        *[ParamWrapped(n, p, {"PCS"}, True) for n, p in atess_write_parameters.items()],
+        *[
+            ParamWrapped(n, p, {"PBD"}, True)
+            for n, p in atess_PBD_write_parameters.items()
+        ],
+    ]
+)
+
+
+deprecated: dict[str, Parameter] = {
     # Voltage and Current Measurements
     # "PV Voltage Calibration": {
     #     "addr": 80 + 1,
@@ -2104,53 +2178,64 @@ deprecated: dict[str, Parameter]= {
     # },
 }
 
+
 if __name__ == "__main__":
-    def create_batches(parameters: dict[str, Parameter | WriteParameter | WriteSelectParameter]):
-        holding_params = [(k, v) for k, v in parameters.items() if v["register_type"] == RegisterTypes.HOLDING_REGISTER]
-        input_params = [(k, v) for k, v in parameters.items() if v["register_type"] == RegisterTypes.INPUT_REGISTER]
+
+    def create_batches(
+        parameters: dict[str, Parameter | WriteParameter | WriteSelectParameter],
+    ):
+        holding_params = [
+            (k, v)
+            for k, v in parameters.items()
+            if v["register_type"] == RegisterTypes.HOLDING_REGISTER
+        ]
+        input_params = [
+            (k, v)
+            for k, v in parameters.items()
+            if v["register_type"] == RegisterTypes.INPUT_REGISTER
+        ]
 
         for params in (holding_params, input_params):
             params = sorted(params, key=lambda x: x[1]["addr"])
             print([i[1]["addr"] for i in params])
 
-
     def find_consecutive_groups(numbers):
         """
         Find groups of consecutive numbers in a list.
-        
+
         Args:
             numbers: A list of integers
-            
+
         Returns:
             A list of lists, where each inner list is a group of consecutive numbers
         """
         if not numbers:
             return []
-        
+
         # Sort the input list
         numbers = sorted(numbers)
-        
+
         # Initialize the result and the first group
         result = []
         current_group = [numbers[0]]
-        
+
         # Iterate through the rest of the numbers
         for i in range(1, len(numbers)):
             # If the current number is consecutive to the previous one
-            if numbers[i] == numbers[i-1] + 1:
+            if numbers[i] == numbers[i - 1] + 1:
                 current_group.append(numbers[i])
             # If not consecutive and not a duplicate
-            elif numbers[i] != numbers[i-1]:
+            elif numbers[i] != numbers[i - 1]:
                 # Save the current group if it's not empty
                 if current_group:
                     result.append(current_group)
                 # Start a new group
                 current_group = [numbers[i]]
-        
+
         # Add the last group if it's not empty
         if current_group:
             result.append(current_group)
-        
+
         return result
 
     # # Your two lists
@@ -2181,9 +2266,18 @@ if __name__ == "__main__":
     # # params.update(atess_write_parameters)
     # create_batches(params)
 
-    all = not_PCS_parameters | atess_parameters | PCS_parameters | PBD_parameters | atess_write_parameters | atess_PBD_write_parameters
+    all = (
+        not_PCS_parameters
+        | atess_parameters
+        | PCS_parameters
+        | PBD_parameters
+        | atess_write_parameters
+        | atess_PBD_write_parameters
+    )
     import pandas as pd
-    df = pd.DataFrame.from_dict({k: {"addr": v["addr"]-1} for k, v in all.items()}, orient="index")
+
+    df = pd.DataFrame.from_dict(
+        {k: {"addr": v["addr"] - 1} for k, v in all.items()}, orient="index"
+    )
 
     df.to_csv("data/registers")
-

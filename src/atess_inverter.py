@@ -3,7 +3,7 @@ from .server import Server
 import struct
 import logging
 from .enums import DataType
-from .atess_registers import PBD_FAULT_ALARM_BITS, atess_parameters, PBD_parameters, PCS_parameters, not_PCS_parameters, model_code_to_name, atess_write_parameters, atess_PBD_write_parameters, PCS_FAULT_ALARM_BITS, decode_fault_alarms
+from .atess_registers import PBD_FAULT_ALARM_BITS, atess_parameters, atess_param_registry, model_code_to_name, PCS_FAULT_ALARM_BITS, decode_fault_alarms
 from pymodbus.client import ModbusSerialClient
 
 logger = logging.getLogger(__name__)
@@ -74,21 +74,19 @@ class AtessInverter(Server):
     def setup_valid_registers_for_model(self):
         logger.info(f"{self.model}")
         if "PCS" in self.model:
-            self._parameters.update(PCS_parameters)
-            self._write_parameters.update(atess_write_parameters)
+            group = "PCS"
             self._fault_alarm_bits = PCS_FAULT_ALARM_BITS
             self._fault_reg_base = 181
-            logger.info("Added PCS-Specific Registers.")
+        elif "PBD" in self.model:
+            group = "PBD"
+            self._fault_alarm_bits = PBD_FAULT_ALARM_BITS
+            self._fault_reg_base = 207
         else:
-            self._parameters.update(not_PCS_parameters)
-            logger.info("Added Registers. common to all except PCS models")
+            group = "HPS"
 
-            if "PBD" in self.model:
-                self._parameters.update(PBD_parameters)
-                self._write_parameters.update(atess_PBD_write_parameters)
-                self._fault_alarm_bits = PBD_FAULT_ALARM_BITS
-                self._fault_reg_base = 207
-                logger.info("Added PBD-Specific Registers.")
+        self._parameters = atess_param_registry.build_map(group, is_write_map=False)
+        self._write_parameters = atess_param_registry.build_map(group, is_write_map=True)
+        logger.info(f"Built register map for device group {group}.")
 
     def decode_faults(self) -> tuple[list[str], list[str]]:
         """Decode fault alarm registers into (active, inactive) fault-key lists.
