@@ -3,7 +3,7 @@ from .server import Server
 import struct
 import logging
 from .enums import DataType
-from .atess_registers_v2 import PBD_FAULT_ALARM_BITS, PCS_FAULT_ALARM_BITS, decode_fault_alarms, atess_param_registry
+from .atess_registers_v2 import PBD_FAULT_ALARM_BITS, PCS_FAULT_ALARM_BITS, decode_fault_alarms, atess_param_registry, basic_params, model_code_to_name
 from pymodbus.client import ModbusSerialClient
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ class AtessInverter(Server):
         self._manufacturer = "Atess"
         self._supported_models = ('PCS150', 'PCS500', 'PBD250', 'HPS150') 
         self._serialnum = "unknown"
-        self._parameters = {}
+        self._parameters = basic_params
         self._write_parameters = {}
         self._fault_alarm_bits: dict[int, dict[int, str]] = {}
         self._fault_reg_base: int = 181
