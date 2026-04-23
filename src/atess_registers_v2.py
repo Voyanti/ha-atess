@@ -44,6 +44,27 @@ from .fault_key_validator import coerce_fault_name_key
 
 logger = logging.getLogger(__name__)
 
+basic_params = {
+    "Device On/Off": {
+        "addr": 0 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "multiplier": 1,
+        "unit": "",
+        "device_class": DeviceClass.ENUM,
+        "register_type": RegisterTypes.HOLDING_REGISTER,
+    },
+    "Device Type Code": {
+        "addr": 43 + 1,
+        "count": 1,
+        "dtype": DataType.U16,
+        "device_class": DeviceClass.ENUM,
+        "multiplier": 1,
+        "unit": "",
+        "register_type": RegisterTypes.HOLDING_REGISTER,
+    },
+}
+
 # HPSTL is distinct from HPS in the PDF. The classifier in atess_inverter.py
 # currently folds HPSTL models into "HPS", so until that is updated the
 # HPSTL-only registers will not be reachable. Added here to match the PDF.
