@@ -3,7 +3,7 @@ from .server import Server
 import struct
 import logging
 from .enums import DataType
-from .atess_registers import PBD_FAULT_ALARM_BITS, atess_parameters, atess_param_registry, model_code_to_name, PCS_FAULT_ALARM_BITS, decode_fault_alarms
+from .atess_registers_v2 import PBD_FAULT_ALARM_BITS, PCS_FAULT_ALARM_BITS, decode_fault_alarms, atess_param_registry
 from pymodbus.client import ModbusSerialClient
 
 logger = logging.getLogger(__name__)
@@ -16,9 +16,9 @@ class AtessInverter(Server):
         super().__init__(name, serial, modbus_id, connected_client)
 
         self._manufacturer = "Atess"
-        self._supported_models = ('PCS150', 'PCS500', 'PBD250') 
+        self._supported_models = ('PCS150', 'PCS500', 'PBD250', 'HPS150') 
         self._serialnum = "unknown"
-        self._parameters = dict.copy(atess_parameters)
+        self._parameters = {}
         self._write_parameters = {}
         self._fault_alarm_bits: dict[int, dict[int, str]] = {}
         self._fault_reg_base: int = 181
@@ -81,8 +81,14 @@ class AtessInverter(Server):
             group = "PBD"
             self._fault_alarm_bits = PBD_FAULT_ALARM_BITS
             self._fault_reg_base = 207
-        else:
+        elif "HPS" in self.model and "HPSTL" not in self.model:
             group = "HPS"
+            self._fault_alarm_bits = PCS_FAULT_ALARM_BITS
+            self._fault_reg_base = 181
+        elif "HPSTL" in self.model:
+            group = "HPSTL"
+        else: 
+            raise ValueError(f"Model {self.model} not in implemented groups [PCS, PBD, HPS, HPSTL]")
 
         self._parameters = atess_param_registry.build_map(group, is_write_map=False)
         self._write_parameters = atess_param_registry.build_map(group, is_write_map=True)
