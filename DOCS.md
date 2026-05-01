@@ -115,17 +115,48 @@ All addresses are 0-indexed. Group indicates which device types the register app
 | PV Voltage | 80 | U16 | 1 | 0.1 | V | | | All |
 | PV Current | 83 | U16 | 1 | 0.1 | A | | | All |
 | Battery Charging Saturation | 150 | U16 | 1 | 1 | | 0 | 10 | Writable (All) |
+| Battery Group Number | 151 | U16 | 1 | 1 | | 0 | 100 | Writable (All) |
+| Battery Unit Number | 152 | U16 | 1 | 1 | | 0 | 50000 | Writable (All) |
+| Battery Capacity | 153 | U16 | 1 | 1 | Ah | 0 | 50000 | Writable (All) |
 | Charge Current Limit | 154 | U16 | 1 | 0.1 | A | 0 | 10000 | Writable (All) |
 | Discharge current limit | 155 | U16 | 1 | 0.1 | A | 0 | 1000 | Writable (All) |
-| Float Charging Voltage | 156 | U16 | 1 | 1 | mV | | | All |
-| Single PV to Off-grid | 161 | U16 | 1 | 1 | mV | | | All |
+| Float Charging Voltage | 156 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
+| Battery Low Voltage Warning | 157 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
+| Battery Low Voltage Fault | 158 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
+| Battery High Voltage Fault | 159 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
+| Battery Start Voltage | 160 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
+| Single PV to Off-grid | 161 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
+| Discharge Cutoff Voltage | 162 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
 | Float Charging Current | 163 | U16 | 1 | 10 | mA | | | All |
+| Battery Discharging Current Setpoint | 172 | U16 | 1 | 1 | A | 0 | 1000 | Writable (HPS) |
 | Battery Power Export to Grid Set | 174 | U16 | 1 | 1 | kW | 0 | 150 | Writable (All) |
+| BMS Voltage Judge Enable | 176 | U16 | 1 | 1 | | 0 | 1 | Writable (HPS/PCS) |
+| Discharge Recover SOC | 177 | U16 | 1 | 1 | % | 0 | 100 | Writable (HPS/PCS) |
 | Charge Cutoff SOC | 178 | U16 | 1 | 1 | % | 0 | 100 | PCS / Writable (All) |
+| Grid Charge SOC Enable | 179 | U16 | 1 | 1 | | 0 | 1 | Writable (HPS) |
 | Serial Number | 180 | UTF8 | 5 | 1 | | | | All |
 | Max Grid Charge Power | 225 | U16 | 1 | 0.1 | kW | 0 | 150 | Writable (All) |
 | Forced Charge Enable | 229 | U16 | 1 | 1 | | | | Writable (All) |
 | Grid Charge Cutoff SOC | 340 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) |
+
+### Battery Config — interpretation
+
+Sourced from the ATESS Modbus RTU V3.22 protocol (section 3 / 5, register block 150–179). 
+
+- **Battery Group Number (151)** — number of battery strings (groups) wired in parallel. Used by the inverter to scale per-string current limits.
+- **Battery Unit Number (152)** — number of battery units (modules) per string. Together with the group count this defines the total pack topology.
+- **Battery Capacity (153)** — nominal capacity per string in Ah; drives charge/discharge C-rate calculations.
+- **Float Charging Voltage (156)** — per-cell float voltage target once the pack is fully charged. Inverter holds this voltage to keep the pack topped up.
+- **Battery Low Voltage Warning (157)** — per-cell threshold at which a soft low-voltage alarm is raised (no shutdown).
+- **Battery Low Voltage Fault (158)** — per-cell threshold for a hard under-voltage fault; the inverter will trip discharge.
+- **Battery High Voltage Fault (159)** — per-cell threshold for a hard over-voltage fault; the inverter will trip charging.
+- **Battery Start Voltage (160)** — minimum per-cell voltage required before the inverter is allowed to begin discharging from a stopped state.
+- **Single PV to Off-grid (161)** — per-cell battery voltage above which "single PV" mode (PV-only off-grid backup with no battery use) is permitted to switch to using the battery.
+- **Discharge Cutoff Voltage (162)** — per-cell voltage at which discharge is forced to stop, independent of SOC.
+- **Battery Discharging Current Setpoint (172, HPS only)** — commanded discharge current limit in A. Used to cap battery output current irrespective of inverter rating.
+- **BMS Voltage Judge Enable (176, HPS/PCS)** — when on, the inverter ignores the SOC-based start/stop logic and instead gates charge/discharge on BMS-reported cell voltages (157–162).
+- **Discharge Recover SOC (177, HPS/PCS)** — once discharge has stopped on a low-SOC trip, this is the SOC at which discharging is permitted to resume (hysteresis recovery point).
+- **Grid Charge SOC Enable (179, HPS only)** — boolean enable for grid-charge-by-SOC control. Documented as "Freedom customisation" with range 0~1; modelled here as a switch but worth verifying on a real unit before relying on it.
 
 ## Input Registers
 
