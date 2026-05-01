@@ -243,7 +243,7 @@ read_params: list[ParamWrapped] = [
     ),
     # --- Holding register 80: PV voltage (calibration) --- "All mode"
     ParamWrapped(
-        "PV Voltage",
+        "PV Voltage Calibration",
         {
             "addr": 80 + 1,
             "count": 1,
@@ -258,7 +258,7 @@ read_params: list[ParamWrapped] = [
     ),
     # --- Holding register 83: PV current (calibration) --- "All mode"
     ParamWrapped(
-        "PV Current",
+        "PV Current Calibration",
         {
             "addr": 83 + 1,
             "count": 1,
@@ -2459,6 +2459,247 @@ write_params: list[ParamWrapped] = [
             max=500,
         ),
         None,
+        True,
+    ),
+    # ---------------------------------------------------------------------
+    # Battery Config block (PDF section 3/5, registers 150-179)
+    # Per-cell voltage settings use 0.001V scale → exposed as mV with
+    # multiplier=1, matching how 156 (Float Charging Voltage) is already
+    # modelled in read_params.
+    # ---------------------------------------------------------------------
+    # --- Holding register 151: Battery group number --- "All mode"
+    ParamWrapped(
+        "Battery Group Number",
+        WriteParameter(
+            addr=151 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            min=0,
+            max=100,
+        ),
+        None,
+        True,
+    ),
+    # --- Holding register 152: Battery unit number --- "All mode"
+    ParamWrapped(
+        "Battery Unit Number",
+        WriteParameter(
+            addr=152 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            min=0,
+            max=50000,
+        ),
+        None,
+        True,
+    ),
+    # --- Holding register 153: Battery capacity --- "All mode"
+    ParamWrapped(
+        "Battery Capacity",
+        WriteParameter(
+            addr=153 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="Ah",
+            min=0,
+            max=50000,
+        ),
+        None,
+        True,
+    ),
+    # --- Holding register 156: Float charging voltage --- "All mode"
+    ParamWrapped(
+        "Float Charging Voltage",
+        WriteParameter(
+            addr=156 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="mV",
+            min=0,
+            max=50000,
+        ),
+        None,
+        True,
+    ),
+    # --- Holding register 157: Low voltage warning (per cell) --- "All mode"
+    ParamWrapped(
+        "Battery Low Voltage Warning",
+        WriteParameter(
+            addr=157 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="mV",
+            min=0,
+            max=50000,
+        ),
+        None,
+        True,
+    ),
+    # --- Holding register 158: Low voltage fault (per cell) --- "All mode"
+    ParamWrapped(
+        "Battery Low Voltage Fault",
+        WriteParameter(
+            addr=158 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="mV",
+            min=0,
+            max=50000,
+        ),
+        None,
+        True,
+    ),
+    # --- Holding register 159: High voltage fault (per cell) --- "All mode"
+    ParamWrapped(
+        "Battery High Voltage Fault",
+        WriteParameter(
+            addr=159 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="mV",
+            min=0,
+            max=50000,
+        ),
+        None,
+        True,
+    ),
+    # --- Holding register 160: Battery start voltage (per cell) --- "All mode"
+    ParamWrapped(
+        "Battery Start Voltage",
+        WriteParameter(
+            addr=160 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="mV",
+            min=0,
+            max=50000,
+        ),
+        None,
+        True,
+    ),
+    # --- Holding register 161: Single PV to off-grid (per cell) --- "All mode"
+    ParamWrapped(
+        "Single PV to Off-grid",
+        WriteParameter(
+            addr=161 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="mV",
+            min=0,
+            max=50000,
+        ),
+        None,
+        True,
+    ),
+    # --- Holding register 162: Discharge cut-off voltage (per cell) --- "All mode"
+    ParamWrapped(
+        "Discharge Cutoff Voltage",
+        WriteParameter(
+            addr=162 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="mV",
+            min=0,
+            max=50000,
+        ),
+        None,
+        True,
+    ),
+    # --- Holding register 172: Battery discharging current --- "HPS"
+    ParamWrapped(
+        "Battery Discharging Current Setpoint",
+        WriteParameter(
+            addr=172 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="A",
+            min=0,
+            max=1000,
+        ),
+        HPS_ONLY,
+        True,
+    ),
+    # --- Holding register 176: BMS voltage judge enable --- "HPS/PCS"
+    # When enabled, SOC judge logic is bypassed in favour of BMS voltage.
+    ParamWrapped(
+        "BMS Voltage Judge Enable",
+        WriteParameter(
+            addr=176 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.SWITCH,
+            payload_off=0,
+            payload_on=1,
+        ),
+        HPS_PCS,
+        True,
+    ),
+    # --- Holding register 177: Discharge recover SOC --- "HPS/PCS"
+    ParamWrapped(
+        "Discharge Recover SOC",
+        WriteParameter(
+            addr=177 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="%",
+            min=0,
+            max=100,
+        ),
+        HPS_PCS,
+        True,
+    ),
+    # --- Holding register 179: Grid charge SOC --- "HPS"
+    ParamWrapped(
+        "Grid Charge SOC Enable",
+        WriteParameter(
+            addr=179 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.SWITCH,
+            payload_off=0,
+            payload_on=1,
+        ),
+        HPS_ONLY,
         True,
     ),
 ]
