@@ -3,7 +3,8 @@ from .server import Server
 import struct
 import logging
 from .enums import DataType
-from .atess_registers_v2 import PBD_FAULT_ALARM_BITS, PCS_FAULT_ALARM_BITS, decode_fault_alarms, atess_param_registry, basic_params, model_code_to_name
+from .atess_registers_v2 import PBD_FAULT_ALARM_BITS, PCS_FAULT_ALARM_BITS, ParamRegistry, decode_fault_alarms, atess_param_registry, basic_params, model_code_to_name
+from .custom_sensors import load_custom_params
 from pymodbus.client import ModbusSerialClient
 
 logger = logging.getLogger(__name__)
@@ -90,9 +91,11 @@ class AtessInverter(Server):
         else: 
             raise ValueError(f"Model {self.model} not in implemented groups [PCS, PBD, HPS, HPSTL]")
 
-        self._parameters = atess_param_registry.build_map(group, is_write_map=False)
-        self._write_parameters = atess_param_registry.build_map(group, is_write_map=True)
-        logger.info(f"Built register map for device group {group}.")
+        custom_params = load_custom_params()
+        registry = ParamRegistry(registry=atess_param_registry.registry + custom_params)
+        self._parameters = registry.build_map(group, is_write_map=False)
+        self._write_parameters = registry.build_map(group, is_write_map=True)
+        logger.info(f"Built register map for device group {group} ({len(custom_params)} custom).")
 
     def decode_faults(self) -> tuple[list[str], list[str]]:
         """Decode fault alarm registers into (active, inactive) fault-key lists.
