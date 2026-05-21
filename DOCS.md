@@ -56,6 +56,15 @@ or
 - `type` can be one of "RTU" or "TCP"
 - `port` is the com port if `type` is "RTU", TCP port if `type` is "TCP"
 
+# Custom Sensors
+
+On first run the add-on creates `/share/ha-atess/mysensors.py` containing a
+commented template. Add `ParamWrapped` entries to the `MY_SENSORS` list in that
+file to register extra read or write registers; they are merged into the
+built-in register map for every Atess device on the next add-on restart. The
+template lists the names pre-injected into the file's namespace (group aliases,
+`DataType`, `Parameter`, `WriteParameter`, etc.) so no imports are needed.
+
 # Development
 
 ## Running locally
@@ -95,14 +104,18 @@ All addresses are 0-indexed. Group indicates which device types the register app
 |------|------|------|-------|------------|------|-----|-----|-------|
 | Device On/Off | 0 | U16 | 1 | 1 | | | | All |
 | Grid And PV Charge Together | 8 | U16 | 1 | 1 | | | | Writable (All) |
+| Active Power Regulation Enable | 10 | U16 | 1 | 1 | | | | Writable (HPS/PCS/HPSTL) |
+| Manual Adjustment Enable | 12 | U16 | 1 | 1 | | | | Writable (HPS/PCS/HPSTL) |
 | Bypass Cabinet Enable | 13 | U16 | 1 | 1 | | | | Writable (All) |
 | BMS Communication Enable | 14 | U16 | 1 | 1 | | | | Writable (All) |
 | Anti Reflux Enable | 16 | U16 | 1 | 1 | | | | Writable (All) |
 | Mode selection | 26 | U16 | 1 | 1 | | | | Writable (All) |
+| PV Power Setting | 33 | U16 | 1 | 1 | kW | 0 | 500 | Writable (All) |
 | Device Type Code | 43 | U16 | 1 | 1 | | | | All |
 | Grid Power Compensation | 44 | U16 | 1 | 0.1 | kW | 0 | 100 | Writable (All) |
 | Discharge Cutoff SOC | 47 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) |
 | Output Power Limit | 58 | U16 | 1 | 1 | % | 0 | 120 | Writable (All) |
+| Output Power Setting | 59 | U16 | 1 | 1 | kW | 0 | 500 | Writable (All) |
 | CP Nominal Power | 118 | U16 | 1 | 1 | kW | 0 | 1000 | Writable (All) |
 | PV Start Voltage | 60 | U16 | 1 | 0.1 | V | 300 | 850 | Writable (PBD) |
 | Max MPPT Voltage | 61 | U16 | 1 | 0.1 | V | 300 | 1500 | Writable (PBD) |

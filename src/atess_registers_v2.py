@@ -2702,6 +2702,72 @@ write_params: list[ParamWrapped] = [
         HPS_ONLY,
         True,
     ),
+    # --- Holding register 10: Active power regulation enable --- "HPS/PCS/HPSTL"
+    ParamWrapped(
+        "Active Power Regulation Enable",
+        WriteParameter(
+            addr=10 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.SWITCH,
+            payload_off=0,
+            payload_on=1,
+        ),
+        HPS_PCS_HPSTL,
+        True,
+    ),
+    # --- Holding register 12: Manual adjustment enable --- "HPS/PCS/HPSTL"
+    ParamWrapped(
+        "Manual Adjustment Enable",
+        WriteParameter(
+            addr=12 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.SWITCH,
+            payload_off=0,
+            payload_on=1,
+        ),
+        HPS_PCS_HPSTL,
+        True,
+    ),
+    # --- Holding register 33: PV power setting --- "all model"
+    ParamWrapped(
+        "PV Power Setting",
+        WriteParameter(
+            addr=33 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="kW",
+            min=0,
+            max=500,
+        ),
+        None,
+        True,
+    ),
+    # --- Holding register 59: Output power setting --- "all model"
+    ParamWrapped(
+        "Output Power Setting",
+        WriteParameter(
+            addr=59 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="kW",
+            min=0,
+            max=500,
+        ),
+        None,
+        True,
+    ),
 ]
 
 
