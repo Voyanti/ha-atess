@@ -100,57 +100,57 @@ All addresses are 0-indexed. Group indicates which device types the register app
 
 ## Holding Registers
 
-| Name | Addr | Type | Count | Multiplier | Unit | Min | Max | Group |
-|------|------|------|-------|------------|------|-----|-----|-------|
-| Device On/Off | 0 | U16 | 1 | 1 | | | | All |
-| Grid And PV Charge Together | 8 | U16 | 1 | 1 | | | | Writable (All) |
-| Active Power Regulation Enable | 10 | U16 | 1 | 1 | | | | Writable (HPS/PCS/HPSTL) |
-| Manual Adjustment Enable | 12 | U16 | 1 | 1 | | | | Writable (HPS/PCS/HPSTL) |
-| Bypass Cabinet Enable | 13 | U16 | 1 | 1 | | | | Writable (All) |
-| BMS Communication Enable | 14 | U16 | 1 | 1 | | | | Writable (All) |
-| Anti Reflux Enable | 16 | U16 | 1 | 1 | | | | Writable (All) |
-| Mode selection | 26 | U16 | 1 | 1 | | | | Writable (All) |
-| PV Power Setting | 33 | U16 | 1 | 1 | kW | 0 | 500 | Writable (All) |
-| Device Type Code | 43 | U16 | 1 | 1 | | | | All |
-| Grid Power Compensation | 44 | U16 | 1 | 0.1 | kW | 0 | 100 | Writable (All) |
-| Discharge Cutoff SOC | 47 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) |
-| Output Power Limit | 58 | U16 | 1 | 1 | % | 0 | 120 | Writable (All) |
-| Output Power Setting | 59 | U16 | 1 | 1 | kW | 0 | 500 | Writable (All) |
-| CP Nominal Power | 118 | U16 | 1 | 1 | kW | 0 | 1000 | Writable (All) |
-| PV Start Voltage | 60 | U16 | 1 | 0.1 | V | 300 | 850 | Writable (PBD) |
-| Max MPPT Voltage | 61 | U16 | 1 | 0.1 | V | 300 | 1500 | Writable (PBD) |
-| Min MPPT Voltage | 62 | U16 | 1 | 0.1 | V | 300 | 1500 | Writable (PBD) |
-| PV Start Power | 63 | U16 | 1 | 0.1 | kW | 0 | 500 | Writable (PBD) |
-| Grid Power UP Limit | 65 | U16 | 1 | 1 | kW | 0 | 500 | Writable (All) |
-| Generator Start SOC | 66 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) |
-| Generator Stop SOC | 67 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) |
-| Frequency Shift Enable | 79 | U16 | 1 | 1 | | | | PCS |
-| PV Voltage | 80 | U16 | 1 | 0.1 | V | | | All |
-| PV Current | 83 | U16 | 1 | 0.1 | A | | | All |
-| Battery Charging Saturation | 150 | U16 | 1 | 1 | | 0 | 10 | Writable (All) |
-| Battery Group Number | 151 | U16 | 1 | 1 | | 0 | 100 | Writable (All) |
-| Battery Unit Number | 152 | U16 | 1 | 1 | | 0 | 50000 | Writable (All) |
-| Battery Capacity | 153 | U16 | 1 | 1 | Ah | 0 | 50000 | Writable (All) |
-| Charge Current Limit | 154 | U16 | 1 | 0.1 | A | 0 | 10000 | Writable (All) |
-| Discharge current limit | 155 | U16 | 1 | 0.1 | A | 0 | 1000 | Writable (All) |
-| Float Charging Voltage | 156 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
-| Battery Low Voltage Warning | 157 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
-| Battery Low Voltage Fault | 158 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
-| Battery High Voltage Fault | 159 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
-| Battery Start Voltage | 160 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
-| Single PV to Off-grid | 161 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
-| Discharge Cutoff Voltage | 162 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |
-| Float Charging Current | 163 | U16 | 1 | 10 | mA | | | All |
-| Battery Discharging Current Setpoint | 172 | U16 | 1 | 1 | A | 0 | 1000 | Writable (HPS) |
-| Battery Power Export to Grid Set | 174 | U16 | 1 | 1 | kW | 0 | 150 | Writable (All) |
-| BMS Voltage Judge Enable | 176 | U16 | 1 | 1 | | 0 | 1 | Writable (HPS/PCS) |
-| Discharge Recover SOC | 177 | U16 | 1 | 1 | % | 0 | 100 | Writable (HPS/PCS) |
-| Charge Cutoff SOC | 178 | U16 | 1 | 1 | % | 0 | 100 | PCS / Writable (All) |
-| Grid Charge SOC Enable | 179 | U16 | 1 | 1 | | 0 | 1 | Writable (HPS) |
-| Serial Number | 180 | UTF8 | 5 | 1 | | | | All |
-| Max Grid Charge Power | 225 | U16 | 1 | 0.1 | kW | 0 | 150 | Writable (All) |
-| Forced Charge Enable | 229 | U16 | 1 | 1 | | | | Writable (All) |
-| Grid Charge Cutoff SOC | 340 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) |
+| Name | Addr | Type | Count | Multiplier | Unit | Min | Max | Group | Notes |
+|------|------|------|-------|------------|------|-----|-----|-------|-------|
+| Device On/Off | 0 | U16 | 1 | 1 | | | | All | |
+| Grid And PV Charge Together | 8 | U16 | 1 | 1 | | | | Writable (All) | |
+| Active Power Regulation Enable | 10 | U16 | 1 | 1 | | | | Writable (HPS/PCS/HPSTL) | |
+| Manual Adjustment Enable | 12 | U16 | 1 | 1 | | | | Writable (HPS/PCS/HPSTL) | |
+| Bypass Cabinet Enable | 13 | U16 | 1 | 1 | | | | Writable (All) | |
+| BMS Communication Enable | 14 | U16 | 1 | 1 | | | | Writable (All) | |
+| Anti Reflux Enable | 16 | U16 | 1 | 1 | | | | Writable (All) | |
+| Mode selection | 26 | U16 | 1 | 1 | | | | Writable (All) | |
+| PV Power Setting | 33 | U16 | 1 | 1 | kW | 0 | 500 | Writable (All) | Illegal Address Exception on AtessPCS when 10 off , 12, on |
+| Device Type Code | 43 | U16 | 1 | 1 | | | | All | |
+| Grid Power Compensation | 44 | U16 | 1 | 0.1 | kW | 0 | 100 | Writable (All) | |
+| Discharge Cutoff SOC | 47 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) | |
+| Output Power Limit | 58 | U16 | 1 | 1 | % | 0 | 120 | Writable (All) | Sets PV generated on PBD. PCS working not confirmed. |
+| Output Power Setting | 59 | U16 | 1 | 1 | kW | 0 | 500 | Writable (All) | |
+| CP Nominal Power | 118 | U16 | 1 | 1 | kW | 0 | 1000 | Writable (All) | |
+| PV Start Voltage | 60 | U16 | 1 | 0.1 | V | 300 | 850 | Writable (PBD) | |
+| Max MPPT Voltage | 61 | U16 | 1 | 0.1 | V | 300 | 1500 | Writable (PBD) | |
+| Min MPPT Voltage | 62 | U16 | 1 | 0.1 | V | 300 | 1500 | Writable (PBD) | |
+| PV Start Power | 63 | U16 | 1 | 0.1 | kW | 0 | 500 | Writable (PBD) | |
+| Grid Power UP Limit | 65 | U16 | 1 | 1 | kW | 0 | 500 | Writable (All) | |
+| Generator Start SOC | 66 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) | |
+| Generator Stop SOC | 67 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) | |
+| Frequency Shift Enable | 79 | U16 | 1 | 1 | | | | PCS | |
+| PV Voltage | 80 | U16 | 1 | 0.1 | V | | | All | |
+| PV Current | 83 | U16 | 1 | 0.1 | A | | | All | |
+| Battery Charging Saturation | 150 | U16 | 1 | 1 | | 0 | 10 | Writable (All) | |
+| Battery Group Number | 151 | U16 | 1 | 1 | | 0 | 100 | Writable (All) ||
+| Battery Unit Number | 152 | U16 | 1 | 1 | | 0 | 50000 | Writable (All) | |
+| Battery Capacity | 153 | U16 | 1 | 1 | Ah | 0 | 50000 | Writable (All) |  |
+| Charge Current Limit | 154 | U16 | 1 | 0.1 | A | 0 | 10000 | Writable (All) | |
+| Discharge current limit | 155 | U16 | 1 | 0.1 | A | 0 | 1000 | Writable (All) | |
+| Float Charging Voltage | 156 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |  |
+| Battery Low Voltage Warning | 157 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |  |
+| Battery Low Voltage Fault | 158 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |  |
+| Battery High Voltage Fault | 159 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |  |
+| Battery Start Voltage | 160 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |   |
+| Single PV to Off-grid | 161 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |   |
+| Discharge Cutoff Voltage | 162 | U16 | 1 | 1 | mV | 0 | 50000 | Writable (All) |   |
+| Float Charging Current | 163 | U16 | 1 | 10 | mA | | | All | |
+| Battery Discharging Current Setpoint | 172 | U16 | 1 | 1 | A | 0 | 1000 | Writable (HPS) | |
+| Battery Power Export to Grid Set | 174 | U16 | 1 | 1 | kW | 0 | 150 | Writable (All) | |
+| BMS Voltage Judge Enable | 176 | U16 | 1 | 1 | | 0 | 1 | Writable (HPS/PCS) | |
+| Discharge Recover SOC | 177 | U16 | 1 | 1 | % | 0 | 100 | Writable (HPS/PCS) | |
+| Charge Cutoff SOC | 178 | U16 | 1 | 1 | % | 0 | 100 | PCS / Writable (All) | |
+| Grid Charge SOC Enable | 179 | U16 | 1 | 1 | | 0 | 1 | Writable (HPS) | |
+| Serial Number | 180 | UTF8 | 5 | 1 | | | | All | |
+| Max Grid Charge Power | 225 | U16 | 1 | 0.1 | kW | 0 | 150 | Writable (All) | |
+| Forced Charge Enable | 229 | U16 | 1 | 1 | | | | Writable (All) | |
+| Grid Charge Cutoff SOC | 340 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) | |
 
 ### Battery Config — interpretation
 
@@ -291,3 +291,17 @@ Sourced from the ATESS Modbus RTU V3.22 protocol (section 3 / 5, register block 
 | System battery power | 228 | I16 | 1 | 0.1 | kW | PCS |
 | CP Power Limit | 229 | I16 | 1 | 0.1 | kW | PCS |
 | Hardware Version | 270 | UTF8 | 10 | 1 | | All |
+
+
+# Active Power Control
+
+## PCS +PBD config
+State: Working
+
+Control the Active Power generated by writing to the Output Power Limit on the PBD devices. 
+
+## HPS config
+State: Unknown
+
+- 33 PV Power Setting write -> Illegal data address/ illegal data value error (tested with 10 Active Power regulation ON & 12 Manual adjustment enable ON / OFF )
+- 32 EMS Enable -> ON - can write, but disrupts peak shaving mode. Seems to throttle PV.
