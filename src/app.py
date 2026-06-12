@@ -64,6 +64,8 @@ class App:
         self.pause_interval = self.OPTIONS.pause_interval_seconds
         # midnight_sleep_enabled=True, minutes_wakeup_after=5
 
+        self.disconnect_stack = []
+
         # Setup callbacks
         self.client_instantiator_callback = client_instantiator_callback
         self.server_instantiator_callback = server_instantiator_callback
@@ -85,8 +87,17 @@ class App:
         for client in self.clients:
             client.connect()
 
+        connected_servers = []
+        disconnected_servers = []
         for server in self.servers:
-            server.connect()
+            try:
+                server.connect()
+                connected_servers.append(server)
+            except ConnectionError:
+                logger.error(f"Error connecting to server {server.name}. Disable reading until next loop")
+                disconnected_servers.append(server)
+        self.servers = connected_servers
+        self.disconnected_servers = disconnected_servers
 
         # Setup MQTT Client
         self.mqtt_client = MqttClient(self.OPTIONS)
@@ -111,7 +122,10 @@ class App:
                 sleep(60)
 
 
-        atexit.register(exit_handler, self.servers,
+        for server in disconnected_servers:
+            self.mqtt_client.publish_availability(False, server)
+
+        atexit.register(exit_handler, self.servers + self.disconnected_servers,
                         self.clients, self.mqtt_client)
 
         sleep(READ_INTERVAL)
@@ -136,37 +150,53 @@ class App:
         while True:
             for server in self.servers:
                 self.mqtt_client.ensure_connected(self.OPTIONS.mqtt_reconnect_attempts)
-                # update server state from modbus
-                server.read_batches()
+                try:
+                    server.read_batches()
 
-                # index required registers from saved state
-                # publish to ha
-                for register_name in server.write_parameters:
-                    value = server.read_from_state(register_name)
-                    self.mqtt_client.publish_to_ha(
-                        register_name, value, server)
-                    
-                logger.info(f"Published all Write parameter values for {server.name}")
-                sleep(READ_INTERVAL)
+                    for register_name in server.write_parameters:
+                        value = server.read_from_state(register_name)
+                        self.mqtt_client.publish_to_ha(
+                            register_name, value, server)
+                    logger.info(f"Published all Write parameter values for {server.name}")
+                    sleep(READ_INTERVAL)
 
-                for register_name in server.parameters:
-                    value = server.read_from_state(register_name)
-                    self.mqtt_client.publish_to_ha(
-                        register_name, value, server)
-                logger.info(f"Published all Read parameter values for {server.name}")
+                    for register_name in server.parameters:
+                        value = server.read_from_state(register_name)
+                        self.mqtt_client.publish_to_ha(
+                            register_name, value, server)
+                    logger.info(f"Published all Read parameter values for {server.name}")
 
-                # Decode and publish fault alarms
-                if server._fault_alarm_bits:
-                    active, inactive = server.decode_faults()
-                    self.mqtt_client.publish_faults(active, inactive, server)
-                    logger.info(f"Published decoded faults for {server.name}: {len(active)} active, {len(inactive)} inactive")
+                    if server._fault_alarm_bits:
+                        active, inactive = server.decode_faults()
+                        self.mqtt_client.publish_faults(active, inactive, server)
+                        logger.info(f"Published decoded faults for {server.name}: {len(active)} active, {len(inactive)} inactive")
+                except Exception as e:
+                    logger.error(f"Error reading from {server.name}: {e}")
+                    self.disconnect_stack.append(server)
+                    continue
             logger.info("")
+
+            for disconn_server in self.disconnect_stack:
+                self.servers.remove(disconn_server)
+                self.disconnected_servers.append(disconn_server)
+                self.mqtt_client.publish_availability(False, disconn_server)
+            self.disconnect_stack = []
 
             if loop_once:
                 break
 
-            # publish availability
             sleep(self.pause_interval)
+
+            for server in reversed(self.disconnected_servers):
+                logger.info("Retrying connection to %s" % server.name)
+                try:
+                    server.connect()
+                    logger.info("Successfully reconnected to %s" % server.name)
+                    self.servers.append(server)
+                    self.disconnected_servers.remove(server)
+                    self.mqtt_client.publish_availability(True, server)
+                except ConnectionError:
+                    logger.error("Error connecting to server %s. Disable reading until next loop" % server.name)
 
             self.sleep_if_midnight()
 
