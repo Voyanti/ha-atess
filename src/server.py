@@ -20,6 +20,12 @@ from .options import ServerOptions
 logger = logging.getLogger(__name__)
 
 
+class ReadException(Exception):
+    """Raised when the device returns a Modbus error-code response
+    (result.isError()) — a device/config error, not a connection failure."""
+    pass
+
+
 class Server(ABC):
     """
     Base server class. Represents modbus server: its name, serial, model, modbus slave_id. e.g. SungrowInverter(Server).
@@ -275,7 +281,7 @@ class Server(ABC):
 
             if result.isError():
                 self.connected_client._handle_error_response(result)
-                raise Exception(f"Error reading batch {batch=}")
+                raise ReadException(f"Error reading batch {batch=}")
 
             self.holding_state.extend(result.registers)
 
@@ -289,7 +295,7 @@ class Server(ABC):
 
             if result.isError():
                 self.connected_client._handle_error_response(result)
-                raise Exception(f"Error reading batch {batch=}")
+                raise ReadException(f"Error reading batch {batch=}")
 
             self.input_state.extend(result.registers)
 
@@ -378,7 +384,7 @@ class Server(ABC):
 
         if result.isError():
             self.connected_client._handle_error_response(result)
-            raise Exception(f"Error reading register {parameter_name}")
+            raise ReadException(f"Error reading register {parameter_name}")
 
         logger.debug(f"Raw register begin value: {result.registers[0]}")
         val = self._decoded(result.registers, dtype)

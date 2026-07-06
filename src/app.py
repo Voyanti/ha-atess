@@ -4,11 +4,12 @@ import atexit
 import logging
 from queue import Queue
 
+from pymodbus import ModbusException
 from .loader import load_validate_options
 from .options import AppOptions
 from .client import Client
 from .implemented_servers import ServerTypes
-from .server import Server
+from .server import ReadException, Server
 from .modbus_mqtt import MqttClient
 from paho.mqtt.enums import MQTTErrorCode
 from paho.mqtt.client import MQTTMessage
@@ -175,8 +176,16 @@ class App:
                         active, inactive = server.decode_faults()
                         self.mqtt_client.publish_faults(active, inactive, server)
                         logger.info(f"Published decoded faults for {server.name}: {len(active)} active, {len(inactive)} inactive")
+                except ReadException as rerr:
+                    logger.warning(f"Device returned error code response for {server.name}")
+                    self.disconnect_stack.append(server)
+                    continue
+                except ModbusException as e:
+                    logger.error(f"Modbus error while reading from {server.name}: {e}")
+                    self.disconnect_stack.append(server)
+                    continue
                 except Exception as e:
-                    logger.error(f"Error reading from {server.name}: {e}")
+                    logger.error(f"Unexpected error reading from {server.name}: {e}")
                     self.disconnect_stack.append(server)
                     continue
             logger.info("")
