@@ -5,7 +5,7 @@ import logging
 from queue import Queue
 
 from pymodbus import ModbusException
-from .loader import load_validate_options
+from .loader import build_rounding_map, load_validate_options
 from .options import AppOptions
 from .client import Client
 from .implemented_servers import ServerTypes
@@ -250,8 +250,10 @@ def instantiate_clients(OPTIONS: AppOptions) -> list[Client]:
 
 
 def instantiate_servers(OPTIONS: AppOptions, clients: list[Client]) -> list[Server]:
+    rounding = build_rounding_map(OPTIONS)
+    logger.info(f"Rounding per device class: {rounding}")
     return [
-        ServerTypes[sr.server_type].value.from_ServerOptions(sr, clients)
+        ServerTypes[sr.server_type].value.from_ServerOptions(sr, clients, rounding)
         for sr in OPTIONS.servers
     ]
 

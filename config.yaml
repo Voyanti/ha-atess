@@ -1,5 +1,5 @@
 name: "Atess Inverter"
-version: "0.5.1"
+version: "0.5.2"
 image: ghcr.io/voyanti/ha-atess
 slug: "ha-atess"
 description: "Atess Inverter Prebuilt"
@@ -39,6 +39,11 @@ options:
       bytesize: 8
       parity: false
       stopbits: 2
+  rounding_overrides:
+    - ha_device_class: power
+      n_decimals: 0
+    - ha_device_class: energy
+      n_decimals: 1
   pause_interval_seconds: 1
   midnight_sleep_enabled: true
   midnight_sleep_wakeup_after: 10
@@ -69,6 +74,9 @@ schema:
       bytesize: int?
       parity: bool?
       stopbits: int?
+  rounding_overrides:
+    - ha_device_class: str
+      n_decimals: int(0,6)
   pause_interval_seconds: float
   midnight_sleep_enabled: bool
   midnight_sleep_wakeup_after: int
