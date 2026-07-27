@@ -1,4 +1,4 @@
-from time import sleep
+from time import sleep, monotonic
 from datetime import datetime, timedelta
 import atexit
 import logging
@@ -25,6 +25,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 READ_INTERVAL = 0.004
+# Minimum seconds between reconnection sweeps of disconnected servers, so a
+# genuinely offline device isn't hammered with TCP handshakes every loop when
+# pause_interval is small.
+RECONNECT_COOLDOWN = 30
 
 
 def exit_handler(
@@ -147,10 +151,14 @@ class App:
                 self.mqtt_client.publish_fault_discovery(server)
 
     def loop(self, loop_once=False) -> None:
-        if not self.servers or not self.clients:
+        # disconnected_servers counts too: if every server failed its initial
+        # connect, the loop must still run so the retry sweep can recover them.
+        if not (self.servers or self.disconnected_servers) or not self.clients:
             logger.info(f"In loop but app servers or clients not setup up")
             raise ValueError(
                 f"In loop but app servers or clients not setup up")
+
+        next_reconnect_ts = 0.0
 
         # every read_interval seconds, read the registers and publish to mqtt
         while True:
@@ -201,16 +209,30 @@ class App:
 
             sleep(self.pause_interval)
 
-            for server in reversed(self.disconnected_servers):
-                logger.info("Retrying connection to %s" % server.name)
-                try:
-                    server.connect()
-                    logger.info("Successfully reconnected to %s" % server.name)
-                    self.servers.append(server)
-                    self.disconnected_servers.remove(server)
-                    self.mqtt_client.publish_availability(True, server)
-                except ConnectionError:
-                    logger.error("Error connecting to server %s. Disable reading until next loop" % server.name)
+            if self.disconnected_servers and monotonic() >= next_reconnect_ts:
+                for server in reversed(self.disconnected_servers):
+                    logger.info("Retrying connection to %s" % server.name)
+                    try:
+                        server.connect()
+                        logger.info("Successfully reconnected to %s" % server.name)
+                        self.servers.append(server)
+                        self.disconnected_servers.remove(server)
+                        # re-publish discovery: a server that failed its initial
+                        # connect never had discovery published, so HA would
+                        # otherwise get state on topics it doesn't know.
+                        # Idempotent for servers that were discovered before.
+                        self.mqtt_client.publish_discovery_topics(server)
+                        if server._fault_alarm_bits:
+                            self.mqtt_client.publish_fault_discovery(server)
+                        self.mqtt_client.publish_availability(True, server)
+                    # broad catch: server.connect() does more than open a socket
+                    # (model read, register setup) and can raise beyond
+                    # ConnectionError; a failed reconnect must never kill the loop
+                    except Exception as e:
+                        logger.error("Error connecting to server %s: %s. Retrying in %ss" % (server.name, e, RECONNECT_COOLDOWN))
+                # armed after the sweep: with many offline servers a sweep can
+                # outlast the cooldown, which must not re-arm to "immediately"
+                next_reconnect_ts = monotonic() + RECONNECT_COOLDOWN
 
             self.sleep_if_midnight()
 

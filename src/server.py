@@ -3,7 +3,8 @@ from functools import lru_cache
 import logging
 from typing import Any, Optional, TypedDict
 
-from .helpers import slugify
+from .helpers import slugify, with_retries
+from pymodbus import ModbusException
 from .enums import (
     DataType,
     HAEntityType,
@@ -441,7 +442,18 @@ class Server(ABC):
             f"Writing {values} to param {parameter_name} ({register_type}) of {dtype=} from {address=}, {multiplier=}, {count=}, {modbus_id=}"
         )
 
-        result = self.connected_client.write(values, address, modbus_id, register_type)
+        # attempt to write to the register 3 times: Client.write deliberately
+        # does not re-issue a write after repairing a dead transport (a late
+        # failure may mean the write already landed), so the server layer
+        # must decide whether to retry.
+        try:
+            result = with_retries(self.connected_client.write,
+                        values, address, modbus_id, register_type,
+                        exception=ModbusException,
+                        msg=f"Error writing register {parameter_name}")
+        except ModbusException as e:
+            logger.error(f"Failure to write after 3 attempts. Continuing")
+            return
 
         if result.isError():
             self.connected_client._handle_error_response(result)
