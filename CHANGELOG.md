@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.5
+
+### Fixed
+- Power factor (input register 23) rendered incorrectly in Home Assistant. It was declared with the `enum` device class, which only accepts a state drawn from a fixed options list, so the 0.001-scaled float it publishes could not be rendered. Now uses the `power_factor` device class with `measurement` state class, matching Load Power Factor (52).
+- Power factor symbol (input register 22) no longer claims the `enum` device class either. It carries the sign of register 23, and the protocol does not say which of 0/1 means leading, so it publishes with no device class rather than a guessed labelling.
+
+### Changed
+- `device_class` is now optional on read parameters; discovery omits the field when a register has no natural Home Assistant device class.
+
+### Known issue
+- 32 further read registers still declare the `enum` device class without a `value_template` or options list (fault alarm words, BMS status, running state, serial number). These are integer-valued so they misrender less obviously, but they need the same treatment.
+
 ## 0.5.4
 
 ### Added

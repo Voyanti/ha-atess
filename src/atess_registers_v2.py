@@ -614,7 +614,9 @@ read_params: list[ParamWrapped] = [
             "dtype": DataType.U16,
             "multiplier": 1,
             "unit": "",
-            "device_class": DeviceClass.ENUM,
+            # Carries the sign of Power factor (23). Left without a device
+            # class: the PDF does not say which of 0/1 means leading, so any
+            # enum labelling would be a guess.
             "register_type": RegisterTypes.INPUT_REGISTER,
         },
         HPS_PCS_HPSTL,
@@ -629,7 +631,11 @@ read_params: list[ParamWrapped] = [
             "dtype": DataType.U16,
             "multiplier": 0.001,
             "unit": "",
-            "device_class": DeviceClass.ENUM,
+            # Not an enum: this is a 0.001-scaled magnitude. HA's enum device
+            # class only accepts a state from a fixed options list, so a float
+            # state renders as unknown. Matches Load Power Factor (52).
+            "device_class": DeviceClass.POWER_FACTOR,
+            "state_class": "measurement",
             "register_type": RegisterTypes.INPUT_REGISTER,
         },
         HPS_PCS_HPSTL,

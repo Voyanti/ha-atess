@@ -225,8 +225,8 @@ Sourced from the ATESS Modbus RTU V3.22 protocol (section 3 / 5, register block 
 | Bypass Active Power | 19 | I16 | 1 | 0.1 | kW | PCS |
 | Bypass Reactive Power | 20 | I16 | 1 | 0.1 | | PCS |
 | Grid Frequency | 21 | U16 | 1 | 0.01 | Hz | PCS |
-| Power factor symbol | 22 | U16 | 1 | 1 | | PCS |
-| Power factor | 23 | U16 | 1 | 0.001 | | PCS |
+| Power factor symbol | 22 | U16 | 1 | 1 | | PCS | Sign of register 23. No device class: polarity undocumented |
+| Power factor | 23 | U16 | 1 | 0.001 | | PCS | Magnitude only, always positive |
 | Grid State | 28 | U16 | 1 | 1 | | PCS |
 | Transformer temperature | 35 | I16 | 1 | 0.1 | °C | PCS |
 | Ambient temperature | 36 | I16 | 1 | 0.1 | °C | All |

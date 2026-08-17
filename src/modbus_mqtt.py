@@ -146,8 +146,10 @@ class MqttClient(mqtt.Client):
                 "unique_id": f"{nickname}_{slugify(register_name)}",
                 "state_topic": state_topic,
                 "device": device,
-                "device_class": details["device_class"].value,
             }
+            # optional: a register with no natural HA device class publishes none
+            if details.get("device_class") is not None:
+                discovery_payload["device_class"] = details["device_class"].value
             discovery_payload.update(self._availability_block(server))
             if details["unit"] != "":
                 discovery_payload.update(unit_of_measurement=details["unit"])

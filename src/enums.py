@@ -171,13 +171,13 @@ ParameterReq = TypedDict(
         "dtype": DataType,
         "multiplier": float,
         "unit": str,
-        "device_class": DeviceClass,
         "register_type": RegisterTypes,
     },
 )
 
 # inherit required parameters, add optional parameters
 class Parameter(ParameterReq, total=False):
+    device_class: DeviceClass  # omit where no HA device class fits
     remarks: str
     state_class: Literal["measurement", "total", "total_increasing"]
     value_template: str
