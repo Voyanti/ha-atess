@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.4
+
+### Added
+- Reactive power control registers: Reactive Power Regulation Enable (11), Reactive Power Regulation Mode (250), Power Factor Reference Sign/Value (251/252), Reactive Reference Sign/Value (263/264) and Reactive Lock Enable (267). Together with the existing Output/Load Reactive Power sensors these allow power-factor correction at the point of common coupling.
+- Optional `step` on write parameters, published in MQTT discovery for number entities.
+- `Reactive Power Control` section in DOCS.md, recording which parts of the 250-267 block the protocol leaves undocumented.
+
+### Fixed
+- Power Factor Reference rendered as an integer-only control in Home Assistant. MQTT number entities default to a step of 1, so a register with range 0-1 offered only those two values. It now declares `step: 0.001`.
+- Writes to any register with a fractional multiplier could land one count low. The encoder truncated instead of rounding, so dividing by the multiplier left float error and 0.999/0.001 was written as 998. Affects Grid Power Compensation, Max Grid Charge Power, the current limits and the PBD voltage settings.
+
 ## Unreleased
 
 ### Added

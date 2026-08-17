@@ -174,8 +174,11 @@ class AtessInverter(Server):
             elif value < 0:     raise ValueError(f"Cannot write negative {value=} to U16 register.")
 
             if isinstance(value, float):
-                value = int(value)
-                
+                # round, not truncate: dividing by a fractional multiplier leaves
+                # float error, so 0.999/0.001 == 998.9999... and int() would
+                # write 998. Affects every register with a non-integer multiplier.
+                value = round(value)
+
             return [value]
 
         if dtype==DataType.U16: return _encode_u16(value)

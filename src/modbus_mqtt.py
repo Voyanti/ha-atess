@@ -193,6 +193,8 @@ class MqttClient(mqtt.Client):
                     discovery_payload.update(command_template=details["command_template"])
             if details.get("min") is not None and details.get("max") is not None:
                 discovery_payload.update(min=details["min"], max=details["max"])
+            if details.get("step") is not None:
+                discovery_payload.update(step=details["step"])
             if details.get("payload_off") is not None and details.get("payload_on") is not None:
                 discovery_payload.update(payload_off=details["payload_off"], payload_on=details["payload_on"])
             discovery_topic = f"{self.ha_discovery_topic}/{details['ha_entity_type'].value}/{nickname}/{slugify(register_name)}/config"

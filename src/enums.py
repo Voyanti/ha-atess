@@ -208,8 +208,10 @@ class WriteParameter(WriteParameterReq, total=False):
 
     # number
     unit: str
-    min: float  
+    min: float
     max: float
+    step: float  # HA number entities default to a step of 1; set this for
+                 # fractional-valued registers or the slider snaps to integers
 
     # switch
     payload_off: int

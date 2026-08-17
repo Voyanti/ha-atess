@@ -130,6 +130,7 @@ All addresses are 0-indexed. Group indicates which device types the register app
 | Bypass Cabinet Enable | 13 | U16 | 1 | 1 | | | | Writable (All) | |
 | BMS Communication Enable | 14 | U16 | 1 | 1 | | | | Writable (All) | |
 | Anti Reflux Enable | 16 | U16 | 1 | 1 | | | | Writable (All) | |
+| Reactive Power Regulation Enable | 11 | U16 | 1 | 1 | | | | Writable (HPS/PCS/HPSTL) | Gates registers 250-267 |
 | Mode selection | 26 | U16 | 1 | 1 | | | | Writable (All) | |
 | PV Power Setting | 33 | U16 | 1 | 1 | kW | 0 | 500 | Writable (All) | Illegal Address Exception on AtessPCS when 10 off , 12, on |
 | Device Type Code | 43 | U16 | 1 | 1 | | | | All | |
@@ -171,6 +172,12 @@ All addresses are 0-indexed. Group indicates which device types the register app
 | Serial Number | 180 | UTF8 | 5 | 1 | | | | All | |
 | Max Grid Charge Power | 225 | U16 | 1 | 0.1 | kW | 0 | 150 | Writable (All) | |
 | Forced Charge Enable | 229 | U16 | 1 | 1 | | | | Writable (All) | |
+| Reactive Power Regulation Mode | 250 | U16 | 1 | 1 | | 1 | 3 | Writable (HPS/PCS/HPSTL) | Value legend undocumented in the PDF |
+| Power Factor Reference Sign | 251 | U16 | 1 | 1 | | 0 | 1 | Writable (HPS/PCS/HPSTL) | Leading/lagging mapping undocumented |
+| Power Factor Reference | 252 | U16 | 1 | 0.001 | | 0 | 1 | Writable (HPS/PCS/HPSTL) | step 0.001 |
+| Reactive Reference Sign | 263 | U16 | 1 | 1 | | 0 | 1 | Writable (HPS/PCS/HPSTL) | Sign mapping undocumented |
+| Reactive Reference | 264 | U16 | 1 | 1 | kVar | 0 | 300 | Writable (HPS/PCS/HPSTL) | |
+| Reactive Lock Enable | 267 | U16 | 1 | 1 | | | | Writable (HPS/PCS/HPSTL) | Pins Q, overrides the setpoint |
 | Grid Charge Cutoff SOC | 340 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) | |
 
 ### Battery Config — interpretation
@@ -326,3 +333,26 @@ State: Unknown
 
 - 33 PV Power Setting write -> Illegal data address/ illegal data value error (tested with 10 Active Power regulation ON & 12 Manual adjustment enable ON / OFF )
 - 32 EMS Enable -> ON - can write, but disrupts peak shaving mode. Seems to throttle PV.
+# Reactive Power Control
+
+State: Untested on hardware
+
+Registers 250-267 command reactive power. Nothing in that block takes effect until
+**Reactive Power Regulation Enable (11)** is on, and **Reactive Lock Enable (267)** must
+be off or it pins Q and overrides the setpoint.
+
+The protocol describes three regulation modes at register 250 but gives no legend for
+the values 1-3. Judging by which registers each consumes, they are a fixed power factor
+(251/252), a five-point power-factor-versus-power curve (253-262, not yet defined here),
+and a fixed reactive setpoint (263/264). **Read 250 back from a commissioned unit before
+writing it** — the mapping is a guess.
+
+Similarly undocumented: whether the sign registers 251/263 encode leading as 0 or 1, and
+whether fixed-PF mode follows the unit's own active output or site load. The register
+names follow EN 50549 convention, which implies the unit's own output as a fraction of
+its rating, but register 249 (Meter Com Switch Enable, not defined here) means the
+firmware may have site-level load visibility. Confirm empirically by varying the unit's
+own output while site load is steady and watching Output Reactive Power (input 80).
+
+Feedback for a control loop comes from the input registers: Output Reactive Power (80),
+Load Reactive Power (50), Load Power Factor (52).

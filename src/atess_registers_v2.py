@@ -2718,6 +2718,123 @@ write_params: list[ParamWrapped] = [
         HPS_PCS_HPSTL,
         True,
     ),
+    # --- Holding register 11: Reactive power regulation enable --- "HPS/PCS/HPSTL"
+    ParamWrapped(
+        "Reactive Power Regulation Enable",
+        WriteParameter(
+            addr=11 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.SWITCH,
+            payload_off=0,
+            payload_on=1,
+        ),
+        HPS_PCS_HPSTL,
+        True,
+    ),
+    # --- Holding register 250: Reactive power regulation mode selection --- "HPS/PCS/HPSTL"
+    # PDF gives the range 1~3 but no legend for the values. Exposed as a plain
+    # number rather than a select so we do not encode a guessed mapping; read it
+    # back from a commissioned unit before writing.
+    ParamWrapped(
+        "Reactive Power Regulation Mode",
+        WriteParameter(
+            addr=250 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            min=1,
+            max=3,
+        ),
+        HPS_PCS_HPSTL,
+        True,
+    ),
+    # --- Holding register 251: Power factor reference symbol --- "HPS/PCS/HPSTL"
+    ParamWrapped(
+        "Power Factor Reference Sign",
+        WriteParameter(
+            addr=251 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            min=0,
+            max=1,
+        ),
+        HPS_PCS_HPSTL,
+        True,
+    ),
+    # --- Holding register 252: Power factor reference --- "HPS/PCS/HPSTL"
+    ParamWrapped(
+        "Power Factor Reference",
+        WriteParameter(
+            addr=252 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=0.001,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            min=0,
+            max=1,
+            step=0.001,
+        ),
+        HPS_PCS_HPSTL,
+        True,
+    ),
+    # --- Holding register 263: Reactive reference symbol --- "HPS/PCS/HPSTL"
+    ParamWrapped(
+        "Reactive Reference Sign",
+        WriteParameter(
+            addr=263 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            min=0,
+            max=1,
+        ),
+        HPS_PCS_HPSTL,
+        True,
+    ),
+    # --- Holding register 264: Reactive reference --- "HPS/PCS/HPSTL"
+    ParamWrapped(
+        "Reactive Reference",
+        WriteParameter(
+            addr=264 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.NUMBER,
+            unit="kVar",
+            min=0,
+            max=300,
+        ),
+        HPS_PCS_HPSTL,
+        True,
+    ),
+    # --- Holding register 267: ReactiveLockEnable --- "HPS/PCS/HPSTL"
+    ParamWrapped(
+        "Reactive Lock Enable",
+        WriteParameter(
+            addr=267 + 1,
+            count=1,
+            dtype=DataType.U16,
+            multiplier=1,
+            register_type=RegisterTypes.HOLDING_REGISTER,
+            ha_entity_type=HAEntityType.SWITCH,
+            payload_off=0,
+            payload_on=1,
+        ),
+        HPS_PCS_HPSTL,
+        True,
+    ),
     # --- Holding register 12: Manual adjustment enable --- "HPS/PCS/HPSTL"
     ParamWrapped(
         "Manual Adjustment Enable",
