@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.6
+
+### Changed
+- Reactive Power Regulation Mode (250) is now a select rather than a number. The protocol PDF gives no legend for the values; the PCS user manual supplies one and all three modes were confirmed live on an HPS. Options are `Fixed Power Factor` (1), `Power Factor Curve (unsafe)` (2) and `Fixed Reactive Power` (3). Both templates fall through to the raw value, so an undocumented reading of 0 or 4 renders as a number rather than going unknown.
+- Power Factor Reference Sign (251) and Reactive Reference Sign (263) are now selects, `Lagging (absorb)` (0) and `Leading (supply)` (1), confirmed against measured bypass reactive power.
+- `Reactive Power Control` in DOCS.md rewritten from field results: the write-ordering rule for registers 250 and 264, why mode 2 is unsafe with undefined curve points, the sign convention, the non-linear response of register 264 and its resolution floor, the feedback registers, and the bypass constraint.
+
+### Note
+- The three registers above now take their label string as the MQTT payload, not the integer. Any external script writing them directly needs updating.
+
 ## 0.5.5
 
 ### Fixed

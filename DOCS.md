@@ -172,10 +172,10 @@ All addresses are 0-indexed. Group indicates which device types the register app
 | Serial Number | 180 | UTF8 | 5 | 1 | | | | All | |
 | Max Grid Charge Power | 225 | U16 | 1 | 0.1 | kW | 0 | 150 | Writable (All) | |
 | Forced Charge Enable | 229 | U16 | 1 | 1 | | | | Writable (All) | |
-| Reactive Power Regulation Mode | 250 | U16 | 1 | 1 | | 1 | 3 | Writable (HPS/PCS/HPSTL) | Value legend undocumented in the PDF |
-| Power Factor Reference Sign | 251 | U16 | 1 | 1 | | 0 | 1 | Writable (HPS/PCS/HPSTL) | Leading/lagging mapping undocumented |
+| Reactive Power Regulation Mode | 250 | U16 | 1 | 1 | | 1 | 3 | Writable (HPS/PCS/HPSTL) | Select. 1 = fixed PF, 2 = PF(P) curve (unsafe), 3 = fixed reactive |
+| Power Factor Reference Sign | 251 | U16 | 1 | 1 | | 0 | 1 | Writable (HPS/PCS/HPSTL) | Select. 0 = lagging (absorb), 1 = leading (supply) |
 | Power Factor Reference | 252 | U16 | 1 | 0.001 | | 0 | 1 | Writable (HPS/PCS/HPSTL) | step 0.001 |
-| Reactive Reference Sign | 263 | U16 | 1 | 1 | | 0 | 1 | Writable (HPS/PCS/HPSTL) | Sign mapping undocumented |
+| Reactive Reference Sign | 263 | U16 | 1 | 1 | | 0 | 1 | Writable (HPS/PCS/HPSTL) | Select. Same convention as 251 |
 | Reactive Reference | 264 | U16 | 1 | 1 | kVar | 0 | 300 | Writable (HPS/PCS/HPSTL) | |
 | Reactive Lock Enable | 267 | U16 | 1 | 1 | | | | Writable (HPS/PCS/HPSTL) | Pins Q, overrides the setpoint |
 | Grid Charge Cutoff SOC | 340 | U16 | 1 | 1 | % | 0 | 100 | Writable (All) | |
@@ -335,24 +335,154 @@ State: Unknown
 - 32 EMS Enable -> ON - can write, but disrupts peak shaving mode. Seems to throttle PV.
 # Reactive Power Control
 
-State: Untested on hardware
+State: Confirmed on an HPS in the field. The mode legend is corroborated by the
+PCS100/250/500/630 user manual, 2023-05-06.
 
-Registers 250-267 command reactive power. Nothing in that block takes effect until
-**Reactive Power Regulation Enable (11)** is on, and **Reactive Lock Enable (267)** must
-be off or it pins Q and overrides the setpoint.
+## Register block
 
-The protocol describes three regulation modes at register 250 but gives no legend for
-the values 1-3. Judging by which registers each consumes, they are a fixed power factor
-(251/252), a five-point power-factor-versus-power curve (253-262, not yet defined here),
-and a fixed reactive setpoint (263/264). **Read 250 back from a commissioned unit before
-writing it** — the mapping is a guess.
+| Register | Function | Notes |
+|---|---|---|
+| 11 | Reactive power regulation enable | Gates the entire block. Nothing below takes effect while this is 0. |
+| 250 | Mode selection | 1 = fixed power factor, 2 = power factor curve, 3 = fixed reactive power. |
+| 251 / 252 | Power factor sign / reference | Consumed by mode 1 only. |
+| 253-262 | Five-point cos-phi(P) curve | Consumed by mode 2. Not defined in this add-on. See the warning below. |
+| 263 / 264 | Reactive sign / reference | Consumed by mode 3 only. |
+| 267 | Reactive lock enable | Must be off. When on it pins Q and overrides the setpoint. |
+| 286 / 287 | Reactive flow Kp / Ki | Not defined in this add-on. The manufacturer's manual states these must not be changed without ATESS authorisation. |
 
-Similarly undocumented: whether the sign registers 251/263 encode leading as 0 or 1, and
-whether fixed-PF mode follows the unit's own active output or site load. The register
-names follow EN 50549 convention, which implies the unit's own output as a fraction of
-its rating, but register 249 (Meter Com Switch Enable, not defined here) means the
-firmware may have site-level load visibility. Confirm empirically by varying the unit's
-own output while site load is steady and watching Output Reactive Power (input 80).
+## Write ordering
 
-Feedback for a control loop comes from the input registers: Output Reactive Power (80),
-Load Reactive Power (50), Load Power Factor (52).
+**Register 250 must be written before register 264, and the mode must be 3 for the
+reactive reference to be accepted.**
+
+While register 250 holds any value other than 3, a write to 264 completes normally at the
+Modbus layer. Function code 0x06 returns a valid echo response, the add-on logs no error,
+and the value is discarded by the firmware. The readback of 264 stays at its previous
+value, which is the only signal that the write did not take.
+
+This was observed directly: three successive writes of 3 kVAr to register 264 with the
+mode at 1 produced no change in either the readback or in bypass reactive power. The same
+write after setting mode 3 took effect immediately.
+
+Consequences for any controller:
+
+1. Write 250 = 3 once at start-up, and verify by readback before writing 264.
+2. Treat a 264 readback that does not track the commanded value as a mode fault, not as a
+   communications fault. Re-assert the mode rather than retrying the setpoint.
+3. Re-assert the mode after any inverter restart, since persistence across a power cycle
+   has not been established.
+
+The same ordering is assumed to apply to registers 251/252 under mode 1, though this has
+not been tested.
+
+## Mode 2 is unsafe with undefined curve points
+
+Mode 2 interpolates the five-point power-factor-versus-power curve held in registers
+253-262. This add-on does not define those registers, so on a unit that has never had them
+configured they read zero, and a curve of all zeroes requests power factor 0 — that is,
+pure reactive output.
+
+Selecting mode 2 on an uncommissioned unit drove roughly 86 kVAr and 115-120 A per phase
+within two seconds. The unit recovered cleanly when the mode was set back to 1, but a
+sustained excursion of this size inside one demand interval is enough to set a monthly
+maximum-demand peak on its own.
+
+The mode is exposed in the entity list, labelled `Power Factor Curve (unsafe)`, rather
+than hidden. Hiding it would not prevent a direct register write, and the label carries
+the warning to the point of use. Do not select it unless 253-262 have been configured.
+
+The PCS manual states that only modes 1 and 3 take effect. That is not true of the HPS
+firmware tested here.
+
+## Sign convention
+
+For both 251 and 263: 0 = lagging (the unit absorbs reactive power), 1 = leading (the unit
+supplies it). Confirmed against measured bypass reactive power, and consistent with the
+manual.
+
+Supplying reactive power is the direction that cancels an inductive site load. Getting the
+sign wrong does not fault — it adds to the load instead of offsetting it, roughly doubling
+the reactive component at the meter.
+
+## Mode 1 follows the unit's own active output
+
+Fixed-PF mode regulates the power factor at the inverter's own terminals, not at the point
+of common coupling. A regression of output reactive power against the unit's own active
+output gives a slope of 0.374 against a theoretical 0.484 for the commanded PF of 0.90;
+the same regression against site load does not hold.
+
+This matters when the objective is site power factor. The unit's active output is smallest
+exactly when the load's reactive demand is largest — during a peak-shaving half-hour where
+the battery does not hold, active output approaches zero, and mode 1 delivers close to no
+correction at the half-hour that sets the demand charge. The nameplate limit of 0.8
+leading also caps mode 1 at Q <= 0.75 x P of the unit's own output.
+
+Mode 3 has no such coupling and is the correct choice for site-level correction.
+
+## Register 264 is an injection command, not a target
+
+Register 264 commands the reactive power the unit injects. It is not a setpoint for
+reactive power at the grid, and the unit does not regulate to it in closed loop.
+
+The evidence is a slope test below 60 kW of site load, where the site's reactive demand is
+still proportional to load. Site reactive power against load gave a slope of -0.476 at
+setpoint 0 and -0.606 at setpoint 15, a difference of -0.130. A grid-referenced regulator
+would have produced a slope near +0.6, since it would have cancelled the load-proportional
+term. Commanded and measured signs also disagree in a way a regulator would not permit.
+
+### Response is non-linear
+
+Measured steady-state injection against commanded value, at constant site load:
+
+| Commanded (kVAr) | Measured injection (kVAr) |
+|---|---|
+| 10 | ~23 |
+| 15 | ~23 |
+| 20 | ~31 |
+| 30 | ~56 |
+
+The response has both a floor and a gain well above unity, and it is not monotonic in a
+useful sense between 10 and 15. **Command values are not kVAr.** Any control law that
+assumes they are will over-inject: a command of 55, within the register's declared range
+of 0-300, would ask for roughly 100 kVAr of real injection.
+
+These four points come from one site, one unit and one load condition, and are steady-state
+only. They are sufficient to establish that the relationship is non-linear and to bound a
+safe command range; they are not sufficient to fit a transfer function. Characterising it
+properly needs a sweep across the full command range at several load levels, with the
+transient response logged.
+
+### Resolution floor
+
+The unit cannot hold a small reactive output. When the commanded injection nearly cancels
+the site's reactive demand, the measured grid reactive power oscillates about zero,
+changing sign roughly every four seconds. Only 6.4% of ten-day samples fall within
++/-9 kVAr of zero, and the distribution of grid reactive power at a fixed setpoint is
+unimodal at high load but bimodal at low load.
+
+A controller should therefore aim for a non-zero residual rather than for zero, and should
+not use a small deadband around zero as its steady-state target.
+
+## Feedback registers
+
+| Input register | Quantity | Scaling |
+|---|---|---|
+| 18 | Bypass apparent power | 0.1 kVA |
+| 19 | Bypass active power | 0.1 kW, positive = import |
+| 20 | Bypass reactive power | 0.1 kVAr |
+| 50 | Load reactive power | |
+| 52 | Load power factor | |
+| 80 | Output reactive power | |
+
+The bypass registers are the grid-side quantities and are the correct feedback for
+site-level correction. There is no grid power factor register; compute it as 19 / 18.
+
+Registers 22 and 23 report the unit's own output power factor, not the grid's, and read
+zero while the unit is in bypass. They must not be used as a site power factor measurement.
+
+## Bypass
+
+In Battery First with PV down and the battery idle, the load transfers to the bypass
+contactor and the inverter stands aside. A bypassed unit injects no reactive power at all.
+Correction is available only while the unit is inverting, so a controller should gate on
+inverter state and must not interpret an absent reactive response in bypass as a fault.

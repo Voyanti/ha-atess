@@ -11,5 +11,7 @@ schema.yaml
 .devcontainer/venv
 venv
 pdfs/
+pdf/
+.env
 *.ipynb
 .DS_Store

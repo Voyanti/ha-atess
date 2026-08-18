@@ -2741,36 +2741,54 @@ write_params: list[ParamWrapped] = [
         True,
     ),
     # --- Holding register 250: Reactive power regulation mode selection --- "HPS/PCS/HPSTL"
-    # PDF gives the range 1~3 but no legend for the values. Exposed as a plain
-    # number rather than a select so we do not encode a guessed mapping; read it
-    # back from a commissioned unit before writing.
+    # The protocol PDF gives the range 1~3 with no legend; the PCS user manual
+    # supplies one, and all three were confirmed live on an HPS.
+    # Mode 2 interpolates the five-point cos-phi(P) curve in registers 253-262.
+    # With those points left at zero it asks for power factor 0 and drove
+    # 86 kVAr within 2 s. It is labelled rather than hidden, so the operator can
+    # see why not to select it.
+    # Register 264 is only accepted while this register reads 3. Writing the
+    # setpoint first succeeds at the Modbus layer and is silently discarded.
     ParamWrapped(
         "Reactive Power Regulation Mode",
-        WriteParameter(
+        WriteSelectParameter(
             addr=250 + 1,
             count=1,
             dtype=DataType.U16,
             multiplier=1,
             register_type=RegisterTypes.HOLDING_REGISTER,
-            ha_entity_type=HAEntityType.NUMBER,
-            min=1,
-            max=3,
+            ha_entity_type=HAEntityType.SELECT,
+            options=[
+                "Fixed Power Factor",
+                "Power Factor Curve (unsafe)",
+                "Fixed Reactive Power",
+            ],
+            # Values are 1-based, so a dict rather than the index-based idiom
+            # used elsewhere in this file. Both templates fall through to the
+            # raw value so an undocumented 0 or 4 renders as a number instead
+            # of going unknown.
+            value_template='{% set m = {"1": "Fixed Power Factor", "2": "Power Factor Curve (unsafe)", "3": "Fixed Reactive Power"} %}{{ m.get(value | string, value) }}',
+            command_template='{% set m = {"Fixed Power Factor": 1, "Power Factor Curve (unsafe)": 2, "Fixed Reactive Power": 3} %}{{ m.get(value, value) }}',
         ),
         HPS_PCS_HPSTL,
         True,
     ),
     # --- Holding register 251: Power factor reference symbol --- "HPS/PCS/HPSTL"
+    # 0 = lagging, 1 = leading, per the PCS manual and confirmed against measured
+    # bypass reactive power. "Leading" means the unit supplies VArs, which is the
+    # direction that cancels an inductive site load.
     ParamWrapped(
         "Power Factor Reference Sign",
-        WriteParameter(
+        WriteSelectParameter(
             addr=251 + 1,
             count=1,
             dtype=DataType.U16,
             multiplier=1,
             register_type=RegisterTypes.HOLDING_REGISTER,
-            ha_entity_type=HAEntityType.NUMBER,
-            min=0,
-            max=1,
+            ha_entity_type=HAEntityType.SELECT,
+            options=["Lagging (absorb)", "Leading (supply)"],
+            value_template='{% set o = ["Lagging (absorb)", "Leading (supply)"] %}{% if value | int >= 0 and value | int < o | length %}{{ o[value | int] }}{% else %}{{ value }}{% endif %}',
+            command_template='{% set o = ["Lagging (absorb)", "Leading (supply)"] %}{% if value in o %}{{ o.index(value) }}{% else %}{{ value }}{% endif %}',
         ),
         HPS_PCS_HPSTL,
         True,
@@ -2793,17 +2811,19 @@ write_params: list[ParamWrapped] = [
         True,
     ),
     # --- Holding register 263: Reactive reference symbol --- "HPS/PCS/HPSTL"
+    # Same 0/1 convention as register 251.
     ParamWrapped(
         "Reactive Reference Sign",
-        WriteParameter(
+        WriteSelectParameter(
             addr=263 + 1,
             count=1,
             dtype=DataType.U16,
             multiplier=1,
             register_type=RegisterTypes.HOLDING_REGISTER,
-            ha_entity_type=HAEntityType.NUMBER,
-            min=0,
-            max=1,
+            ha_entity_type=HAEntityType.SELECT,
+            options=["Lagging (absorb)", "Leading (supply)"],
+            value_template='{% set o = ["Lagging (absorb)", "Leading (supply)"] %}{% if value | int >= 0 and value | int < o | length %}{{ o[value | int] }}{% else %}{{ value }}{% endif %}',
+            command_template='{% set o = ["Lagging (absorb)", "Leading (supply)"] %}{% if value in o %}{{ o.index(value) }}{% else %}{{ value }}{% endif %}',
         ),
         HPS_PCS_HPSTL,
         True,
