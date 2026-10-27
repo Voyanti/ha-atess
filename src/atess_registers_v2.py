@@ -422,6 +422,65 @@ read_params: list[ParamWrapped] = [
         None,
         False,
     ),
+    # --- Input register 167: BMS max/min temperature group numbers --- "all model"
+    # Locates which group the 171 max/min temperatures were measured in.
+    ParamWrapped(
+        "BMS Max Temp Group Nr",
+        {
+            "addr": 167 + 1,
+            "count": 1,
+            "dtype": DataType.U8H,
+            "multiplier": 1,
+            "unit": "",
+            "device_class": DeviceClass.ENUM,
+            "register_type": RegisterTypes.INPUT_REGISTER,
+        },
+        None,
+        False,
+    ),
+    ParamWrapped(
+        "BMS Min Temp Group Nr",
+        {
+            "addr": 167 + 1,
+            "count": 1,
+            "dtype": DataType.U8L,
+            "multiplier": 1,
+            "unit": "",
+            "device_class": DeviceClass.ENUM,
+            "register_type": RegisterTypes.INPUT_REGISTER,
+        },
+        None,
+        False,
+    ),
+    # --- Input register 170: BMS max/min temperature box numbers --- "all model"
+    ParamWrapped(
+        "BMS Max Temp Box Nr",
+        {
+            "addr": 170 + 1,
+            "count": 1,
+            "dtype": DataType.U8H,
+            "multiplier": 1,
+            "unit": "",
+            "device_class": DeviceClass.ENUM,
+            "register_type": RegisterTypes.INPUT_REGISTER,
+        },
+        None,
+        False,
+    ),
+    ParamWrapped(
+        "BMS Min Temp Box Nr",
+        {
+            "addr": 170 + 1,
+            "count": 1,
+            "dtype": DataType.U8L,
+            "multiplier": 1,
+            "unit": "",
+            "device_class": DeviceClass.ENUM,
+            "register_type": RegisterTypes.INPUT_REGISTER,
+        },
+        None,
+        False,
+    ),
     # --- Input register 174: Maximum unit voltage --- "all model"
     ParamWrapped(
         "BMS Max. Cell Voltage",
