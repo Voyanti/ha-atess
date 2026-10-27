@@ -1,11 +1,13 @@
 # Changelog
 
+## 0.5.9
+### Changed
+- BMS Max./Min. Temperature (input register 171) and BMS Max./Min. Cell Voltage (174, 175) now have the `measurement` state class, so Home Assistant keeps long-term statistics for them beyond recorder retention.
+
 ## 0.5.8
 
 ### Added
 - BMS max/min temperature locators from input registers 167 and 170: `BMS Max Temp Group Nr` / `BMS Min Temp Group Nr` (167 high/low byte) and `BMS Max Temp Box Nr` / `BMS Min Temp Box Nr` (170 high/low byte). These say *where* the existing `BMS Max./Min. Temperature` (171) readings were measured, so a hot pack can be identified rather than only detected. "all model" per the protocol PDF.
-### Changed
-- BMS Max./Min. Temperature (input register 171) and BMS Max./Min. Cell Voltage (174, 175) now have the `measurement` state class, so Home Assistant keeps long-term statistics for them beyond recorder retention.
 
 ## 0.5.6
 
